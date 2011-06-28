@@ -118,7 +118,7 @@ class SCBase(object):
   def vulns(self):
     return self.send('vuln', 'init')
   
-  def vuln_get_ip(self, ip, repositories):
+  def vuln_get_ip(self, ip, repositories=[]):
     repos = []
     for item in repositories:
       repos.append({'id': item})
