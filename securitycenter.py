@@ -8,8 +8,10 @@ class SCBase(object):
   _conn   = httplib.HTTPSConnection
   _cookie = None
   _raw    = True
+  _debug  = False
   
-  def __init__(self, username, password, host, ssl=True, raw=True):
+  def __init__(self, username, password, host, 
+               port=443, ssl=True, raw=True, debug=False):
     '''
     SC4 API Initialization method.
     
@@ -23,10 +25,12 @@ class SCBase(object):
     '''
     self._host = host
     self._raw = raw
+    self._debug = debug
+    self._port = port
     if ssl:
-      self._conn = httplib.HTTPConnection
-    else:
       self._conn = httplib.HTTPSConnection
+    else:
+      self._conn = httplib.HTTPConnection
     self._login(username, password)
   
   def _login(self, username, password):
@@ -40,32 +44,47 @@ class SCBase(object):
     '''
     INTERNAL METHOD: Root method for talking to security center.
     '''
-    data = {
+    jdata = {
       'request_id': 1,
       'module': module,
       'action': action,
       'input': json.dumps(data)
     }
-    if self.token is not None:
-      data['token'] = self._token
-    if self.cookie is not None:
+    
+    if self._token is not None:
+      jdata['token'] = self._token
+    if self._cookie is not None:
       headers['Cookie'] = self._cookie
+    payload = urlencode(jdata)
     headers['Content-Type'] = 'application/x-www-form-urlencoded'
     headers['Content-Length'] = len(payload)
-    http = self._conn(self._host)
+    if self._debug:
+        print '\nREQUEST'
+        print 'Headers\n-------'
+        for item in headers:
+            print '%15s: %s' % (item, headers[item])
+        print '\nData\n----\n%s' % payload
+    http = self._conn(self._host, self._port)
     http.request('POST', url, body=payload, headers=headers)
     resp = http.getresponse()
+    respdata = resp.read()
+    if self._debug:
+        print '\nRESPONSE'
+        print 'Status: %s' % resp.status
+        print 'Headers\n-------'
+        for item in resp.getheaders():
+            print '%15s: %s' % (item[0], item[1])
+        print '\nData\n----\n%s' % respdata
     if resp.getheader('set-cookie') is not None:
       self._cookie = resp.getheader('set-cookie')
     if json_encode:
-      return json.loads(resp.read())
+      return json.loads(respdata)
     else:
-      return resp.read()
+      return respdata
   
   def logout(self):
     self._request('auth','logout', data={'token': self._token})
     self._token = None
-    self.user = None
 
   def send(self, module, action, data={}):
     return self._request(module, action, data=data)
@@ -80,7 +99,7 @@ class SCBase(object):
     return self.send('asset', 'edit',data=data)
   
   def asset_get_ips(self, asset_id):
-    return self.send('asset', 'getIPs', data={'id'=asset_id})
+    return self.send('asset', 'getIPs', data={'id': asset_id})
   
   def credentials(self):
     return self.send('credential', 'init')
