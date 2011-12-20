@@ -1,0 +1,103 @@
+
+# All Security Center-specific configuration data goes here.
+[Security Center]
+
+# The Username and password for the user that will be accessing the Security
+# Center API is required here.
+username = 
+password = 
+
+# The hostname or IP address of the Security Center environment
+host = 127.0.0.1
+
+# If Security Center is running on a non-standard port, then make sure to
+# change this to match what Security Center is listening on.
+port = 443
+
+# If debug is turned on, then the CSV generator will output information about
+# where it is at in the generation process.  Keep in mind that this can be
+# spammy.
+debug = yes
+
+# This is the number of vulnerabilities that the script will try to pull from
+# the API at one time.  Larger request sizes put more load on the Security
+# Center instance per request, however may take less time.  Smaller request
+# sizes will take more time as more requests are needed to build the dataset,
+# however should be less of a load on Security Center as a whole.
+request_size = 10000
+
+# All Email/SMTP-Specific information goes here.
+[SMTP]
+
+# hostname or IP address of the SMTP Server.
+host = 127.0.0.1
+
+# Email Address that the email will be coming from.  It is recommended to
+# choose an email address that is non-routable in order to stop accidental
+# replies to the email.
+from_addr = csv_generator@localhost
+
+# The Email Subject
+subject = Audit Report
+
+# A short description of the data that is attached to the email.
+body = Attached is the audit report requested.
+
+# Any Sections with "ASSET: " in the beginning will be parsed as a asset
+# declaration.  Any information after "ASSET: " is largly ignored and only used
+# to uniquely identify the section.
+[ASSET: Test Asset]
+
+# Name of the Asset List in Security Center that will be parsed.  Please keep
+# in mind that the asset list must be uniquely named.  If there are 2 asset
+# lists with the same name, unexpected behavior may result.
+name = ExampleAsset
+
+# Email address(s) that the emailed report will be sent out to.  If multiple
+# email addresses are to be assigned to the message, then comma-deliniate the
+# addresses, however DO NOT PUT SPACES after the commas.
+# Examples:
+#  email = steve@localhost
+#  email = steve@localhost,bob@localhost
+email = steve@localhost
+
+# Are we even going to be sending out an email for this Asset List?  Disabaling
+# this is useful for testing when 
+gen_email = yes
+
+# Lastly you need to specify the fields that will be in the report and the
+# order that they will be in.  Please note that these are CASE SENSITIVE.
+# 
+# AVAILABLE FIELDS:
+#   ip                      IP Address that the plugin Fired on
+#   netbiosName             NetBIOS name of the host the plugin fired on.
+#   dnsName                 DNS Name of the host the plugin fired on.
+#   macAddress              Hardware Address of the host the plugin fired on.
+#   pluginID                The Plugin ID
+#   pluginName              Name of the Plugin
+#   severity                Severity of the plugin fire.
+#   port                    Port the plugin fired on.
+#   pluginText              The raw plugin text data.
+#   pluginSynopsis          Synopsis data from pluginText.
+#   pluginDescription       Description data from pluginText.
+#   pluginSeeAlso           See Also data from pluginText.
+#   pluginSolution          Solution data from pluginText.
+#   pluginRiskFactor        Risk Factor information from pluginText.
+#   pluginCVE               CVE Numbers that were specified in pluginText.
+#   pluginBID               BID Numbers that were specified in pluginText.
+#   pluginCVSS              CVSS Base Score that is in pluginText.
+#   pluginOtherRefs         Other References data from pluginText.
+#	lastSeen				Number of days since last seen.
+#	firstSeen				Number of days since discovered.
+#	lastSeenDate			Date last seen.
+#	firstSeenDate			Date first Discovered.
+fields = ip,severity,pluginName,pluginDescription,pluginSolution,pluginCVE
+
+# You can build as many ASSET reports as you need, simply add more definitions
+# in here as needed.
+
+#[ASSET: Test Lab 1]
+#name = lab127
+#email = bob@localhost
+#gen_email = yes
+#fields = ip,dnsName,pluginName,severity,pluginDescription,pluginSolution,pluginCVE
