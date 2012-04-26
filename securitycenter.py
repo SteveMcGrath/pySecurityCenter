@@ -20,8 +20,8 @@ class SecurityCenter(object):
         4.4: '/request.php',
     }
 
-    def __init__(self, host, user=None, passwd=None, login=True, 
-                 version=4.4, port=443, debug=False):
+    def __init__(self, host, user, passwd, login=True, version=4.4, 
+                 port=443, debug=False):
         self._host = host
         self._debug = debug
         self._port = port
