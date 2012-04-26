@@ -146,7 +146,7 @@ class SecurityCenter(object):
         # Check to see if filters was set.  If it wasnt, then lets go ahead and
         # initialize it as an empty dictionary.
         if filters == None:
-            filters = {}
+            filters = []
 
         # Here is where we expand the filterset dictionary to something that the
         # API can actually understand.
