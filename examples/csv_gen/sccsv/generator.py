@@ -45,7 +45,8 @@ def gen_csv(sc, filename, field_list, source, filters):
 
     # First thing we need to do is initialize the csvfile and build the header
     # for the file.
-    csvfile = csv.writer(open(filename, 'wb'))
+    datafile = open(filename, 'wb')
+    csvfile = csv.writer(datafile)
     header = []
     for field in field_list:
         header.append(fields.fields[field]['name'])
@@ -59,4 +60,7 @@ def gen_csv(sc, filename, field_list, source, filters):
     fparams = {'fobj': csvfile, 'flist': field_list}
     sc.query('vulndetails', source=source, 
              func=writer, func_params=fparams, **filters)
-    debug.write('\n') 
+    debug.write('\n')
+
+    # Lastly we need to close the datafile.
+    datafile.close()
