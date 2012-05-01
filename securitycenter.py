@@ -1,4 +1,6 @@
 import httplib
+from zipfile import ZipFile
+from StringIO import StringIO
 from urllib import urlencode
 
 # Lets try to import the json module and fall back to importing simplejson if
@@ -7,6 +9,14 @@ try:
     import json
 except ImportError:
     import simplejson as json
+
+
+class APIError(Exception):
+    def __init__(self, code, msg):
+        self.code = code
+        self.msg = msg
+    def __str__(self):
+        return repr('[%s]: %s' % (self.code, self.msg))
 
 
 class SecurityCenter(object):
@@ -100,13 +110,17 @@ class SecurityCenter(object):
         # First we query the API and then check to see if an error was thrown.
         # If there was an error, simply respond back with False.
         data = self._request(module, action, data, headers, dejson)
-        if data['error_code']:
-            return False
-        return data['response']
+        if dejson:
+            if data['error_code']:
+                raise APIError(data['error_code'], data['error_msg'])
+            return data['response']
+        else:
+            return data
 
 
     def query(self, tool, filters=None, source='cumulative', sort=None,
-              direction='desc', func=None, req_size=1000, **filterset):
+              direction='desc', func=None, func_params=None, req_size=1000, 
+              **filterset):
         '''query tool, [filters], [req_size], [list, of, filters]
         This function attempts to make it a lot easier to run vuln and lce
         searches within the Security Center API.  This function will query the
@@ -147,6 +161,9 @@ class SecurityCenter(object):
         # initialize it as an empty dictionary.
         if filters == None:
             filters = []
+
+        if func_params == None:
+            func_params = {}
 
         # Here is where we expand the filterset dictionary to something that the
         # API can actually understand.
@@ -198,7 +215,7 @@ class SecurityCenter(object):
             # is defined, we will pass the data for this query on to that
             # function for parsing.
             if func is not None and hasattr(func, '__call__'):
-                func(items)
+                func(items, **func_params)
             else:
                 for item in items:
                     data.append(item)
@@ -231,4 +248,103 @@ class SecurityCenter(object):
         self._request('auth','logout', data={'token': self._token})
         self._token = None
 
-    
+
+    def assets(self):
+        '''assets
+        Returns the needed information to parse through all of the asset
+        lists assigned to this user.
+        '''
+        return self.raw_query('asset', 'init')
+
+
+    def asset_update(self, asset_id, name=None, description=None,
+                     visibility=None, group=None, users=None, 
+                     ips=None, rules=None):
+        '''asset_update
+        '''
+
+        payload = None
+        # First thing we need to do is query the api for the current asset
+        # information and populate the payload with it.
+        for asset in self.assets()['assets']:
+            if asset['id'] == asset_id:
+                payload = {
+                    'id': asset['id'],
+                    'type': asset['type'],
+                    'name': asset['name'],
+                    'description': asset['description'],
+                    'visibility': asset['visivility'],
+                    'group': asset['group'],
+                    'users': asset['users']
+                }
+                if asset['type'] == 'static':
+                    payload['rules'] = asset['rules']
+                if asset['type'] == 'static':
+                    payload['definedIPs'] = asset['definedIPs']
+
+        # New we need to check to see if we actually got to pre-load the
+        # payload.  If we didnt, then there isn an existing Asset list and we
+        # should error out.
+        if payload == None:
+            raise APIError(1, 'asset_id %s does not exist' % asset_id)
+
+        # And now we will override any of the values that have actually been
+        # specified.
+        if name is not None and isinstance(str, name):
+            payload['name'] = name
+        if description is not None and isinstance(str, description):
+            payload['description'] = description
+        if visibility is not None and isinstance(str, visibility):
+            payload['visibility'] = visibility
+        if group is not None and isinstance(str, group):
+            payload['group'] = group
+        if users is not None and isinstance(list, users):
+            ulist = []
+            for user in users:
+                ulist.append({'id': int(user)})
+            payload['users'] = ulist
+        if payload['type'] == 'dynamic' and rules is not None\
+                                        and isinstance(list, rules):
+            payload['rules'] = rules
+        if payload['type'] == 'static' and ips is not None\
+                                       and isinstance(list, ips):
+            payload['definedIPs'] = ','.join(ips)
+
+        # And now that we have everything defined, we can go ahead and send
+        # the api request payload and return the response.
+        return self.raw_query('asset', 'edit', data=payload)
+
+
+    def asset_ips(self, asset_id):
+        '''asset_ips asset_id
+        Returns the IPs associated with the asset ID defined.
+        '''
+        return self.raw_query('asset', 'getIPs', data={'id': asset_id})
+
+
+    def scan_list(self, start_time=None, end_time=None):
+        '''scan_list
+        Returns a list of scans stored in Security Center
+        '''
+        if start_time == None or end_time == None:
+            data = self.raw_query('scanResult', 'init')
+        else:
+            payload = {
+                'startTime': int(start_time),
+                'endTime': int(end_time),
+            }
+            data = self.raw_query('scanResult', 'getRange', data=payload)
+        return data['scanResults']
+
+
+    def scan_download(self, scan_id, format='nessus'):
+        '''scan_download scan_id [format]
+        Will download an individual scan and return a StringIO object with the
+        results.
+        '''
+        payload = {
+            'downloadType': format,
+            'scanResultID': scan_id,
+        }
+        data = self.raw_query('scanResult', 'download', data=payload, dejson=False)
+        return data
