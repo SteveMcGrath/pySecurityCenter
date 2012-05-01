@@ -1,14 +1,8 @@
 import httplib
+import json
 from zipfile import ZipFile
 from StringIO import StringIO
 from urllib import urlencode
-
-# Lets try to import the json module and fall back to importing simplejson if
-# it fails.
-try:
-    import json
-except ImportError:
-    import simplejson as json
 
 
 class APIError(Exception):
@@ -260,7 +254,13 @@ class SecurityCenter(object):
     def asset_update(self, asset_id, name=None, description=None,
                      visibility=None, group=None, users=None, 
                      ips=None, rules=None):
-        '''asset_update
+        '''asset_update asset_id, [name], [description], [visibility], [group],
+                        [users], [ips], [rules]
+        The Asset Update function will update the Asset ID defined with the
+        values that have been specified.  Only those specified will be updated
+        as a query is first made to pre-populate the update with all of the
+        existing information, then override that information with the new data
+        presented by the caller.
         '''
 
         payload = None
@@ -341,6 +341,8 @@ class SecurityCenter(object):
         '''scan_download scan_id [format]
         Will download an individual scan and return a StringIO object with the
         results.
+
+        INCOMPLETE & UNDER ACTIVE DEV
         '''
         payload = {
             'downloadType': format,
