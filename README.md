@@ -7,6 +7,15 @@ queries into the API as painless and managable as possible.
 __NOTE:__ This rewrite is under active development.  The current functionality
 		  is not feature-complete.
 
+### How to Install
+
+To install pySecurityCenter, you can use either pip or easy_install to install
+from the cheeseshop:
+
+`pip install pysecuritycenter`
+
+`easy_install pysecuritycenter`
+
 ### How to use
 
 The new interface is designed to be a lot easier to use than the previous one.
