@@ -267,17 +267,17 @@ class SecurityCenter(object):
         # First thing we need to do is query the api for the current asset
         # information and populate the payload with it.
         for asset in self.assets()['assets']:
-            if asset['id'] == asset_id:
+            if asset['id'] == str(asset_id):
                 payload = {
                     'id': asset['id'],
                     'type': asset['type'],
                     'name': asset['name'],
                     'description': asset['description'],
-                    'visibility': asset['visivility'],
+                    'visibility': asset['visibility'],
                     'group': asset['group'],
                     'users': asset['users']
                 }
-                if asset['type'] == 'static':
+                if asset['type'] == 'dynamic':
                     payload['rules'] = asset['rules']
                 if asset['type'] == 'static':
                     payload['definedIPs'] = asset['definedIPs']
@@ -290,24 +290,24 @@ class SecurityCenter(object):
 
         # And now we will override any of the values that have actually been
         # specified.
-        if name is not None and isinstance(str, name):
+        if name is not None and isinstance(name, str):
             payload['name'] = name
-        if description is not None and isinstance(str, description):
+        if description is not None and isinstance(description, str):
             payload['description'] = description
-        if visibility is not None and isinstance(str, visibility):
+        if visibility is not None and isinstance(visibility, str):
             payload['visibility'] = visibility
-        if group is not None and isinstance(str, group):
+        if group is not None and isinstance(group, str):
             payload['group'] = group
-        if users is not None and isinstance(list, users):
+        if users is not None and isinstance(users, list):
             ulist = []
             for user in users:
                 ulist.append({'id': int(user)})
             payload['users'] = ulist
         if payload['type'] == 'dynamic' and rules is not None\
-                                        and isinstance(list, rules):
+                                        and isinstance(rules, list):
             payload['rules'] = rules
         if payload['type'] == 'static' and ips is not None\
-                                       and isinstance(list, ips):
+                                       and isinstance(ips, list):
             payload['definedIPs'] = ','.join(ips)
 
         # And now that we have everything defined, we can go ahead and send
