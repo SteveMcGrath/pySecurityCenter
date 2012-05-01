@@ -1,3 +1,5 @@
 examples/csv_gen/config.ini
 *.pyc
 *.zip
+dist/*
+dist
