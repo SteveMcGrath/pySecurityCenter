@@ -1,5 +1,6 @@
 import httplib
 import json
+import random
 from zipfile import ZipFile
 from StringIO import StringIO
 from urllib import urlencode
@@ -47,13 +48,12 @@ class SecurityCenter(object):
         # This is the post request that will be sent to the API.  We will expand
         # this as we go along, however we should declare the basics first.
         jdata = {
-            'request_id': 1,    # I honestly dont know what this does, however
-                                # I have only ever seen it set to 1.  It's never
-                                # failed me like this though.
+            'request_id': random.randint(10000,20000),
             'module': module,
             'action': action,
             'input': json.dumps(data)
         }
+        print jdata['request_id']
 
         # If the token is set, then add it into the dictionary so that we can
         # perform this action as the authenticated user.
@@ -350,3 +350,29 @@ class SecurityCenter(object):
         }
         data = self.raw_query('scanResult', 'download', data=payload, dejson=False)
         return data
+
+
+    def credentials(self):
+        '''credentials
+        Returns the list of credentials that the user has access to.
+        '''
+        return self.raw_query('credentials', 'init')
+
+
+    def credential_update(self, cred_id):
+        pass
+
+
+    def plugins(self):
+        pass
+
+
+    def plugin_details(self, plugin_id):
+        '''plugin_details plugin_id
+        Returns the details for a specific plugin id
+        '''
+        return self.raw_query('plugin', 'getDetails', 
+                              data={'pluginID': plugin_id})
+
+
+
