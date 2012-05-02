@@ -156,9 +156,6 @@ class SecurityCenter(object):
         if filters == None:
             filters = []
 
-        if func_params == None:
-            func_params = {}
-
         # Here is where we expand the filterset dictionary to something that the
         # API can actually understand.
         for item in filterset:
@@ -209,7 +206,10 @@ class SecurityCenter(object):
             # is defined, we will pass the data for this query on to that
             # function for parsing.
             if func is not None and hasattr(func, '__call__'):
-                func(items, **func_params)
+                if func_params is not None:
+                    func(items, **func_params)
+                else:
+                    func(items)
             else:
                 for item in items:
                     data.append(item)
