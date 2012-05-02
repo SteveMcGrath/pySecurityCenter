@@ -137,7 +137,7 @@ dataset is the same.
 ### Options
 
 * __tool__ [string]<br />
-  The query tool to be brun on the API.  This can be any of the query tools from
+  The query tool to be run on the API.  This can be any of the query tools from
   vuln::query or event::query depending on the data source you are using.  These
   tools are the same as when running a search query in the main WebUI.  Refer to
   the API documentation for a list of available tools.
