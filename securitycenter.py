@@ -53,7 +53,6 @@ class SecurityCenter(object):
             'action': action,
             'input': json.dumps(data)
         }
-        print jdata['request_id']
 
         # If the token is set, then add it into the dictionary so that we can
         # perform this action as the authenticated user.
@@ -286,7 +285,7 @@ class SecurityCenter(object):
         # payload.  If we didnt, then there isn an existing Asset list and we
         # should error out.
         if payload == None:
-            raise APIError(1, 'asset_id %s does not exist' % asset_id)
+            raise APIError(13, 'asset_id %s does not exist' % asset_id)
 
         # And now we will override any of the values that have actually been
         # specified.
@@ -363,8 +362,86 @@ class SecurityCenter(object):
         pass
 
 
-    def plugins(self):
-        pass
+    def plugins(self, plugin_type='active', sort='id', direction='asc',
+                size=1000, all=True, loops=0):
+        '''plugins
+        Returns a list of of the plugins and their associated families.  For
+        simplicity purposes, the plugin family names will be injected into the
+        plugin data so that only 1 list is returned back with all of the
+        information.
+        '''
+        plugins = []
+
+        # First we need to generate the basic payload that we will be augmenting
+        # to build the 
+        payload = {
+            'size': size,
+            'offset': 0,
+            'type': plugin_type,
+            'sortField': sort,
+            'sortDirection': direction,
+        }
+
+        # And now we run through the loop needed to pull all of the data.  This
+        # may take some time even though we are pulling large data sets.  At the
+        # time of development of this module, there were over 55k active plugins
+        # and over 7k passive ones.
+        while all or loops > 0:
+            # First things first, we need to query the data.
+            data = self.raw_query('plugin', 'init', data=payload)
+
+            # Next we convery the family dictionary list into a flat dictionary.
+            fams = {}
+            for famitem in data['families']:
+                fams[famitem['id']] = famitem['name']
+
+            # Then we parse thtrough the data set, adding in the family name
+            # into the plugin definition before adding it into the plugins list.
+            for plugin in data['plugins']:
+                plugin['familyName'] = fams[plugin['familyID']]
+                plugins.append(plugin)
+
+            # Next its time to increment the offset so that we get a new data
+            # set.  We will also check here to see if the length really is 1000
+            # items.  If it isnt, then we have reached the end of the dataset
+            # and might as well set the continue variable to False.
+            if len(data['plugins']) < size:
+                all = False
+                loops = 0
+            else:
+                loops -= 1
+                payload['offset'] += len(data['plugins'])
+        return plugins
+
+
+    def plugin_counts(self):
+        '''plugin_counts
+        Returns the plugin counts as dictionary with the last updated info if
+        its available.
+        '''
+        ret = {
+            'total': 0,
+        }
+
+        # As ususal, we need data before we can actually do anything ;)
+        data = self.raw_query('plugin', 'init')
+
+        # For backwards compatability purposes, we will be handling this a bit
+        # differently than I would like.  We are going to check to see if each
+        # value exists and override the default value of 0.  The only value that
+        # I know existed in bost 4.2 and 4.4 is pluginCount, the rest aren't
+        # listed in the API docs, however return back from my experimentation.
+        ret['total'] = data['pluginCount']
+
+        if 'lastUpdates' in data:
+            for item in ['active', 'passive', 'compliance', 'custom']:
+                itemdata = data['lastUpdates'][item]
+                if item in data:
+                    itemdata['count'] = data[item]
+                else:
+                    itemdata['count'] = 0
+                ret[item] = itemdata
+        return ret
 
 
     def plugin_details(self, plugin_id):
@@ -375,4 +452,62 @@ class SecurityCenter(object):
                               data={'pluginID': plugin_id})
 
 
+    def repositories(self):
+        '''repositories
+        Returns with the repository information. license information, and
+        organizational information.
+        '''
+        return self.raw_query('repository', 'init')
 
+
+    def roles(self):
+        '''roles
+        Returns the user roles and associated metadata.
+        '''
+        self.raw_query('role', 'init')
+
+
+    def system(self):
+        '''system
+        Returns system information about the Security Center instance.
+        '''
+        return self.raw_query('system', 'init')
+
+
+    def tickets(self):
+        '''tickets
+        Returns tickets and their asociated data
+        '''
+        return self.raw_query('ticket', 'init')
+
+    def users(self):
+        '''users
+        Returns all user information from the Security Center instance.
+        '''
+        return self.raw_query('user', 'init')
+
+
+    def vulns(self):
+        '''vulns
+        Returns all available vulnerabilities from the Security Center instance.
+        '''
+        return self.raw_query('vuln', 'init')
+
+
+    def ip_info(self, ip, repository_ids=[]):
+        '''ip_info
+        Returns information about the IP specified in the repository ids
+        defined.
+        '''
+        repos = []
+        for rid in repository_ids:
+            repos.append({'id': rid})
+        return self.raw_query('vuln', 'getIP', data={
+            'ip': ip, 'repositories': repos})
+
+
+    def zones(self):
+        '''zones
+        Returns all available scan zones and scanner status information.
+        '''
+        return self.raw_query('zone', 'init')
