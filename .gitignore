@@ -3,3 +3,5 @@ examples/csv_gen/config.ini
 *.zip
 dist/*
 dist
+*.csv
+*.conf
