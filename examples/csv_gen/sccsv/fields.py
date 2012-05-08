@@ -79,6 +79,7 @@ fields = {
             re.compile(r'CVSS Base Score : (.*?)\\n'),
             re.compile(r'<cvss_base_score>(.*?)</cvss_base_score>'),
         ],
+    },
     'pluginOutput': {
         'name': 'Plugin Output',
         'rex': [
