@@ -79,13 +79,6 @@ fields = {
             re.compile(r'CVSS Base Score : (.*?)\\n'),
             re.compile(r'<cvss_base_score>(.*?)</cvss_base_score>'),
         ],
-    },
-    'exploitFramework': {
-        'name': 'Exploit Framework',
-        'rex': [
-            re.compile(r'<exploit_framework_(\w*?)>'),
-        ],
-    },
     'pluginOutput': {
         'name': 'Plugin Output',
         'rex': [
