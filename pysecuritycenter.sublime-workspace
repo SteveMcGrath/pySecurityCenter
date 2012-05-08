@@ -1,0 +1,240 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"default",
+				"default_tmpl"
+			],
+			[
+				"ar",
+				"argv"
+			],
+			[
+				"rep",
+				"repository"
+			],
+			[
+				"last",
+				"lastUpdates"
+			],
+			[
+				"dir",
+				"direction"
+			],
+			[
+				"direction",
+				"sortDirection"
+			],
+			[
+				"d",
+				"description"
+			],
+			[
+				"API",
+				"APIError"
+			],
+			[
+				"msg",
+				"msg"
+			],
+			[
+				"get",
+				"getboolean"
+			],
+			[
+				"fiel",
+				"field"
+			],
+			[
+				"lsd",
+				"lsd"
+			],
+			[
+				"csv",
+				"csvfile"
+			],
+			[
+				"func",
+				"func_params"
+			],
+			[
+				"vulns",
+				"vulns"
+			],
+			[
+				"security",
+				"securitycenter"
+			],
+			[
+				"req",
+				"req_size"
+			],
+			[
+				"_",
+				"_token"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 47.0,
+		"selected_items":
+		[
+			[
+				"Snippet: ",
+				"Snippet: Lorem ipsum"
+			]
+		],
+		"width": 575.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/setup.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/README.md",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/lce_assets/lce_assets.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/csv_gen/sccsv/generator.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/.gitignore",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/csv_gen/csv_gen.conf",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/showme_assets/showme.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/showme_assets/README.md",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/csv_gen/runcsv.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/csv_gen/sccsv/debug.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/csv_gen/README.md",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/csv_gen/sccsv/mail.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/csv_gen/config.ini.sample",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/csv_gen/sccsv/__init__.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/example.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/csv_gen/sccsv/fields.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/csv_gen/csv_gen.py",
+		"/Users/steve/Dropbox/Repositories/cyberattacktool/cyberattack.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/csv_gen/fields.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/securitycenter/__init__.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/examples/lce_assets/securitycenter.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/securitycenter.py",
+		"/Users/steve/Dropbox/Repositories/pySecurityCenter/securitycenter/api.py",
+		"/Users/steve/Dropbox/Repositories/cyberattacktool/securitycenter.py",
+		"/Users/steve/Dropbox/Repositories/tenable-docs/walkthroughs/install_security_center.md",
+		"/Users/steve/Library/Application Support/Sublime Text 2/Packages/User/Markdown.sublime-settings",
+		"/Users/steve/Dropbox/Repositories/sc_cloner/build",
+		"/Users/steve/Library/Application Support/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/Users/steve/Library/Application Support/Sublime Text 2/Packages/User/JSON.sublime-settings",
+		"/Users/steve/Library/Application Support/Sublime Text 2/Packages/User/Python.sublime-settings",
+		"/Users/steve/Dropbox/Repositories/bukget/startup.sh",
+		"/Users/steve/Dropbox/Repositories/bukget/bukget.ini"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 191.0,
+	"status_bar_visible": true
+}
