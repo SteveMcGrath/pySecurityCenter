@@ -24,9 +24,12 @@ def writer(vulns, **params):
         # regexes in the fields dictionary.
         for field in flist:
             if field not in vuln and 'rex' in fields.fields[field]:
-                res = fields.fields[field]['rex'].findall(vuln['pluginText'])
+                for rex in fields.fields[field]['rex']:
+                    res = rex.findall(vuln['pluginText'])
+                    if len(res) > 0:
+                        break
                 if len(res) > 0:
-                    vdata = res[0]
+                    vdata = ', '.join(res)
                 else:
                     vdata = ''
                 vuln[field] = vdata
@@ -35,7 +38,7 @@ def writer(vulns, **params):
         # then write the row to disk.
         row = []
         for field in flist:
-            row.append(vuln[field].replace('\\n', '\n'))
+            row.append(vuln[field].replace('\\n', '\n').replace('<br/>', '\n'))
         csvfile.writerow(row)
 
 
