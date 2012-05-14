@@ -41,7 +41,7 @@ __Installation:__
     data generated is staged in this location and without this, the script
     will fail.
     
-3.  Copy the config.ini.sample to config.ini and adjust to suit your
+3.  Copy the csv_gen.conf.sample to csv_gen.conf and adjust to suit your
     needs.  For testing it is recommended to turn on debugging and run the 
     script manually until the desired output has been generated.  When 
     ready to run in a production-setting, make sure to turn off the 
