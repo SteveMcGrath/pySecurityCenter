@@ -1,5 +1,7 @@
 import httplib
 import json
+import datetime
+import time
 import random
 from zipfile import ZipFile
 from StringIO import StringIO
@@ -20,13 +22,21 @@ class SecurityCenter(object):
     _conn = httplib.HTTPSConnection
     _cookie = None
     _debug = False
+    _xrefs = ['ICS_ALERT', 'zone_h', 'OSVDB', 'USN', 'NessusID', 'GLSA', 
+              'OpenPKG_SA', 'CONNECTIVA', 'AUSCERT', 'MDKSA', 'CERT_FI',
+              'MSFT', 'CVE', 'SuSE', 'CERTA', 'BID', 'CISCO_BUG_ID',
+              'CISCO_SA', 'RHSA', 'Secunia', 'EDB_ID', 'MSVR', 'TLSA',
+              'IAVA', 'CLSA', 'NSFOCUS', 'OWASP', 'CWE', 'DSA', 'HPSB',
+              'APPLE_SA', 'CERT_VU', 'CERT', 'TSLSA', 'ICSA', 'VMSA',
+              'SSA',
+              ]
     _ver = {
         4.2: '/sc4/request.php',
         4.4: '/request.php',
     }
 
     def __init__(self, host, user, passwd, login=True, version=4.4, 
-                 port=443, debug=False):
+                 port=443, debug=False, populate=False):
         self._host = host
         self._debug = debug
         self._port = port
@@ -42,6 +52,23 @@ class SecurityCenter(object):
 
         if login:
             self.login(user, passwd)
+        if populate:
+            self._build_xrefs()
+
+
+    def _build_xrefs(self):
+        # Internal function to populate the xrefs list with the external
+        # references to be used in searching plugins and potentially
+        # other functions as well.
+        xrefs = set()
+
+        plugins = self.plugins()
+        for plugin in plugins:
+            for xref in plugin['xrefs'].split(', '):
+                xrf = xref.replace('-', '_').split(':')[0]
+                if xrf is not '':
+                    xrefs.add(xrf)
+        self._xrefs = list(xrefs)
 
 
     def _request(self, module, action, data={}, headers={}, dejson=True):
@@ -321,36 +348,6 @@ class SecurityCenter(object):
         return self.raw_query('asset', 'getIPs', data={'id': asset_id})
 
 
-    def scan_list(self, start_time=None, end_time=None):
-        '''scan_list
-        Returns a list of scans stored in Security Center
-        '''
-        if start_time == None or end_time == None:
-            data = self.raw_query('scanResult', 'init')
-        else:
-            payload = {
-                'startTime': int(start_time),
-                'endTime': int(end_time),
-            }
-            data = self.raw_query('scanResult', 'getRange', data=payload)
-        return data['scanResults']
-
-
-    def scan_download(self, scan_id, format='nessus'):
-        '''scan_download scan_id [format]
-        Will download an individual scan and return a StringIO object with the
-        results.
-
-        INCOMPLETE & UNDER ACTIVE DEV
-        '''
-        payload = {
-            'downloadType': format,
-            'scanResultID': scan_id,
-        }
-        data = self.raw_query('scanResult', 'download', data=payload, dejson=False)
-        return data
-
-
     def credentials(self):
         '''credentials
         Returns the list of credentials that the user has access to.
@@ -358,12 +355,22 @@ class SecurityCenter(object):
         return self.raw_query('credentials', 'init')
 
 
-    def credential_update(self, cred_id):
-        pass
+    def credential_update(self, cred_id, cred_type=None, name=None,
+                          description=None, visibility=None, group=None,
+                          domain=None, username=None, passphrase=None,
+                          password=None, esc_user=None, esc_password=None,
+                          esc_type=None):
+        '''credential_update cred_id [cred_type], [name], [description],
+                             [visibility], [group], [domain], [username],
+                             [passphrase], [password], [esc_user],
+                             [esc_password], [esc_type]
+        Updates the specified values of the credential ID specified.
+        '''
+        
 
 
-    def plugins(self, plugin_type='active', sort='id', direction='asc',
-                size=1000, all=True, loops=0):
+    def plugins(self, plugin_type='all', sort='id', direction='asc',
+                size=1000, all=True, loops=0, since=None, **filterset):
         '''plugins
         Returns a list of of the plugins and their associated families.  For
         simplicity purposes, the plugin family names will be injected into the
@@ -379,8 +386,22 @@ class SecurityCenter(object):
             'offset': 0,
             'type': plugin_type,
             'sortField': sort,
-            'sortDirection': direction,
+            'sortDirection': direction.upper(),
         }
+
+        # If there was a filter given, we will need to populate that.
+        if len(filterset) > 0:
+            fname = filterset.keys()[0]
+            if fname in self._xrefs:
+                fname = 'xrefs:%s' % fname.replace('_','-')
+            payload['filterField'] = fname
+            payload['filterString'] = filterset[filterset.keys()[0]]
+
+        # We also need to check if there was a datetime object sent to us and
+        # parse that down if given.
+        if since is not None and (isinstance(since, datetime.datetime) or
+                                  isinstance(since, datetime.date)):
+            payload['since'] = int(time.mktime(since.timetuple()))
 
         # And now we run through the loop needed to pull all of the data.  This
         # may take some time even though we are pulling large data sets.  At the
@@ -389,22 +410,30 @@ class SecurityCenter(object):
         while all or loops > 0:
             # First things first, we need to query the data.
             data = self.raw_query('plugin', 'init', data=payload)
+            if data == []:
+                return []
 
-            # Next we convery the family dictionary list into a flat dictionary.
-            fams = {}
-            for famitem in data['families']:
-                fams[famitem['id']] = famitem['name']
+            # This no longer works in 4.4 as the family name is already
+            # referenced.  Will re-activate this code when I can get a SC4.2
+            # Instance up and running to test...
+            # ---
+            # Next we convert the family dictionary list into a flat dictionary.
+            #fams = {}
+            #for famitem in data['families']:
+            #    fams[famitem['id']] = famitem['name']
 
             # Then we parse thtrough the data set, adding in the family name
             # into the plugin definition before adding it into the plugins list.
             for plugin in data['plugins']:
-                plugin['familyName'] = fams[plugin['familyID']]
+            #    plugin['familyName'] = fams[plugin['familyID']]
                 plugins.append(plugin)
+            # ---
 
             # Next its time to increment the offset so that we get a new data
-            # set.  We will also check here to see if the length really is 1000
-            # items.  If it isnt, then we have reached the end of the dataset
-            # and might as well set the continue variable to False.
+            # set.  We will also check here to see if the length really is the
+            # same as whats specified in the size variable.  If it isnt, then 
+            # we have reached the end of the dataset and might as well set 
+            # the continue variable to False.
             if len(data['plugins']) < size:
                 all = False
                 loops = 0
@@ -435,11 +464,14 @@ class SecurityCenter(object):
 
         if 'lastUpdates' in data:
             for item in ['active', 'passive', 'compliance', 'custom']:
-                itemdata = data['lastUpdates'][item]
+                itemdata = {}
+                if item in data['lastUpdates']:
+                    itemdata = data['lastUpdates'][item]
                 if item in data:
                     itemdata['count'] = data[item]
                 else:
                     itemdata['count'] = 0
+
                 ret[item] = itemdata
         return ret
 
@@ -511,3 +543,33 @@ class SecurityCenter(object):
         Returns all available scan zones and scanner status information.
         '''
         return self.raw_query('zone', 'init')
+
+
+    def scan_list(self, start_time=None, end_time=None):
+        '''scan_list
+        Returns a list of scans stored in Security Center
+        '''
+        if start_time == None or end_time == None:
+            data = self.raw_query('scanResult', 'init')
+        else:
+            payload = {
+                'startTime': int(start_time),
+                'endTime': int(end_time),
+            }
+            data = self.raw_query('scanResult', 'getRange', data=payload)
+        return data['scanResults']
+
+
+    def scan_download(self, scan_id, format='nessus'):
+        '''scan_download scan_id [format]
+        Will download an individual scan and return a StringIO object with the
+        results.
+
+        INCOMPLETE & UNDER ACTIVE DEV
+        '''
+        payload = {
+            'downloadType': format,
+            'scanResultID': scan_id,
+        }
+        data = self.raw_query('scanResult', 'download', data=payload, dejson=False)
+        return data
