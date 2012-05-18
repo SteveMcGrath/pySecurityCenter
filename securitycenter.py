@@ -40,14 +40,6 @@ class SecurityCenter(object):
         self._host = host
         self._debug = debug
         self._port = port
-
-        # Depricating this as all Security Center installs should be reporting
-        # over SSL only anyway.
-        #if ssl:
-        #    self._conn = httplib.HTTPSConnection
-        #else:
-        #    self._conn = httplib.HTTPConnection
-
         self._url = self._ver[version]
 
         if login:
@@ -326,8 +318,7 @@ class SecurityCenter(object):
             payload['group'] = group
         if users is not None and isinstance(users, list):
             ulist = []
-            for user in users:
-                ulist.append({'id': int(user)})
+            for user in users:                ulist.append({'id': int(user)})
             payload['users'] = ulist
         if payload['type'] == 'dynamic' and rules is not None\
                                         and isinstance(rules, list):
@@ -366,6 +357,7 @@ class SecurityCenter(object):
                              [esc_password], [esc_type]
         Updates the specified values of the credential ID specified.
         '''
+
         
 
 
@@ -560,7 +552,7 @@ class SecurityCenter(object):
         return data['scanResults']
 
 
-    def scan_download(self, scan_id, format='nessus'):
+    def scan_download(self, scan_id, format='v2'):
         '''scan_download scan_id [format]
         Will download an individual scan and return a StringIO object with the
         results.
