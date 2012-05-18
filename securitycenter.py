@@ -522,7 +522,7 @@ class SecurityCenter(object):
         '''roles
         Returns the user roles and associated metadata.
         '''
-        self.raw_query('role', 'init')
+        return self.raw_query('role', 'init')
 
 
     def system(self):
