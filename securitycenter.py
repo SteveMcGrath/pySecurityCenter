@@ -590,14 +590,14 @@ class SecurityCenter(object):
 
     def scan_download(self, scan_id, format='v2'):
         '''scan_download scan_id [format]
-        Will download an individual scan and return a StringIO object with the
-        results.
-
-        INCOMPLETE & UNDER ACTIVE DEV
+        Will download an individual scan and return a string with the results.
         '''
         payload = {
             'downloadType': format,
             'scanResultID': scan_id,
         }
         data = self.raw_query('scanResult', 'download', data=payload, dejson=False)
-        return data
+        bobj = StringIO()
+        bobj.write(data)
+        zfile = ZipFile(bobj)
+        return zfile.read(zfile.namelist()[0])
