@@ -343,22 +343,56 @@ class SecurityCenter(object):
         '''credentials
         Returns the list of credentials that the user has access to.
         '''
-        return self.raw_query('credentials', 'init')
+        return self.raw_query('credential', 'init')
 
 
-    def credential_update(self, cred_id, cred_type=None, name=None,
-                          description=None, visibility=None, group=None,
-                          domain=None, username=None, passphrase=None,
-                          password=None, esc_user=None, esc_password=None,
-                          esc_type=None):
-        '''credential_update cred_id [cred_type], [name], [description],
-                             [visibility], [group], [domain], [username],
-                             [passphrase], [password], [esc_user],
-                             [esc_password], [esc_type]
+    def credential_update(self, cred_id, **options):
+        '''credential_update cred_id **options
         Updates the specified values of the credential ID specified.
         '''
+        payload = None
 
-        
+        # First we pull the credentials and populate the payload if we
+        # find a match.
+        for cred in self.credentials()['credentials']:
+            if cred['id'] == str(cred_id):
+                payload = {
+                    'id': cred_id,
+                    'type': cred['type'],
+                    'name': cred['name'],
+                    'description': cred['description'],
+                    'visibility': cred['visibility'],
+                    'group': cred['group'],
+                    'users': cred['users'],
+                }
+
+                if cred['type'] == 'kerberos':
+                    payload['ip'] = cred['ip']
+                    payload['port'] = cred['port']
+                    payload['protocol'] = cred['protocol']
+                    payload['realm'] = cred['realm']
+
+                if cred['type'] == 'snmp':
+                    payload['communityString'] = cred['communityString']
+
+                if cred['type'] == 'ssh':
+                    payload['username'] = cred['username']
+                    payload['publickey'] = cred['publickey']
+                    payload['privatekey'] = cred['privatekey']
+                    payload['priviledgeEscalation'] = cred['priviledgeEscalation']
+                    payload['escalationUsername'] = cred['escalationUsername']
+
+                if cred['type'] == 'windows':
+                    payload['username'] = cred['username']
+                    payload['domain'] = cred['domain']
+
+        if payload == None:
+            raise APIError(13, 'cred_id %s does not exist' % cred_id)
+
+        for option in options:
+            payload[option] = options[option]
+
+        return self.raw_query('credential', 'edit', data=payload)
 
 
     def plugins(self, plugin_type='all', sort='id', direction='asc',
