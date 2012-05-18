@@ -22,6 +22,7 @@ class SecurityCenter(object):
     _conn = httplib.HTTPSConnection
     _cookie = None
     _debug = False
+    system = None
     _xrefs = ['ICS_ALERT', 'zone_h', 'OSVDB', 'USN', 'NessusID', 'GLSA', 
               'OpenPKG_SA', 'CONNECTIVA', 'AUSCERT', 'MDKSA', 'CERT_FI',
               'MSFT', 'CVE', 'SuSE', 'CERTA', 'BID', 'CISCO_BUG_ID',
@@ -43,6 +44,7 @@ class SecurityCenter(object):
         self._url = self._ver[version]
 
         if login:
+            self.system = self._system()
             self.login(user, passwd)
         if populate:
             self._build_xrefs()
@@ -525,7 +527,7 @@ class SecurityCenter(object):
         return self.raw_query('role', 'init')
 
 
-    def system(self):
+    def _system(self):
         '''system
         Returns system information about the Security Center instance.
         '''
