@@ -327,3 +327,347 @@ Returns the IPs associated with the asset list id defined.
 
 * __asset_id__ [integer]<br />
   The asset list id to query the API with.
+
+## credendials
+
+__Required Inputs:__ NONE
+
+__Optional Inputs:__ NONE
+
+### Info
+
+Returns a list of the credentials stored within Security Center
+
+### Usage
+
+  sc.credentials()
+
+## cedential_update
+
+__Required Inputs:__ cred_id
+
+__Optional Inputs:__ **options
+
+### Info
+
+Updated the specified credential with the fields specified.
+
+### Usage
+
+  sc.credential_update(cred_id, **options)
+
+### Options
+
+* __cred_id__ [integer]<br />
+  The identifier of the credential to be updated.
+
+* __**options__ [dictionary]\[parameters]<br />
+  A parameterized dictionary list containing the fields that will be
+  updated.  For example, if the name and password of the credential
+  is to be updated to 'New Cred 2' and 'Password123' respectively, then
+  the following call to the API would be requested:<br />
+  <br />
+  `sc.credential_update(1, name='New Cred2', password='Password123')`<br />
+  <br />
+
+## plugins
+
+__Required Inputs:__ NONE
+
+__Optional Inputs:__ plugin_type, sort, direction, size, all, loops, since
+                      **filterset
+
+### Info
+
+Returns information about the plugins requested.  By default it will
+return a list of all of the plugins in the system.
+
+### Usage
+
+  sc.plugins(plugin_type='all', sort='id', direction='asc', size=1000,
+             all=True, loops=0, since=None, **filterset)
+
+### Options
+
+* __plugn_type__ [string]<br />
+  String containing the type of plugins that the user wants returned.  Available
+  options are "all", "notPassive", "active", "compliance", "custom", and "passive".
+  The default option is "all".
+
+* __sort__ [string]<br />
+  String that denotes the field name that you wish to sort by.
+
+* __direction__ [string]<br />
+  The direction of the sort.  "asc" and "desc" are valid directions, default is "asc".
+
+* __size__ [integer]<br />
+  Number of plugins to query for each request.  Default is 1000.
+
+* __all__ [boolean]<br />
+  Determins whether we should loop until we have all of the plugin data.
+
+* __loops__ [integer]<br />
+  If all is set to "False" then this will dictate the number of loops to complete before
+  stopping.  Default is 0.
+
+* __since__ [datetime.datetime or datetime.date]<br />
+  If since is specified, only return plugins that have been created/updated since that
+  datetime object.
+
+* __**filterset__ [dictionary]\[parameters]<br />
+  A Filterset that works similarly to how query's filterset works.  Furthermore any of the
+  items in the _xrefs list can be used as well for the filter.
+
+## plugin_counts
+
+__Required Inputs:__ NONE
+
+__Optional Inputs:__ NONE
+
+### Info
+
+Returns a dictionary detailing plugin counts for active, passive, compliance, and
+custom plugin types as is available.
+
+### Usage
+
+  sc.plugin_counts()
+
+
+## plugin_details
+
+__Required Inputs:__ plugin_id
+
+__Optional Inputs:__ NONE
+
+### Info
+
+Returns the details of a specific plugin id.
+
+### Usage
+
+  sc.plugin_details(plugin_id)
+
+### Options
+
+* __plugin_id__ [integer]<br />
+  The Plugin ID of the Plugin that is requested.
+
+
+## repositories
+
+__Required Inputs:__ NONE
+
+__Optional Inputs:__ NONE
+
+### Info
+
+Returns the repository information, license information, and organizational information.
+
+### Usage
+
+  sc.repositories()
+
+
+## roles
+
+__Required Inputs:__ NONE
+
+__Optional Inputs:__ NONE
+
+### Info
+
+Returns the user roles and associated metadata.
+
+### Usage
+
+  sc.roles()
+
+
+## tickets
+
+__Required Inputs:__ NONE
+
+__Optional Inputs:__ NONE
+
+### Info
+
+Returns tickets and their associated data.
+
+### Usage
+
+  sc.tickets()
+
+
+## users
+
+__Required Inputs:__ NONE
+
+__Optional Inputs:__ NONE
+
+### Info
+
+Returns all user information from the Security Center instance.
+
+### Usage
+
+  sc.users()
+
+
+## vulns
+
+__Required Inputs:__ NONE
+
+__Optional Inputs:__ NONE
+
+### Info
+
+Returns all available vulnerabilities in the Security Center Instance.
+
+### Usage
+
+  sc.vulns()
+
+
+## ip_info
+
+__Required Inputs:__ ip
+
+__Optional Inputs:__ repository_ids
+
+### Info
+
+Returns information abotu the IP specified in the repository IDs defined.  These details
+include things like MAC Address, Hostname, etc.
+
+### Usage
+
+  sc.ip_info(ip, repository_ids=[])
+
+### Options
+
+* __ip__ [string]<br />
+  String containing the IP of the host that we want to pull the information for.
+
+* __repository_ids__ [list of integers]<br />
+  The Repository IDs that we want to pull the information from.  This is used if we only
+  Want information from select repositories, and not all of them.
+
+
+## zones
+
+__Required Inputs:__ NONE
+
+__Optional Inputs:__ NONE
+
+### Info
+
+Returns all available scan zone and scaner status information.
+
+### Usage
+
+  sc.zones()
+
+
+## scan_list
+
+__Required Inputs:__ NONE
+
+__Optional Inputs:__ start_time, end_time
+
+### Info
+
+Returns a list of all of the scans stored within Security Center based on the time range
+specified.  The default time range is from current to current -30 days.
+
+### Usage
+
+  sc.scan_list(start_time=None, end_time=None)
+
+### Options
+
+* __start_time__ [integer]<br />
+  Time in unix epoch time for the most current (forward) boundry of the window.  Default
+  is NOW.
+
+* __end_time__ [integer]<br />
+  Time in unix epoch time for the least current (backward) boundry of the window.  Default
+  is NOW - 30 days.
+
+
+## scan_download
+
+__Required Inputs:__ scan_id
+
+__Optional Inputs:__ format
+
+### Info
+
+Returns the raw data for the nessus scan id specified.  Optionally the scan data format
+can be specified to override the default format returned.
+
+### Usage
+
+  sc.scan_download(scan_id, format='v2')
+
+## Options
+
+* __scan_id__ [integer]<br />
+  The unique scan identifier for the scan that we wish to download.
+
+* __format__ [string]<br />
+  This string denotes the format fo the data to be returned.  The default for the plugin is
+  'v2'.  Depending on the version of Security Center, this information can/will be different.
+  For versions of Security Center earlier than 4.4 the options "nsr" and "nessus" are
+  available.  For SC4.4, "v1" and "v2" are the options, denoting the .nessus v1 and v2
+  formats.  Note that in earlier versions of SC4, "nessus" refers to .nessus v1.
+
+
+## dashboard_import
+
+__Required Inputs:__ name, filename
+
+__Optional Inputs:__ NONE
+
+### Info
+
+Uploads a dashboard template to the current user's dashboard tabs.
+
+__NOTE:__ This is an un-documented call and is not considered stable.
+
+### Usage
+
+  sc.dashboard_import(name, filename)
+
+### Options
+
+* __name__ [string]<br />
+  The name of the dashboard tab once uploaded.
+
+* __filename__ [string]<br />
+  The filename and path of the file that will be uploaded.
+
+
+## report_import
+
+__Required Inputs:__ name, filename
+
+__Optional Inputs:__ NONE
+
+### Info
+
+Uploads a report template to the current user's reports.
+
+__NOTE:__ This is an un-documented call and is not considered stable.
+
+### Usage
+
+  sc.report_import(name, filename)
+
+### Options
+
+* __name__ [string]<br />
+  The name of the report once uploaded.
+
+* __filename__ [string]<br />
+  The filename and path of the file that will be uploaded.
