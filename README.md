@@ -4,8 +4,8 @@ This module is designed to attempt to make interfacing with Security Center's
 API easier to use and more manageable.  A lot of effort has been put into making
 queries into the API as painless and manageable as possible.
 
-__NOTE:__ This rewrite is under active development.  The current functionality
-		  is not feature-complete.
+__NOTE:__ This rewrite is under active development.  The current functionality,
+		      while feature-complete, can potentially change at any time.
 
 # How to Install
 
@@ -15,6 +15,11 @@ from the cheeseshop:
 `pip install pysecuritycenter`
 
 `easy_install pysecuritycenter`
+
+If you would rather install manually, feel free to download the latest version
+directly from the [cheeseshop][]:
+
+[cheeseshop]: http://pypi.python.org/pypi/pySecurityCenter
 
 # How to use
 
