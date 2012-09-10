@@ -610,7 +610,7 @@ can be specified to override the default format returned.
 
   sc.scan_download(scan_id, format='v2')
 
-## Options
+### Options
 
 * __scan_id__ [integer]<br />
   The unique scan identifier for the scan that we wish to download.
