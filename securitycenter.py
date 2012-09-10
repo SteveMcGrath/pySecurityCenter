@@ -3,9 +3,12 @@ import json
 import datetime
 import time
 import random
+import os
+import mimetypes
 from zipfile import ZipFile
 from StringIO import StringIO
 from urllib import urlencode
+from poster.encode import multipart_encode
 
 
 class APIError(Exception):
@@ -31,23 +34,43 @@ class SecurityCenter(object):
               'APPLE_SA', 'CERT_VU', 'CERT', 'TSLSA', 'ICSA', 'VMSA',
               'SSA',
               ]
-    _ver = {
-        4.2: '/sc4/request.php',
-        4.4: '/request.php',
-    }
 
-    def __init__(self, host, user, passwd, login=True, version=4.4, 
+    def __init__(self, host, user, passwd, login=True, 
                  port=443, debug=False, populate=False):
         self._host = host
         self._debug = debug
         self._port = port
-        self._url = self._ver[version]
+        self._url = '/request.php'
 
         if login:
             self.system = self._system()
+            self.version = self.system['version']
             self.login(user, passwd)
         if populate:
             self._build_xrefs()
+
+
+    def _revint(self, version):
+        # Internal function to convert a version string to an integer.
+        intrev = 0
+        vsplit = version.split('.')
+        for c in range(len(vsplit)):
+            item = int(vsplit[c]) * (10 ** (((len(vsplit) - c - 1)* 2)))
+            intrev += item
+        return intrev
+
+
+    def _revcheck(self, func, version):
+        # Internal function to see if a version is func than what we have
+        # determined to be talking to.  This is very useful for newer API calls
+        # to make sure we don't accidentally make a call to something that
+        # doesnt exist.
+        current = self._revint(self.version)
+        check = self._revint(version)
+        if func in ('lt', '<=',): return check <= current
+        elif func in ('gt', '>='): return check >= current
+        elif func in ('eq', '=', 'equals'): return check == current
+        else: return False
 
 
     def _build_xrefs(self):
@@ -65,7 +88,34 @@ class SecurityCenter(object):
         self._xrefs = list(xrefs)
 
 
-    def _request(self, module, action, data={}, headers={}, dejson=True):
+    def _gen_multipart(self, jdata, filename):
+        # This is an internal function to be able to upload files to Security
+        # Center.  Based on the awsome work done with the recipe linked below:
+        # http://code.activestate.com/recipes/146306/
+        boundry = '----------MultiPartWebFormBoundry'
+        data = []
+        for item in jdata:
+            data.append('--' + boundry)
+            data.append('Content-Disposition: form-data; name="%s"' % item)
+            data.append('')
+            data.append(str(jdata[item]))
+        data.append('--' + boundry)
+        data.append(
+            'Content-Disposition: form-data; name="%s"; filename="%s"' %\
+            ('Filedata', os.path.split(filename)[1]))
+        data.append('Content-Type: %s' %\
+            (mimetypes.guess_type(filename)[0] or 'application/octet-stream'))
+        data.append('')
+        data.append(open(filename, 'rb').read())
+        data.append('--' + boundry + '--')
+        data.append('')
+        payload = '\r\n'.join(data)
+        content_type = 'multipart/form-data; boundary=%s' % boundry
+        return content_type, payload
+
+
+    def _request(self, module, action, data={}, headers={}, dejson=True,
+                 filename=False):
         # This is the post request that will be sent to the API.  We will expand
         # this as we go along, however we should declare the basics first.
         jdata = {
@@ -85,12 +135,18 @@ class SecurityCenter(object):
         if self._cookie is not None:
             headers['Cookie'] = self._cookie
 
-        # Next we will url encode the payload and then calculate it's length for
-        # the Content-Length header.  We might as well set the Content-Type
-        # header here as well.
-        payload = urlencode(jdata)
+        if filename:
+            # If a filename is specified then we will need to build a multipipart
+            # object.
+            content_type, payload = self._gen_multipart(jdata, filename)
+            headers['Content-Type'] = content_type
+        else:
+            # Here we will url encode the payload and then calculate it's length for
+            # the Content-Length header.  We might as well set the Content-Type
+            # header here as well.
+            payload = urlencode(jdata)
+            headers['Content-Type'] = 'application/x-www-form-urlencoded'
         headers['Content-Length'] = len(payload)
-        headers['Content-Type'] = 'application/x-www-form-urlencoded'
 
         # Now it's time to make the connection and actually talk to SC.
         http = self._conn(self._host, self._port)
@@ -114,7 +170,8 @@ class SecurityCenter(object):
             return data
 
 
-    def raw_query(self, module, action, data={}, headers={}, dejson=True):
+    def raw_query(self, module, action, data={}, headers={}, dejson=True,
+                  filename=None):
         '''raw_query module, action, [data], [headers], [dejson]
         Initiates a raw query to the api.  While publicly exposed it is not
         recommended to use this function unless there is a legitimate reason
@@ -123,7 +180,7 @@ class SecurityCenter(object):
 
         # First we query the API and then check to see if an error was thrown.
         # If there was an error, simply respond back with False.
-        data = self._request(module, action, data, headers, dejson)
+        data = self._request(module, action, data, headers, dejson, filename)
         if dejson:
             if data['error_code']:
                 raise APIError(data['error_code'], data['error_msg'])
@@ -601,3 +658,46 @@ class SecurityCenter(object):
         bobj.write(data)
         zfile = ZipFile(bobj)
         return zfile.read(zfile.namelist()[0])
+
+
+    ### WARNING ###
+    # All of the functions below are not part of the API documentation.  This
+    # means that it is entirely possible for one or all of these to change
+    # without notification as they are not part of the documented API.
+    ###############
+
+    def _upload(self, filename):
+        '''_upload filename
+        Internal function to provide uploading capability.  All of the heavy
+        Lifting work has been handled upstream in self._request.
+
+        UN-DOCUMENTED CALL: This function is not considered stable.
+        '''
+        return self.raw_query('file', 'upload', data={'returnContent':'false'},
+                              filename=filename)
+
+
+    def dashboard_import(self, name, filename):
+        '''dashboard_import Dashboard_Name, filename
+        Uploads a dashboard template to the current user's dashboard tabs.
+
+        UN-DOCUMENTED CALL: This function is not considered stable.
+        '''
+        data = self._upload(filename)
+        return self.raw_query('dashboard', 'importTab', data={
+            'filename': data['filename'],
+            'name': name,
+        })
+
+
+    def report_import(self, name, filename):
+        '''report_import Report_Name, filename
+        Uploads a report template to the current user's reports
+
+        UN-DOCUMENTED CALL: This function is not considered stable.
+        '''
+        data = self._upload(filename)
+        return self.raw_query('report', 'import', data={
+            'filename': data['filename'],
+            'name': name,
+        })
