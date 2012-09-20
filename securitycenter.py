@@ -1,5 +1,4 @@
 import httplib
-import json
 import datetime
 import time
 import random
@@ -9,6 +8,14 @@ from zipfile import ZipFile
 from StringIO import StringIO
 from urllib import urlencode
 from poster.encode import multipart_encode
+
+# Here we will attempt to import the simplejson module if it exists, otherwise
+# we will fall back to json.  This should solve a lot of issues with python 2.4
+# and 3.x.
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 
 class APIError(Exception):
