@@ -27,8 +27,7 @@ sccsv.debug.DEBUG = conf.getboolean('Settings', 'debug')
 sc = securitycenter.SecurityCenter(conf.get('Settings', 'address'),
                                    conf.get('Settings', 'username'),
                                    conf.get('Settings', 'password'),
-                                   port=conf.getint('Settings', 'port'),
-                                   version=conf.getfloat('Settings', 'version'))
+                                   port=conf.getint('Settings', 'port'))
 
 
 def build_and_email(section):

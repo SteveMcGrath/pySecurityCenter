@@ -38,7 +38,8 @@ def writer(vulns, **params):
         # then write the row to disk.
         row = []
         for field in flist:
-            row.append(vuln[field].replace('\\n', '\n').replace('<br/>', '\n'))
+            row.append(vuln[field].replace('\\n', '\n').replace('<br/>', '\n')\
+                .encode('ascii', 'ignore'))
         csvfile.writerow(row)
 
 
