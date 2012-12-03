@@ -4,6 +4,7 @@ import time
 import random
 import os
 import mimetypes
+import logging
 from zipfile import ZipFile
 from StringIO import StringIO
 from urllib import urlencode
@@ -48,6 +49,15 @@ class SecurityCenter(object):
         self._debug = debug
         self._port = port
         self._url = '/request.php'
+
+        # Debugging Log Settings...
+        self._log = logging.getLogger('pySecurityCenter')
+        if debug:
+            handler = logging.FileHandler('pySecurityCenter-DEBUG.log')
+            formatter = logging.Formatter('%(asctime)s %(message)s')
+            handler.setFormatter(formatter)
+            self._log.setLevel(logging.DEBUG)
+            self._log.addHandler(handler)
 
         if login:
             self.system = self._system()
@@ -155,11 +165,31 @@ class SecurityCenter(object):
             headers['Content-Type'] = 'application/x-www-form-urlencoded'
         headers['Content-Length'] = len(payload)
 
+        # For a little logging action, lets post everything we have to the log.
+        self._log.debug('\n'.join([
+            'POST SEND DATA TO %s' % self._host,
+            'HEADERS:',
+            '\n'.join(['\t%-30s: %s' % (a, headers[a]) for a in headers]),
+            'DATA:',
+            payload,
+            '\n',
+        ]))
+
         # Now it's time to make the connection and actually talk to SC.
         http = self._conn(self._host, self._port)
         http.request('POST', self._url, body=payload, headers=headers)
         resp = http.getresponse()
         data = resp.read()
+
+        # And we need to log the response as well....
+        self._log.debug('\n'.join([
+            'API RESPONSE DATA FROM %s' % self._host,
+            'HEADERS:',
+            '\n'.join(['\t%-30s: %s' % (a, b) for a, b in resp.getheaders()]),
+            'DATA:',
+            data,
+            '\n',
+        ]))
 
         # now that we have all of this data, lets go ahead and check to see if
         # Security Center set a cookie.  if it did, then lets set the cookie
@@ -314,8 +344,11 @@ class SecurityCenter(object):
         '''
         data = self._request('auth', 'login',
                              data={'username': user, 'password': passwd})
-        self._token = data['response']['token']
-        self._user = data
+        try:
+            self._token = data['response']['token']
+            self._user = data
+        except:
+            raise APIError('Invalid Login Credentials')
 
 
     def logout(self):
