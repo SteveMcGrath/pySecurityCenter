@@ -6,3 +6,4 @@ dist
 *.csv
 *.conf
 *.sublime*
+*.log
