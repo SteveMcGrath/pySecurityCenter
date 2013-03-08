@@ -262,7 +262,13 @@ class SecurityCenter(object):
         payload = {}    # The dataset that we will be sending to the API via the
                         # raw_query function.
         # A simple data dictionary to determine the module that we will be used
-        stype = {'cumulative': 'vuln', 'mitigated': 'vuln', 'lce': 'events'}
+        stype = {
+            'cumulative': 'vuln', 
+            'mitigated': 'vuln',
+            'patched': 'vuln',
+            'individual': 'vuln',
+            'lce': 'events',
+        }
 
 
         # Check to see if filters was set.  If it wasnt, then lets go ahead and
