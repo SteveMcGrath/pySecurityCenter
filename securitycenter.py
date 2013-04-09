@@ -1,4 +1,4 @@
-import httplib
+from urllib2 import urlopen, Request
 import datetime
 import time
 import random
@@ -30,7 +30,6 @@ class APIError(Exception):
 class SecurityCenter(object):
     _token = None
     _host = None
-    _conn = httplib.HTTPSConnection
     _cookie = None
     _debug = False
     system = None
@@ -48,7 +47,7 @@ class SecurityCenter(object):
         self._host = host
         self._debug = debug
         self._port = port
-        self._url = '/request.php'
+        self._url = 'https://%s/request.php' % self._host
 
         # Debugging Log Settings...
         self._log = logging.getLogger('pySecurityCenter')
@@ -163,7 +162,6 @@ class SecurityCenter(object):
             # header here as well.
             payload = urlencode(jdata)
             headers['Content-Type'] = 'application/x-www-form-urlencoded'
-        headers['Content-Length'] = len(payload)
 
         # For a little logging action, lets post everything we have to the log.
         self._log.debug('\n'.join([
@@ -176,16 +174,14 @@ class SecurityCenter(object):
         ]))
 
         # Now it's time to make the connection and actually talk to SC.
-        http = self._conn(self._host, self._port)
-        http.request('POST', self._url, body=payload, headers=headers)
-        resp = http.getresponse()
+        resp = urlopen(Request(self._url, payload, headers))
         data = resp.read()
 
         # And we need to log the response as well....
         self._log.debug('\n'.join([
             'API RESPONSE DATA FROM %s' % self._host,
             'HEADERS:',
-            '\n'.join(['\t%-30s: %s' % (a, b) for a, b in resp.getheaders()]),
+            '\n'.join([a for a in resp.headers.headers]),
             'DATA:',
             data,
             '\n',
@@ -194,8 +190,8 @@ class SecurityCenter(object):
         # now that we have all of this data, lets go ahead and check to see if
         # Security Center set a cookie.  if it did, then lets set the cookie
         # variable in the object.
-        if resp.getheader('set-cookie') is not None:
-            self._cookie = resp.getheader('set-cookie')
+        if resp.headers.getheader('set-cookie') is not None:
+            self._cookie = resp.headers.getheader('set-cookie')
 
         # Lastly we need to return the response payload to the calling function
         # in the format that the function wants it.  There are cases where we
