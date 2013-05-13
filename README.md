@@ -379,8 +379,8 @@ Updated the specified credential with the fields specified.
 
 __Required Inputs:__ NONE
 
-__Optional Inputs:__ plugin_type, sort, direction, size, all, loops, since
-                      **filterset
+__Optional Inputs:__ plugin_type, sort, direction, size, offset, all, loops,
+                      since, **filterset
 
 ### Info
 
@@ -390,7 +390,7 @@ return a list of all of the plugins in the system.
 ### Usage
 
   sc.plugins(plugin_type='all', sort='id', direction='asc', size=1000,
-             all=True, loops=0, since=None, **filterset)
+             offset=0, all=True, loops=0, since=None, **filterset)
 
 ### Options
 
@@ -407,6 +407,10 @@ return a list of all of the plugins in the system.
 
 * __size__ [integer]<br />
   Number of plugins to query for each request.  Default is 1000.
+
+* __offset__ [integer]<br/>
+  Number of plugins to skip at the beginning of the query.  Useful if you want
+  to get all results but only store chunks in memory.  Default is 0.
 
 * __all__ [boolean]<br />
   Determins whether we should loop until we have all of the plugin data.
