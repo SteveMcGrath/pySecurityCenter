@@ -497,7 +497,7 @@ class SecurityCenter(object):
 
 
     def plugins(self, plugin_type='all', sort='id', direction='asc',
-                size=1000, all=True, loops=0, since=None, **filterset):
+                size=1000, offset=0, all=True, loops=0, since=None, **filterset):
         '''plugins
         Returns a list of of the plugins and their associated families.  For
         simplicity purposes, the plugin family names will be injected into the
@@ -510,7 +510,7 @@ class SecurityCenter(object):
         # to build the 
         payload = {
             'size': size,
-            'offset': 0,
+            'offset': offset,
             'type': plugin_type,
             'sortField': sort,
             'sortDirection': direction.upper(),
