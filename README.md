@@ -122,8 +122,8 @@ through raw_query.
 
 __Required Inputs:__ tool
 
-__Optional Inputs:__ filters, source, sort, direction, func, func_params, 
-					 req_size, filterset
+__Optional Inputs:__ filters, source, sort, direction, func, func_params,
+  req_size, scan, directory, filterset
 
 ### Info
 
@@ -137,7 +137,8 @@ dataset is the same.
 ### Usage
 
 	sc.query(tool, filters=None, source='cumulative', sort=None, direction=None,
-			 func=None, func_params=None, req_size=1000, **filterset)
+    func=None, func_params=None, req_size=1000, scan=None, directory=None,
+    **filterset)
 
 ### Options
 
@@ -166,6 +167,7 @@ dataset is the same.
   & filterset will be different depending on which data source you query.
 	* _cumulative:_ Cumulative vulnerability data
 	* _mitigated:_ Mitigated vulnerability data
+  * _individual_: Individual scan data
 	* _lce:_ LCE event data
 
 * __sort__ [string]<br />
@@ -196,6 +198,15 @@ dataset is the same.
   mind that larger values may not increase the speed of the API and may actually
   slow down other operations on the Security Center host.  Adjust at your own
   risk.
+
+* __scan__ [integer]<br/>
+  When the source is `"individual"`, this must be the id of the scan to query.
+
+* __directory__ [string or datetime]<br/>
+  When the source is `"individual"`, this must be the date directory for the
+  given scan id.  The format should be `"YYYY-mm-dd"`, or a datetime which will
+  be converted to this.  It is unclear why this is needed, but it seems to be
+  the finish time of the scan.
 
 * __**filterset__ [dictionary]\[parameters]<br />
   Filterset is the catchall for the various filters that can be called for the
