@@ -223,8 +223,8 @@ class SecurityCenter(object):
 
 
     def query(self, tool, filters=None, source='cumulative', sort=None,
-              direction='desc', func=None, func_params=None, req_size=1000, 
-              **filterset):
+            direction='desc', func=None, func_params=None, req_size=1000,
+            scan=None, directory=None, **filterset):
         '''query tool, [filters], [req_size], [list, of, filters]
         This function attempts to make it a lot easier to run vuln and lce
         searches within the Security Center API.  This function will query the
@@ -250,13 +250,20 @@ class SecurityCenter(object):
         If the mitigated flag is set, the results returned back will be from
         the mitigated dataset instead of the cumulative dataset.
 
+        If the source is `"individual"`, `scan` should be passed a scan id and
+        `directory` should be passed a date directory as a string `"YYYY-mm-dd"`
+        or as a `datetime` to be converted.
+
         For a list of the available filters that can be performed, please
         consult the Security Center API documentation.
+
         '''
+        
         data = []       # This is the list that we will be returning back to
                         # the calling function once we complete.
         payload = {}    # The dataset that we will be sending to the API via the
                         # raw_query function.
+
         # A simple data dictionary to determine the module that we will be used
         stype = {
             'cumulative': 'vuln', 
@@ -266,10 +273,20 @@ class SecurityCenter(object):
             'lce': 'events',
         }
 
+        # When the source is "individual", scan and directory should be provided
+        # as well, and will be set in the payload.
+        if source == "individual" and scan is not None and directory is not None:
+            # convert directory passed as datetime to string if necessary
+            if isinstance(directory, datetime.date):
+                directory = directory.strftime("%Y-%m-%d")
+
+            payload["scanID"] = scan
+            payload["dateDirectory"] = directory
+            payload["view"] = "all"
 
         # Check to see if filters was set.  If it wasnt, then lets go ahead and
         # initialize it as an empty dictionary.
-        if filters == None:
+        if filters is None:
             filters = []
 
         # Here is where we expand the filterset dictionary to something that the
@@ -279,7 +296,7 @@ class SecurityCenter(object):
                 'filterName': item,
                 'operator': '=',
                 'value': filterset[item]
-                })
+            })
 
         # Next we need to populate the payload with the information needed to
         # fire a complete API request.
