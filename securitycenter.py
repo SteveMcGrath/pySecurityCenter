@@ -19,6 +19,10 @@ except ImportError:
     import json
 
 
+__version__ = '0.3.8.4'
+__author__ = 'Steven McGrath <steve@chigeek.com>'
+
+
 class APIError(Exception):
     def __init__(self, code, msg):
         self.code = code

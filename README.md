@@ -4,6 +4,8 @@ This module is designed to attempt to make interfacing with Security Center's
 API easier to use and more manageable.  A lot of effort has been put into making
 queries into the API as painless and manageable as possible.
 
+[Source Code Repository](https://github.com/SteveMcGrath/pySecurityCenter)
+
 # Changelog
 
 __v0.3.8__

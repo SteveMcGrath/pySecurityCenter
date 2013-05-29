@@ -1,6 +1,14 @@
 from distutils.core import setup
 import sys
 
+# A simple little hack to generate the RST file for pretty formatting for pypi.
+try:
+    import pypandoc
+    with open('README', 'w') as pypidoc:
+        pypidoc.write(pypandoc.convert('README.md', 'rst'))
+except:
+    pass
+
 # These are the requirements for pySecurityCenter
 requirements = ['poster',]
 
@@ -18,7 +26,7 @@ if sys.version_info > (3,):
 
 setup(
     name='pySecurityCenter',
-    version='0.3.8',
+    version='0.3.8.4',
     description='Security Center 4 API Module',
     author='Steven McGrath',
     author_email='smcgrath@tenable.com',
