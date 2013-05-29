@@ -4,8 +4,48 @@ This module is designed to attempt to make interfacing with Security Center's
 API easier to use and more manageable.  A lot of effort has been put into making
 queries into the API as painless and manageable as possible.
 
-__NOTE:__ This rewrite is under active development.  The current functionality,
-		      while feature-complete, can potentially change at any time.
+# Changelog
+
+__v0.3.8__
+
+* Added proper support for individual scan results in the query function. [davidism]
+* Added this README to the package (for pypi)
+
+__v0.3.7__
+
+* Added pagination support to plugins function. [davidism]
+
+__v0.3.6__
+
+* Added Python 2.4 Support
+
+__v0.3.5__
+
+* Added "patched" source to conform to SC 4.6
+
+__v0.3.4__
+
+* Added debug logging support.
+
+__v0.3.3.1__
+
+* Updated to support Python 2.6, 2.7, and 3.x
+* Completed documentation of module.
+
+__v0.3.2__
+
+* Added Dashboard and Report Importing
+
+__v0.3.1__
+
+* Added Scan Download Capability
+* Fixed roles return
+* Adjusted login process
+* Added Credential functions
+* Code Cleanup
+* Fleshed out all functions to match SC 4.2 API docs.
+
+
 
 # How to Install
 
