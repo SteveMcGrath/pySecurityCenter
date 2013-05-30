@@ -633,14 +633,15 @@ Returns all available scan zone and scaner status information.
 
 ## scan_list
 
-__Required Inputs:__ NONE
-
 __Optional Inputs:__ start_time, end_time
 
 ### Info
 
-Returns a list of all of the scans stored within Security Center based on the time range
-specified.  The default time range is from current to current -30 days.
+List scans stored in Security Center in a given time range.
+
+Time is given in UNIX timestamps.  If a `datetime` is passed it is converted.
+If `end_time` is not specified it is NOW.  If `start_time` is not specified it
+is 30 days previous from `end_time`.
 
 ### Usage
 
@@ -648,13 +649,11 @@ specified.  The default time range is from current to current -30 days.
 
 ### Options
 
-* __start_time__ [integer]<br />
-  Time in unix epoch time for the most current (forward) boundry of the window.  Default
-  is NOW.
+* __start_time__ [datetime, int]<br />
+  Start of time range to filter.  Default is 30 days previous from `end_time`.
 
-* __end_time__ [integer]<br />
-  Time in unix epoch time for the least current (backward) boundry of the window.  Default
-  is NOW - 30 days.
+* __end_time__ [datetime, int]<br />
+  End of time range to filter.  Default is NOW.
 
 
 ## scan_download
