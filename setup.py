@@ -10,7 +10,7 @@ except:
     pass
 
 # These are the requirements for pySecurityCenter
-requirements = ['poster',]
+requirements = []
 
 # If we are running on something thats not 2.6 or 2.7, we will need the
 # simplejson module.  Python versions less than 2.6 need specifically version
