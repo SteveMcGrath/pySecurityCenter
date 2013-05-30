@@ -1,14 +1,16 @@
-from urllib2 import urlopen, Request
 import datetime
-import time
-import random
-import os
-import mimetypes
+import httplib
 import logging
-from zipfile import ZipFile
+import mimetypes
+import os
+import random
 from StringIO import StringIO
+import time
 from urllib import urlencode
-from poster.encode import multipart_encode
+import urllib2
+from urllib2 import urlopen, Request
+from zipfile import ZipFile
+
 
 # Here we will attempt to import the simplejson module if it exists, otherwise
 # we will fall back to json.  This should solve a lot of issues with python 2.4
@@ -18,6 +20,25 @@ try:
 except ImportError:
     import json
 
+# Test for SSL support.  Sets a flag has_ssl and defines an HTTPSHandler that
+# provides two-way SSL.
+# http://stackoverflow.com/a/5707951/400617
+try:
+    import ssl
+
+    class HTTPSClientAuthHandler(urllib2.HTTPSHandler):
+        def __init__(self, key, cert):
+            urllib2.HTTPSHandler.__init__(self)
+            self.key = key
+            self.cert = cert
+
+        def https_open(self, req):
+            return self.do_open(self.getConnection, req)
+
+        def getConnection(self, host, **kwargs):
+            return httplib.HTTPSConnection(host, key_file=self.key, cert_file=self.cert, **kwargs)
+except ImportError:
+    ssl = None
 
 __version__ = '0.3.8.4'
 __author__ = 'Steven McGrath <steve@chigeek.com>'
@@ -37,7 +58,7 @@ class SecurityCenter(object):
     _cookie = None
     _debug = False
     system = None
-    _xrefs = ['ICS_ALERT', 'zone_h', 'OSVDB', 'USN', 'NessusID', 'GLSA', 
+    _xrefs = ['ICS_ALERT', 'zone_h', 'OSVDB', 'USN', 'NessusID', 'GLSA',
               'OpenPKG_SA', 'CONNECTIVA', 'AUSCERT', 'MDKSA', 'CERT_FI',
               'MSFT', 'CVE', 'SuSE', 'CERTA', 'BID', 'CISCO_BUG_ID',
               'CISCO_SA', 'RHSA', 'Secunia', 'EDB_ID', 'MSVR', 'TLSA',
@@ -46,12 +67,18 @@ class SecurityCenter(object):
               'SSA',
               ]
 
-    def __init__(self, host, user, passwd, login=True, 
-                 port=443, debug=False, populate=False):
+    def __init__(self, host, user, passwd, login=True, port=443, key=None,
+            cert=None, debug=False, populate=False):
         self._host = host
         self._debug = debug
         self._port = port
         self._url = 'https://%s/request.php' % self._host
+
+        # Build and install an HTTPS opener if SSL support is available
+        if ssl is not None and None not in (key, cert):
+            cert_handler = HTTPSClientAuthHandler(key, cert)
+            opener = urllib2.build_opener(cert_handler)
+            urllib2.install_opener(opener)
 
         # Debugging Log Settings...
         self._log = logging.getLogger('pySecurityCenter')
@@ -262,7 +289,7 @@ class SecurityCenter(object):
         consult the Security Center API documentation.
 
         '''
-        
+
         data = []       # This is the list that we will be returning back to
                         # the calling function once we complete.
         payload = {}    # The dataset that we will be sending to the API via the
@@ -270,7 +297,7 @@ class SecurityCenter(object):
 
         # A simple data dictionary to determine the module that we will be used
         stype = {
-            'cumulative': 'vuln', 
+            'cumulative': 'vuln',
             'mitigated': 'vuln',
             'patched': 'vuln',
             'individual': 'vuln',
@@ -322,7 +349,7 @@ class SecurityCenter(object):
 
         # Everything is set, checks out, and is ready to go.  Now we have to
         # start running through the query loop and actually pull everything
-        # together.  We know that we will 
+        # together.  We know that we will
         items = []      # This is the resultset.  It'll be different every time
                         # we loop.  to get things going however, we will just
                         # set it to an empty list.
@@ -377,7 +404,7 @@ class SecurityCenter(object):
     def logout(self):
         '''logout
         Performs a logout on Security Center to clear the session from the
-        session table and then 
+        session table and then
         '''
         self._request('auth','logout', data={'token': self._token})
         self._token = None
@@ -392,7 +419,7 @@ class SecurityCenter(object):
 
 
     def asset_update(self, asset_id, name=None, description=None,
-                     visibility=None, group=None, users=None, 
+                     visibility=None, group=None, users=None,
                      ips=None, rules=None):
         '''asset_update asset_id, [name], [description], [visibility], [group],
                         [users], [ips], [rules]
@@ -528,7 +555,7 @@ class SecurityCenter(object):
         plugins = []
 
         # First we need to generate the basic payload that we will be augmenting
-        # to build the 
+        # to build the
         payload = {
             'size': size,
             'offset': offset,
@@ -579,8 +606,8 @@ class SecurityCenter(object):
 
             # Next its time to increment the offset so that we get a new data
             # set.  We will also check here to see if the length really is the
-            # same as whats specified in the size variable.  If it isnt, then 
-            # we have reached the end of the dataset and might as well set 
+            # same as whats specified in the size variable.  If it isnt, then
+            # we have reached the end of the dataset and might as well set
             # the continue variable to False.
             if len(data['plugins']) < size:
                 all = False
@@ -628,7 +655,7 @@ class SecurityCenter(object):
         '''plugin_details plugin_id
         Returns the details for a specific plugin id
         '''
-        return self.raw_query('plugin', 'getDetails', 
+        return self.raw_query('plugin', 'getDetails',
                               data={'pluginID': plugin_id})
 
 
