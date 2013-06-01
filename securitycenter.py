@@ -4,10 +4,10 @@ import logging
 import mimetypes
 import os
 import random
-from StringIO import StringIO
 import time
-from urllib import urlencode
 import urllib2
+from StringIO import StringIO
+from urllib import urlencode
 from urllib2 import urlopen, Request
 from zipfile import ZipFile
 
@@ -36,11 +36,12 @@ try:
             return self.do_open(self.getConnection, req)
 
         def getConnection(self, host, **kwargs):
-            return httplib.HTTPSConnection(host, key_file=self.key, cert_file=self.cert, **kwargs)
+            return httplib.HTTPSConnection(host, key_file=self.key, 
+                                           cert_file=self.cert, **kwargs)
 except ImportError:
     ssl = None
 
-__version__ = '0.3.8.4'
+__version__ = '0.3.9'
 __author__ = 'Steven McGrath <steve@chigeek.com>'
 
 
