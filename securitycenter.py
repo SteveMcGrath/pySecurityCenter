@@ -1,14 +1,13 @@
-from urllib2 import urlopen, Request
-import datetime
-import time
-import random
-import os
-import mimetypes
+import calendar
+from datetime import date, datetime, timedelta
 import logging
-from zipfile import ZipFile
+import mimetypes
+import os
+import random
 from StringIO import StringIO
 from urllib import urlencode
-from poster.encode import multipart_encode
+from urllib2 import urlopen, Request
+from zipfile import ZipFile
 
 # Here we will attempt to import the simplejson module if it exists, otherwise
 # we will fall back to json.  This should solve a lot of issues with python 2.4
@@ -37,7 +36,7 @@ class SecurityCenter(object):
     _cookie = None
     _debug = False
     system = None
-    _xrefs = ['ICS_ALERT', 'zone_h', 'OSVDB', 'USN', 'NessusID', 'GLSA', 
+    _xrefs = ['ICS_ALERT', 'zone_h', 'OSVDB', 'USN', 'NessusID', 'GLSA',
               'OpenPKG_SA', 'CONNECTIVA', 'AUSCERT', 'MDKSA', 'CERT_FI',
               'MSFT', 'CVE', 'SuSE', 'CERTA', 'BID', 'CISCO_BUG_ID',
               'CISCO_SA', 'RHSA', 'Secunia', 'EDB_ID', 'MSVR', 'TLSA',
@@ -46,7 +45,7 @@ class SecurityCenter(object):
               'SSA',
               ]
 
-    def __init__(self, host, user, passwd, login=True, 
+    def __init__(self, host, user, passwd, login=True,
                  port=443, debug=False, populate=False):
         self._host = host
         self._debug = debug
@@ -209,11 +208,11 @@ class SecurityCenter(object):
 
     def raw_query(self, module, action, data={}, headers={}, dejson=True,
                   filename=None):
-        '''raw_query module, action, [data], [headers], [dejson]
+        """raw_query module, action, [data], [headers], [dejson]
         Initiates a raw query to the api.  While publicly exposed it is not
         recommended to use this function unless there is a legitimate reason
         and a solid understanding of how the API works.
-        '''
+        """
 
         # First we query the API and then check to see if an error was thrown.
         # If there was an error, simply respond back with False.
@@ -229,7 +228,7 @@ class SecurityCenter(object):
     def query(self, tool, filters=None, source='cumulative', sort=None,
             direction='desc', func=None, func_params=None, req_size=1000,
             scan=None, directory=None, **filterset):
-        '''query tool, [filters], [req_size], [list, of, filters]
+        """query tool, [filters], [req_size], [list, of, filters]
         This function attempts to make it a lot easier to run vuln and lce
         searches within the Security Center API.  This function will query the
         API for all of the items that match this query and will then
@@ -261,8 +260,8 @@ class SecurityCenter(object):
         For a list of the available filters that can be performed, please
         consult the Security Center API documentation.
 
-        '''
-        
+        """
+
         data = []       # This is the list that we will be returning back to
                         # the calling function once we complete.
         payload = {}    # The dataset that we will be sending to the API via the
@@ -270,7 +269,7 @@ class SecurityCenter(object):
 
         # A simple data dictionary to determine the module that we will be used
         stype = {
-            'cumulative': 'vuln', 
+            'cumulative': 'vuln',
             'mitigated': 'vuln',
             'patched': 'vuln',
             'individual': 'vuln',
@@ -281,7 +280,7 @@ class SecurityCenter(object):
         # as well, and will be set in the payload.
         if source == "individual" and scan is not None and directory is not None:
             # convert directory passed as datetime to string if necessary
-            if isinstance(directory, datetime.date):
+            if isinstance(directory, date):
                 directory = directory.strftime("%Y-%m-%d")
 
             payload["scanID"] = scan
@@ -322,7 +321,7 @@ class SecurityCenter(object):
 
         # Everything is set, checks out, and is ready to go.  Now we have to
         # start running through the query loop and actually pull everything
-        # together.  We know that we will 
+        # together.  We know that we will
         items = []      # This is the resultset.  It'll be different every time
                         # we loop.  to get things going however, we will just
                         # set it to an empty list.
@@ -360,48 +359,48 @@ class SecurityCenter(object):
 
 
     def login(self, user, passwd):
-        '''login user passwd
+        """login user passwd
         Performs the login operation for Security Center, storing the token
         that Security Center has generated for this login session for future
         queries.
-        '''
+        """
         data = self._request('auth', 'login',
                              data={'username': user, 'password': passwd})
         try:
             self._token = data['response']['token']
             self._user = data
         except:
-            raise APIError('Invalid Login Credentials')
+            raise APIError(data["error_code"], 'Invalid Login Credentials')
 
 
     def logout(self):
-        '''logout
+        """logout
         Performs a logout on Security Center to clear the session from the
-        session table and then 
-        '''
+        session table and then
+        """
         self._request('auth','logout', data={'token': self._token})
         self._token = None
 
 
     def assets(self):
-        '''assets
+        """assets
         Returns the needed information to parse through all of the asset
         lists assigned to this user.
-        '''
+        """
         return self.raw_query('asset', 'init')
 
 
     def asset_update(self, asset_id, name=None, description=None,
-                     visibility=None, group=None, users=None, 
+                     visibility=None, group=None, users=None,
                      ips=None, rules=None):
-        '''asset_update asset_id, [name], [description], [visibility], [group],
+        """asset_update asset_id, [name], [description], [visibility], [group],
                         [users], [ips], [rules]
         The Asset Update function will update the Asset ID defined with the
         values that have been specified.  Only those specified will be updated
         as a query is first made to pre-populate the update with all of the
         existing information, then override that information with the new data
         presented by the caller.
-        '''
+        """
 
         payload = None
         # First thing we need to do is query the api for the current asset
@@ -425,7 +424,7 @@ class SecurityCenter(object):
         # New we need to check to see if we actually got to pre-load the
         # payload.  If we didnt, then there isn an existing Asset list and we
         # should error out.
-        if payload == None:
+        if payload is None:
             raise APIError(13, 'asset_id %s does not exist' % asset_id)
 
         # And now we will override any of the values that have actually been
@@ -455,23 +454,23 @@ class SecurityCenter(object):
 
 
     def asset_ips(self, asset_id):
-        '''asset_ips asset_id
+        """asset_ips asset_id
         Returns the IPs associated with the asset ID defined.
-        '''
+        """
         return self.raw_query('asset', 'getIPs', data={'id': asset_id})
 
 
     def credentials(self):
-        '''credentials
+        """credentials
         Returns the list of credentials that the user has access to.
-        '''
+        """
         return self.raw_query('credential', 'init')
 
 
     def credential_update(self, cred_id, **options):
-        '''credential_update cred_id **options
+        """credential_update cred_id **options
         Updates the specified values of the credential ID specified.
-        '''
+        """
         payload = None
 
         # First we pull the credentials and populate the payload if we
@@ -508,7 +507,7 @@ class SecurityCenter(object):
                     payload['username'] = cred['username']
                     payload['domain'] = cred['domain']
 
-        if payload == None:
+        if payload is None:
             raise APIError(13, 'cred_id %s does not exist' % cred_id)
 
         for option in options:
@@ -519,16 +518,16 @@ class SecurityCenter(object):
 
     def plugins(self, plugin_type='all', sort='id', direction='asc',
                 size=1000, offset=0, all=True, loops=0, since=None, **filterset):
-        '''plugins
+        """plugins
         Returns a list of of the plugins and their associated families.  For
         simplicity purposes, the plugin family names will be injected into the
         plugin data so that only 1 list is returned back with all of the
         information.
-        '''
+        """
         plugins = []
 
         # First we need to generate the basic payload that we will be augmenting
-        # to build the 
+        # to build the
         payload = {
             'size': size,
             'offset': offset,
@@ -547,9 +546,8 @@ class SecurityCenter(object):
 
         # We also need to check if there was a datetime object sent to us and
         # parse that down if given.
-        if since is not None and (isinstance(since, datetime.datetime) or
-                                  isinstance(since, datetime.date)):
-            payload['since'] = int(time.mktime(since.timetuple()))
+        if since is not None and isinstance(since, date):
+            payload['since'] = calendar.timegm(since.utctimetuple())
 
         # And now we run through the loop needed to pull all of the data.  This
         # may take some time even though we are pulling large data sets.  At the
@@ -558,7 +556,7 @@ class SecurityCenter(object):
         while all or loops > 0:
             # First things first, we need to query the data.
             data = self.raw_query('plugin', 'init', data=payload)
-            if data == []:
+            if not data:
                 return []
 
             # This no longer works in 4.4 as the family name is already
@@ -579,8 +577,8 @@ class SecurityCenter(object):
 
             # Next its time to increment the offset so that we get a new data
             # set.  We will also check here to see if the length really is the
-            # same as whats specified in the size variable.  If it isnt, then 
-            # we have reached the end of the dataset and might as well set 
+            # same as whats specified in the size variable.  If it isnt, then
+            # we have reached the end of the dataset and might as well set
             # the continue variable to False.
             if len(data['plugins']) < size:
                 all = False
@@ -592,10 +590,10 @@ class SecurityCenter(object):
 
 
     def plugin_counts(self):
-        '''plugin_counts
+        """plugin_counts
         Returns the plugin counts as dictionary with the last updated info if
         its available.
-        '''
+        """
         ret = {
             'total': 0,
         }
@@ -625,60 +623,60 @@ class SecurityCenter(object):
 
 
     def plugin_details(self, plugin_id):
-        '''plugin_details plugin_id
+        """plugin_details plugin_id
         Returns the details for a specific plugin id
-        '''
-        return self.raw_query('plugin', 'getDetails', 
+        """
+        return self.raw_query('plugin', 'getDetails',
                               data={'pluginID': plugin_id})
 
 
     def repositories(self):
-        '''repositories
+        """repositories
         Returns with the repository information. license information, and
         organizational information.
-        '''
+        """
         return self.raw_query('repository', 'init')
 
 
     def roles(self):
-        '''roles
+        """roles
         Returns the user roles and associated metadata.
-        '''
+        """
         return self.raw_query('role', 'init')
 
 
     def _system(self):
-        '''system
+        """system
         Returns system information about the Security Center instance.
-        '''
+        """
         return self.raw_query('system', 'init')
 
 
     def tickets(self):
-        '''tickets
+        """tickets
         Returns tickets and their asociated data
-        '''
+        """
         return self.raw_query('ticket', 'init')
 
     def users(self):
-        '''users
+        """users
         Returns all user information from the Security Center instance.
-        '''
+        """
         return self.raw_query('user', 'init')
 
 
     def vulns(self):
-        '''vulns
+        """vulns
         Returns all available vulnerabilities from the Security Center instance.
-        '''
+        """
         return self.raw_query('vuln', 'init')
 
 
     def ip_info(self, ip, repository_ids=[]):
-        '''ip_info
+        """ip_info
         Returns information about the IP specified in the repository ids
         defined.
-        '''
+        """
         repos = []
         for rid in repository_ids:
             repos.append({'id': rid})
@@ -687,31 +685,51 @@ class SecurityCenter(object):
 
 
     def zones(self):
-        '''zones
+        """zones
         Returns all available scan zones and scanner status information.
-        '''
+        """
         return self.raw_query('zone', 'init')
 
 
     def scan_list(self, start_time=None, end_time=None):
-        '''scan_list
-        Returns a list of scans stored in Security Center
-        '''
-        if start_time == None or end_time == None:
-            data = self.raw_query('scanResult', 'init')
-        else:
-            payload = {
-                'startTime': int(start_time),
-                'endTime': int(end_time),
-            }
-            data = self.raw_query('scanResult', 'getRange', data=payload)
-        return data['scanResults']
+        """List scans stored in Security Center in a given time range.
+
+        Time is given in UNIX timestamps, assumed to be UTC.  If a `datetime` is
+        passed it is converted.  If `end_time` is not specified it is NOW.  If
+        `start_time` is not specified it is 30 days previous from `end_time`.
+
+        :param start_time: start of range to filter
+        :type start_time: date, datetime, int
+        :param end_time: end of range to filter
+        :type start_time: date, datetime, int
+
+        :return: list of dictionaries representing scans
+
+        """
+
+        try:
+            end_time = datetime.utcfromtimestamp(int(end_time))
+        except TypeError:
+            if end_time is None:
+                end_time = datetime.utcnow()
+
+        try:
+            start_time = datetime.utcfromtimestamp(int(start_time))
+        except TypeError:
+            if start_time is None:
+                start_time = end_time - timedelta(days=30)
+
+        data = {"startTime": calendar.timegm(start_time.utctimetuple()),
+                "endTime": calendar.timegm(end_time.utctimetuple())}
+
+        result = self.raw_query("scanResult", "getRange", data=data)
+        return result["scanResults"]
 
 
     def scan_download(self, scan_id, format='v2'):
-        '''scan_download scan_id [format]
+        """scan_download scan_id [format]
         Will download an individual scan and return a string with the results.
-        '''
+        """
         payload = {
             'downloadType': format,
             'scanResultID': scan_id,
@@ -730,22 +748,22 @@ class SecurityCenter(object):
     ###############
 
     def _upload(self, filename):
-        '''_upload filename
+        """_upload filename
         Internal function to provide uploading capability.  All of the heavy
         Lifting work has been handled upstream in self._request.
 
         UN-DOCUMENTED CALL: This function is not considered stable.
-        '''
+        """
         return self.raw_query('file', 'upload', data={'returnContent':'false'},
                               filename=filename)
 
 
     def dashboard_import(self, name, filename):
-        '''dashboard_import Dashboard_Name, filename
+        """dashboard_import Dashboard_Name, filename
         Uploads a dashboard template to the current user's dashboard tabs.
 
         UN-DOCUMENTED CALL: This function is not considered stable.
-        '''
+        """
         data = self._upload(filename)
         return self.raw_query('dashboard', 'importTab', data={
             'filename': data['filename'],
@@ -754,11 +772,11 @@ class SecurityCenter(object):
 
 
     def report_import(self, name, filename):
-        '''report_import Report_Name, filename
+        """report_import Report_Name, filename
         Uploads a report template to the current user's reports
 
         UN-DOCUMENTED CALL: This function is not considered stable.
-        '''
+        """
         data = self._upload(filename)
         return self.raw_query('report', 'import', data={
             'filename': data['filename'],
