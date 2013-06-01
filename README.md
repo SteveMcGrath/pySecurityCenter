@@ -8,6 +8,12 @@ queries into the API as painless and manageable as possible.
 
 # Changelog
 
+__v0.3.9__
+
+* Removed un-needed poster requirement [davidism]
+* Improved scan_list time handling [davidism]
+* Added support for Two-way SSL Certificates [davidism]
+
 __v0.3.8__
 
 * Added proper support for individual scan results in the query function. [davidism]
