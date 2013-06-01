@@ -111,6 +111,13 @@ For other functions, please use the raw_query function until the functions have
 been rewritten.  For detailed documentation for the various other things that
 can be done, please reference the Security Center API documentation.
 
+## SSL Support
+
+If Python is compiled with SSL support, SecurityCenter can support two-way SSL.
+
+  >>> sc = SecurityCenter("ADDRESS", "USER", "PASS",
+  ... key="KEY_FILE_PATH", cert="CERT_FILE_PATH")
+
 # Available Functions
 
 ## raw_query
