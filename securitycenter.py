@@ -1,13 +1,14 @@
-import datetime
+import calendar
+from datetime import date, datetime, timedelta
 import httplib
 import logging
 import mimetypes
 import os
 import random
-import time
-import urllib2
 from StringIO import StringIO
+import time
 from urllib import urlencode
+import urllib2
 from urllib2 import urlopen, Request
 from zipfile import ZipFile
 
@@ -36,7 +37,7 @@ try:
             return self.do_open(self.getConnection, req)
 
         def getConnection(self, host, **kwargs):
-            return httplib.HTTPSConnection(host, key_file=self.key, 
+            return httplib.HTTPSConnection(host, key_file=self.key,
                                            cert_file=self.cert, **kwargs)
 except ImportError:
     ssl = None
@@ -309,7 +310,7 @@ class SecurityCenter(object):
         # as well, and will be set in the payload.
         if source == "individual" and scan is not None and directory is not None:
             # convert directory passed as datetime to string if necessary
-            if isinstance(directory, datetime.date):
+            if isinstance(directory, date):
                 directory = directory.strftime("%Y-%m-%d")
 
             payload["scanID"] = scan
@@ -575,9 +576,8 @@ class SecurityCenter(object):
 
         # We also need to check if there was a datetime object sent to us and
         # parse that down if given.
-        if since is not None and (isinstance(since, datetime.datetime) or
-                                  isinstance(since, datetime.date)):
-            payload['since'] = int(time.mktime(since.timetuple()))
+        if since is not None and isinstance(since, date):
+            payload['since'] = calendar.timegm(since.utctimetuple())
 
         # And now we run through the loop needed to pull all of the data.  This
         # may take some time even though we are pulling large data sets.  At the
@@ -721,19 +721,40 @@ class SecurityCenter(object):
         return self.raw_query('zone', 'init')
 
 
-    def scan_list(self, start_time=None, end_time=None):
-        '''scan_list
-        Returns a list of scans stored in Security Center
-        '''
-        if start_time == None or end_time == None:
-            data = self.raw_query('scanResult', 'init')
-        else:
-            payload = {
-                'startTime': int(start_time),
-                'endTime': int(end_time),
-            }
-            data = self.raw_query('scanResult', 'getRange', data=payload)
-        return data['scanResults']
+    def scan_list(self, start_time=None, end_time=None, **kwargs):
+        """List scans stored in Security Center in a given time range.
+
+        Time is given in UNIX timestamps, assumed to be UTC. If a `datetime` is
+        passed it is converted. If `end_time` is not specified it is NOW. If
+        `start_time` is not specified it is 30 days previous from `end_time`.
+
+        :param start_time: start of range to filter
+        :type start_time: date, datetime, int
+        :param end_time: end of range to filter
+        :type start_time: date, datetime, int
+
+        :return: list of dictionaries representing scans
+
+        """
+
+        try:
+            end_time = datetime.utcfromtimestamp(int(end_time))
+        except TypeError:
+            if end_time is None:
+                end_time = datetime.utcnow()
+
+        try:
+            start_time = datetime.utcfromtimestamp(int(start_time))
+        except TypeError:
+            if start_time is None:
+                start_time = end_time - timedelta(days=30)
+
+        data = {"startTime": calendar.timegm(start_time.utctimetuple()),
+                "endTime": calendar.timegm(end_time.utctimetuple())}
+        data.update(kwargs)
+
+        result = self.raw_query("scanResult", "getRange", data=data)
+        return result["scanResults"]
 
 
     def scan_download(self, scan_id, format='v2'):
