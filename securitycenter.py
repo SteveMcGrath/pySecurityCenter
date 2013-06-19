@@ -396,11 +396,12 @@ class SecurityCenter(object):
         '''
         data = self._request('auth', 'login',
                              data={'username': user, 'password': passwd})
-        try:
-            self._token = data['response']['token']
-            self._user = data
-        except:
-            raise APIError('Invalid Login Credentials')
+
+        if data["error_code"]:
+            raise APIError(data["error_code"], data["error_msg"])
+
+        self._token = data["response"]["token"]
+        self._user = data
 
 
     def logout(self):
