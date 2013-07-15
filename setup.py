@@ -26,7 +26,7 @@ if sys.version_info > (3,):
 
 setup(
     name='pySecurityCenter',
-    version='0.3.9',
+    version='1.0',
     description='Security Center 4 API Module',
     author='Steven McGrath',
     author_email='smcgrath@tenable.com',

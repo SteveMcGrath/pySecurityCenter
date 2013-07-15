@@ -7,6 +7,11 @@ queries into the API as painless and manageable as possible.
 [Source Code Repository](https://github.com/SteveMcGrath/pySecurityCenter)
 
 # Changelog
+__v1.0__
+
+* Changed Rev to 1.x as the code has been sufficiently stable.
+* Added proper error handling for login [davidism]
+* Handling of Datetime objects now works as expected [davidism]
 
 __v0.3.9__
 
