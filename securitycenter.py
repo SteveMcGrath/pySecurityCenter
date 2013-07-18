@@ -547,6 +547,79 @@ class SecurityCenter(object):
         return self.raw_query('credential', 'edit', data=payload)
 
 
+    def credential_add(self, name, type, username, password,
+            domain=None,
+            public_key=None, private_key=None, passphrase=None,
+            escalation_type=None, escalation_username=None, escalation_password=None,
+            description=None, group=None, visibility="user"):
+            #TODO users=[]
+
+        """Add a new credential.
+
+        :param name: unique reference name for credential
+        :param type: "ssh", "windows", "snmp", or "kerberos"
+        :param username:
+        :param password:
+        :param domain: Windows domain that account belongs to
+        :param public_key: filename of uploaded public key for ssh auth
+        :param private_key: filename of uploaded private key for ssh auth
+        :param passphrase: password for private key
+        :param escalation_type: "su", "sudo", "su+sudo", "dzdo", "pbrun", "Cisco 'enable'", or None
+        :param escalation_username:
+        :param escalation_password:
+        :param description:
+        :param group: custom name for organization
+        :param visibility: "user", "organizational", "shared", or "application", default "user"
+        """
+
+        #TODO handle file upload for keys
+
+        data = {
+            "name": name,
+            "type": type,
+            "username": username,
+            "password": password,
+            "domain": domain,
+            "publicKey": public_key,
+            "privateKey": private_key,
+            "passphrase": passphrase,
+            "privilegeEscalation": escalation_type,
+            "escalationUsername": escalation_username,
+            "escalationPassword": escalation_password,
+            "description": description,
+            "group": group,
+            "visibility": visibility
+        }
+
+        data = {key: value for key, value in data.iteritems() if value is not None}
+
+        return self.raw_query("credential", "add", data=data)
+
+
+    #TODO: credential_share_simulate
+    #TODO: credential_share
+
+
+    def credential_delete_simulate(self, *ids):
+        """Show the relationships and dependencies for one or more credentials.
+
+        :param ids: one or more credential ids
+        """
+        return self.raw_query("credential", "deleteSimulate", data={
+            "credentials": [{"id": str(id)} for id in ids]
+        })
+
+
+    def credential_delete(self, *ids):
+        """Delete one or more credentials.
+
+        :param ids: one or more credential ids
+        """
+        return self.raw_query("credential", "delete", data={
+            "credentials": [{"id": str(id)} for id in ids]
+        })
+
+
     def plugins(self, plugin_type='all', sort='id', direction='asc',
                 size=1000, offset=0, all=True, loops=0, since=None, **filterset):
         '''plugins
