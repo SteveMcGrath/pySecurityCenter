@@ -36,6 +36,7 @@ class Auth(Module):
         r = self.sc._request("auth", "logout")
 
         self.sc._token = None
+        self.sc._session.cookies.clear()
 
         return r
 
