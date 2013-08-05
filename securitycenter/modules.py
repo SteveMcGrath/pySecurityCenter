@@ -3,13 +3,20 @@ from datetime import datetime
 
 
 class Module(object):
+    name = ""
+
     def __init__(self, sc):
         self.sc = sc
 
+    def _request(self, action, input=None, parse=True):
+        return self.sc._request(self.name, action, input, parse)
+
 
 class System(Module):
+    name = "system"
+
     def init(self):
-        r = self.sc._request("system", "init")
+        r = self._request("init")
 
         token = r.get("token")
 
@@ -23,11 +30,13 @@ class System(Module):
 
 
 class Auth(Module):
+    name = "auth"
+
     def login(self, username, password):
         if self.sc._token:
             self.logout()
 
-        r = self.sc._request("auth", "login", {
+        r = self._request("login", {
             "username": username,
             "password": password
         })
@@ -37,7 +46,7 @@ class Auth(Module):
         return r
 
     def logout(self):
-        r = self.sc._request("auth", "logout")
+        r = self._request("logout")
 
         self.sc._token = None
         self.sc._session.cookies.clear()
@@ -45,15 +54,17 @@ class Auth(Module):
         return r
 
     def save_fingerprint(self):
-        return self.sc._request("auth", "saveFingerprint")
+        return self._request("saveFingerprint")
 
 
 class Plugin(Module):
+    name = "plugin"
+
     def _get_page(self, action, size, offset, type, sort_field, sort_direction, filter_field, filter_string, since):
         if isinstance(since, datetime):
             since = calendar.timegm(since.utctimetuple())
 
-        return self.sc._request("plugin", action, {
+        return self._request(action, {
             "size": size,
             "offset": offset,
             "type": type,
@@ -71,7 +82,7 @@ class Plugin(Module):
         return self._get_page("getPage", size, offset, since, type, sort_field, sort_direction, filter_field, filter_string)
 
     def get_details(self, plugin_id):
-        return self.sc._request("plugin", "getDetails", {"pluginID": plugin_id})
+        return self._request("getDetails", {"pluginID": plugin_id})
 
     def get_source(self, plugin_id):
-        return self.sc._request("plugin", "getSource", {"pluginID": plugin_id})
+        return self._request("getSource", {"pluginID": plugin_id})
