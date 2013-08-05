@@ -1,4 +1,4 @@
-import calendar
+from calendar import timegm
 from datetime import datetime
 
 
@@ -16,7 +16,14 @@ class System(Module):
     name = "system"
 
     def init(self):
-        r = self._request("init")
+        token = self.sc._token
+
+        try:
+            self.sc._token = None
+
+            r = self._request("init")
+        finally:
+            self.sc._token = token
 
         token = r.get("token")
 
@@ -60,9 +67,9 @@ class Auth(Module):
 class Plugin(Module):
     name = "plugin"
 
-    def _get_page(self, action, size, offset, type, sort_field, sort_direction, filter_field, filter_string, since):
+    def _fetch(self, action, size, offset, type, sort_field, sort_direction, filter_field, filter_string, since):
         if isinstance(since, datetime):
-            since = calendar.timegm(since.utctimetuple())
+            since = timegm(since.utctimetuple())
 
         return self._request(action, {
             "size": size,
@@ -76,13 +83,79 @@ class Plugin(Module):
         })
 
     def init(self, size=None, offset=None, type=None, sort_field=None, sort_direction=None, filter_field=None, filter_string=None, since=None):
-        return self._get_page("init", size, offset, since, type, sort_field, sort_direction, filter_field, filter_string)
+        return self._fetch("init", size, offset, since, type, sort_field, sort_direction, filter_field, filter_string)
 
     def get_page(self, size=None, offset=None, since=None, type=None, sort_field=None, sort_direction=None, filter_field=None, filter_string=None):
-        return self._get_page("getPage", size, offset, since, type, sort_field, sort_direction, filter_field, filter_string)
+        return self._fetch("getPage", size, offset, since, type, sort_field, sort_direction, filter_field, filter_string)
 
     def get_details(self, plugin_id):
         return self._request("getDetails", {"pluginID": plugin_id})
 
     def get_source(self, plugin_id):
         return self._request("getSource", {"pluginID": plugin_id})
+
+    def get_families(self):
+        return self._request("getFamilies")
+
+    def update(self, type="all"):
+        return self._request("update", {"type": type})
+
+    def upload(self):
+        raise NotImplementedError
+
+
+class Credential(Module):
+    name = "credential"
+
+    def init(self):
+        return self._request("init")
+
+    def add(self):
+        raise NotImplementedError
+
+    def edit(self):
+        raise NotImplementedError
+
+    def share_simulate(self):
+        raise NotImplementedError
+
+    def share(self):
+        raise NotImplementedError
+
+    def delete_simulate(self):
+        raise NotImplementedError
+
+    def delete(self):
+        raise NotImplementedError
+
+
+class Heartbeat(Module):
+    name = "heartbeat"
+
+    def init(self):
+        return self._request("init")
+
+    def beat(self, id, module, module_params, messages_viewed, messages_deleted):
+        raise NotImplementedError
+
+
+class Message(Module):
+    name = "message"
+
+    def read_all(self, older_than=None):
+        if older_than is None:
+            older_than = datetime.utcnow()
+
+        if isinstance(older_than, datetime):
+            older_than = timegm(older_than.utctimetuple())
+
+        return self._request("readAll", {"olderThan": older_than})
+
+    def delete_all(self, older_than=None):
+        if older_than is None:
+            older_than = datetime.utcnow()
+
+        if isinstance(older_than, datetime):
+            older_than = timegm(older_than.utctimetuple())
+
+        return self._request("deleteAll", {"olderThan": older_than})

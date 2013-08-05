@@ -17,6 +17,9 @@ class SecurityCenter(object):
         self._token = None
 
         self.auth = modules.Auth(self)
+        self.credential = modules.Credential(self)
+        self.heartbeat = modules.Heartbeat(self)
+        self.message = modules.Message(self)
         self.plugin = modules.Plugin(self)
         self.system = modules.System(self)
 
@@ -29,6 +32,8 @@ class SecurityCenter(object):
     def _request(self, module, action, input=None, parse=True):
         if input is None:
             input = {}
+
+        input = {key: value for key, value in input.items() if value is not None}
 
         r = self._session.post(self._url, {
             "module": module,
