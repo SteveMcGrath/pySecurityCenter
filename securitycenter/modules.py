@@ -156,20 +156,20 @@ class Credential(Module):
     def add_kerberos(self, name, ip, port, protocol, realm, description=None, group=None, visibility="user", users=None):
         return self.add(name, "kerberos", description, group, visibility, users, ip=ip, port=port, protocol=protocol, realm=realm)
 
-    def edit(self, id, name, description=None, group=None, visibility=None, users=None, **kwargs):
-        raise NotImplementedError
+    def edit(self, id, prefill=True, **kwargs):
+        if prefill:
+            input = {int(c["id"]): c for c in self.init()["credentials"]}[int(id)]
+        else:
+            input = {"id": id}
 
-    def edit_ssh(self):
-        raise NotImplementedError
+        try:
+            kwargs["users"] = [{"id": u_id} for u_id in kwargs["users"]]
+        except KeyError:
+            pass
 
-    def edit_windows(self):
-        raise NotImplementedError
+        input.update(kwargs)
 
-    def edit_snmp(self):
-        raise NotImplementedError
-
-    def edit_kerberos(self):
-        raise NotImplementedError
+        return self._request("edit", input)
 
     def share_simulate(self, id, users):
         return self._request("shareSimulate", {

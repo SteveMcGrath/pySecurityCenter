@@ -57,4 +57,7 @@ class SecurityCenter(object):
             # instead of raising an error that it expects at least one family
             raise CoreError("Irregular response: {}".format(r.content))
 
+        # may return an empty string or list instead of an error, but it's not
+        # always an error
+
         return j["response"]
