@@ -17,6 +17,7 @@ class SecurityCenter(object):
         self._token = None
 
         self.auth = modules.Auth(self)
+        self.plugin = modules.Plugin(self)
         self.system = modules.System(self)
 
         if _system_init:
@@ -25,7 +26,7 @@ class SecurityCenter(object):
         if username is not None and password is not None:
             self.auth.login(username, password)
 
-    def _request(self, module, action, input=None, file=None, parse=True):
+    def _request(self, module, action, input=None, parse=True):
         if input is None:
             input = {}
 
