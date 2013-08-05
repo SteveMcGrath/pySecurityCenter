@@ -18,6 +18,7 @@ class SecurityCenter(object):
 
         self.auth = modules.Auth(self)
         self.credential = modules.Credential(self)
+        self.file = modules.File(self)
         self.heartbeat = modules.Heartbeat(self)
         self.message = modules.Message(self)
         self.plugin = modules.Plugin(self)
@@ -29,7 +30,7 @@ class SecurityCenter(object):
         if username is not None and password is not None:
             self.auth.login(username, password)
 
-    def _request(self, module, action, input=None, parse=True):
+    def _request(self, module, action, input=None, file=None, parse=True):
         if input is None:
             input = {}
 
@@ -40,8 +41,9 @@ class SecurityCenter(object):
             "action": action,
             "request_id": randint(10000, 20000),
             "token": self._token,
-            "input": json.dumps(input),
-        })
+            "input": json.dumps(input)
+        }, files={"Filedata": file} if file else None)
+
         r.raise_for_status()
 
         if not parse:
