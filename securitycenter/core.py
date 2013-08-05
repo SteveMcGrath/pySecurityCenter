@@ -3,7 +3,7 @@ from random import randint
 from urlparse import urljoin
 from requests import Session
 from . import modules
-from .exc import raise_for_error
+from .exc import raise_for_error, CoreError
 
 
 class SecurityCenter(object):
@@ -49,5 +49,10 @@ class SecurityCenter(object):
 
         j = r.json()
         raise_for_error(j)
+
+        if j["type"] != "regular":
+            # e.g. sc.plugin.get_plugins(families=[]) returns type="plugins"
+            # instead of raising an error that it expects at least one family
+            raise CoreError("Irregular response: {}".format(r.content))
 
         return j["response"]

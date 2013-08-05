@@ -97,6 +97,11 @@ class Plugin(Module):
     def get_families(self):
         return self._request("getFamilies")
 
+    def get_plugins(self, family_ids):
+        return self._request("getPlugins", {
+            "families": [{"id": int(id)} for id in family_ids]
+        })
+
     def update(self, type="all"):
         return self._request("update", {"type": type})
 
@@ -135,8 +140,20 @@ class Heartbeat(Module):
     def init(self):
         return self._request("init")
 
-    def beat(self, id, module, module_params, messages_viewed, messages_deleted):
-        raise NotImplementedError
+    def beat(self, module=None, module_params=None, messages_viewed=None, messages_deleted=None, id=None):
+        if messages_viewed is None:
+            messages_viewed = []
+
+        if messages_deleted is None:
+            messages_deleted = []
+
+        return self._request("beat", {
+            "messagesViewed": [{"id": int(m_id)} for m_id in messages_viewed],
+            "messagesDeleted": [{"id": int(m_id)} for m_id in messages_deleted],
+            "module": module,
+            "moduleParams": module_params,
+            "id": id
+        })
 
 
 class Message(Module):

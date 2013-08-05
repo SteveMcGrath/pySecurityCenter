@@ -10,8 +10,16 @@ class APIError(Exception):
         return "{}({!r}, {!r})".format(self.__class__.__name__, self.code, self.message)
 
 
+class CoreError(Exception):
+    pass
+
+
 def raise_for_error(data):
-    code = data["error_code"]
+    try:
+        code = data["error_code"]
+    except KeyError:
+        return
+
     message = data["error_msg"]
 
     if not code:
