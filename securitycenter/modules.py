@@ -117,7 +117,7 @@ class Credential(Module):
     def init(self):
         return self._request("init")
 
-    def add(self, name, type, description=None, group=None, visibility=None, users=None, **kwargs):
+    def add(self, name, type, description=None, group=None, visibility="user", users=None, **kwargs):
         if users is not None:
             users = [{"id": u_id} for u_id in users]
 
@@ -132,7 +132,7 @@ class Credential(Module):
 
         return self._request("add", kwargs)
 
-    def add_ssh(self, name, username, password=None, public_key=None, private_key=None, passphrase=None, escalation_type=None, escalation_username=None, escalation_password=None, description=None, group=None, visibility=None, users=None):
+    def add_ssh(self, name, username, password=None, public_key=None, private_key=None, passphrase=None, escalation_type=None, escalation_username=None, escalation_password=None, description=None, group=None, visibility="user", users=None):
         if public_key is not None and private_key is not None:
             public_key = self._sc.file.name_or_upload(public_key)
             private_key = self._sc.file.name_or_upload(private_key)
@@ -140,23 +140,23 @@ class Credential(Module):
         return self.add(
             name, "ssh", description, group, visibility, users,
             username=username, password=password,
-            public_key=public_key,
-            private_key=private_key, passphrase=passphrase,
-            escalation_type=escalation_type,
-            escalation_username=escalation_username,
-            escalation_password=escalation_password
+            publicKey=public_key,
+            privateKey=private_key, passphrase=passphrase,
+            privilegeEscalation=escalation_type,
+            escalationUsername=escalation_username,
+            escalationPassword=escalation_password
         )
 
-    def add_windows(self, name, username, password, domain=None, description=None, group=None, visibility=None, users=None):
+    def add_windows(self, name, username, password, domain=None, description=None, group=None, visibility="user", users=None):
         return self.add(name, "windows", description, group, visibility, users, username=username, password=password, domain=domain)
 
-    def add_snmp(self, name, community, description=None, group=None, visibility=None, users=None):
+    def add_snmp(self, name, community, description=None, group=None, visibility="user", users=None):
         return self.add(name, "snmp", description, group, visibility, users, communityString=community)
 
-    def add_kerberos(self, name, ip, port, protocol, realm, description=None, group=None, visibility=None, users=None):
+    def add_kerberos(self, name, ip, port, protocol, realm, description=None, group=None, visibility="user", users=None):
         return self.add(name, "kerberos", description, group, visibility, users, ip=ip, port=port, protocol=protocol, realm=realm)
 
-    def edit(self, id, name, description, group, visibility, users, type, **kwargs):
+    def edit(self, id, name, description=None, group=None, visibility=None, users=None, **kwargs):
         raise NotImplementedError
 
     def edit_ssh(self):
@@ -171,17 +171,27 @@ class Credential(Module):
     def edit_kerberos(self):
         raise NotImplementedError
 
-    def share_simulate(self):
-        raise NotImplementedError
+    def share_simulate(self, id, users):
+        return self._request("shareSimulate", {
+            "id": id,
+            "users": [{"id": u_id} for u_id in users]
+        })
 
-    def share(self):
-        raise NotImplementedError
+    def share(self, id, users):
+        return self._request("share", {
+            "id": id,
+            "users": [{"id": u_id} for u_id in users]
+        })
 
-    def delete_simulate(self, ids):
-        raise NotImplementedError
+    def delete_simulate(self, *ids):
+        return self._request("deleteSimulate", {
+            "credentials": [{"id": id} for id in ids]
+        })
 
-    def delete(self, ids):
-        raise NotImplementedError
+    def delete(self, *ids):
+        return self._request("delete", {
+            "credentials": [{"id": id} for id in ids]
+        })
 
 
 class Heartbeat(Module):
