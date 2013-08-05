@@ -3,44 +3,44 @@ from datetime import datetime
 
 
 class Module(object):
-    name = ""
+    _name = ""
 
     def __init__(self, sc):
-        self.sc = sc
+        self._sc = sc
 
     def _request(self, action, input=None, parse=True):
-        return self.sc._request(self.name, action, input, parse)
+        return self._sc._request(self._name, action, input, parse)
 
 
 class System(Module):
-    name = "system"
+    _name = "system"
 
     def init(self):
-        token = self.sc._token
+        token = self._sc._token
 
         try:
-            self.sc._token = None
+            self._sc._token = None
 
             r = self._request("init")
         finally:
-            self.sc._token = token
+            self._sc._token = token
 
         token = r.get("token")
 
         if token:
-            if self.sc._token:
-                self.sc.auth.logout()
+            if self._sc._token:
+                self._sc.auth.logout()
 
-            self.sc._token = token
+            self._sc._token = token
 
         return r
 
 
 class Auth(Module):
-    name = "auth"
+    _name = "auth"
 
     def login(self, username, password):
-        if self.sc._token:
+        if self._sc._token:
             self.logout()
 
         r = self._request("login", {
@@ -48,15 +48,15 @@ class Auth(Module):
             "password": password
         })
 
-        self.sc._token = r["token"]
+        self._sc._token = r["token"]
 
         return r
 
     def logout(self):
         r = self._request("logout")
 
-        self.sc._token = None
-        self.sc._session.cookies.clear()
+        self._sc._token = None
+        self._sc._session.cookies.clear()
 
         return r
 
@@ -65,7 +65,7 @@ class Auth(Module):
 
 
 class Plugin(Module):
-    name = "plugin"
+    _name = "plugin"
 
     def _fetch(self, action, size, offset, type, sort_field, sort_direction, filter_field, filter_string, since):
         if isinstance(since, datetime):
@@ -110,7 +110,7 @@ class Plugin(Module):
 
 
 class Credential(Module):
-    name = "credential"
+    _name = "credential"
 
     def init(self):
         return self._request("init")
@@ -135,7 +135,7 @@ class Credential(Module):
 
 
 class Heartbeat(Module):
-    name = "heartbeat"
+    _name = "heartbeat"
 
     def init(self):
         return self._request("init")
@@ -157,7 +157,7 @@ class Heartbeat(Module):
 
 
 class Message(Module):
-    name = "message"
+    _name = "message"
 
     def read_all(self, older_than=None):
         if older_than is None:
