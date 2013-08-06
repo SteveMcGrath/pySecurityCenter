@@ -1,3 +1,4 @@
+from base64 import b64decode
 from calendar import timegm
 from datetime import datetime
 
@@ -92,7 +93,7 @@ class Plugin(Module):
         return self._request("getDetails", {"pluginID": plugin_id})
 
     def get_source(self, plugin_id):
-        return self._request("getSource", {"pluginID": plugin_id})
+        return b64decode(self._request("getSource", {"pluginID": plugin_id})["source"])
 
     def get_families(self):
         return self._request("getFamilies")
