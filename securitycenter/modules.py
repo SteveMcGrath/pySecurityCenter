@@ -156,20 +156,53 @@ class Credential(Module):
     def add_kerberos(self, name, ip, port, protocol, realm, description=None, group=None, visibility="user", users=None):
         return self.add(name, "kerberos", description, group, visibility, users, ip=ip, port=port, protocol=protocol, realm=realm)
 
-    def edit(self, id, prefill=True, **kwargs):
+    def edit(self, id, prefill=True, name=None, type=None, description=None, group=None, visibility=None, users=None, **kwargs):
+        if users is not None:
+            users = [{"id": u_id} for u_id in users]
+
         if prefill:
             input = {int(c["id"]): c for c in self.init()["credentials"]}[int(id)]
         else:
             input = {"id": id}
 
-        try:
-            kwargs["users"] = [{"id": u_id} for u_id in kwargs["users"]]
-        except KeyError:
-            pass
-
+        kwargs.update({
+            "name": name,
+            "type": type,
+            "description": description,
+            "group": group,
+            "visibility": visibility,
+            "users": users
+        })
+        kwargs = {key: value for key, value in kwargs.iteritems() if value is not None}
         input.update(kwargs)
 
         return self._request("edit", input)
+
+    def edit_ssh(self, id, prefill=True, name=None, username=None, password=None, public_key=None, private_key=None, passphrase=None, escalation_type=None, escalation_username=None, escalation_password=None, description=None, group=None, visibility=None, users=None):
+        if public_key is not None:
+            public_key = self._sc.file.name_or_upload(public_key)
+
+        if private_key is not None:
+            private_key = self._sc.file.name_or_upload(private_key)
+
+        return self.edit(
+            id, prefill, name, "ssh", description, group, visibility, users,
+            username=username, password=password,
+            publicKey=public_key,
+            privateKey=private_key, passphrase=passphrase,
+            privilegeEscalation=escalation_type,
+            escalationUsername=escalation_username,
+            escalationPassword=escalation_password
+        )
+
+    def edit_windows(self, id, prefill=True, name=None, username=None, password=None, domain=None, description=None, group=None, visibility=None, users=None):
+        return self.edit(id, prefill, name, "windows", description, group, visibility, users, username=username, password=password, domain=domain)
+
+    def edit_snmp(self, id, prefill=True, name=None, community=None, description=None, group=None, visibility="user", users=None):
+        return self.edit(id, prefill, name, "snmp", description, group, visibility, users, communityString=community)
+
+    def edit_kerberos(self, id, prefill=True, name=None, ip=None, port=None, protocol=None, realm=None, description=None, group=None, visibility=None, users=None):
+        return self.edit(id, prefill, name, "kerberos", description, group, visibility, users, ip=ip, port=port, protocol=protocol, realm=realm)
 
     def share_simulate(self, id, users):
         return self._request("shareSimulate", {
