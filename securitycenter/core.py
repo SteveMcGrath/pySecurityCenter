@@ -1,5 +1,4 @@
 import json
-import logging
 from random import randint
 from urlparse import urljoin
 from requests import Session
@@ -24,6 +23,7 @@ class SecurityCenter(object):
         self.message = modules.Message(self)
         self.nessus_results = modules.NessusResults(self)
         self.plugin = modules.Plugin(self)
+        self.policy = modules.Policy(self)
         self.scan = modules.Scan(self)
         self.scan_result = modules.ScanResult(self)
         self.system = modules.System(self)
