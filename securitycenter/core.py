@@ -1,4 +1,5 @@
 import json
+import logging
 from random import randint
 from urlparse import urljoin
 from requests import Session
@@ -21,7 +22,10 @@ class SecurityCenter(object):
         self.file = modules.File(self)
         self.heartbeat = modules.Heartbeat(self)
         self.message = modules.Message(self)
+        self.nessus_results = modules.NessusResults(self)
         self.plugin = modules.Plugin(self)
+        self.scan = modules.Scan(self)
+        self.scan_result = modules.ScanResult(self)
         self.system = modules.System(self)
 
         if _system_init:
@@ -34,14 +38,22 @@ class SecurityCenter(object):
         if input is None:
             input = {}
 
-        input = {key: value for key, value in input.items() if value is not None}
+        processed_input = {}
+        for key, value in input.iteritems():
+            if value is None:
+                continue
+
+            if isinstance(value, bool):
+                value = str(value).lower()
+
+            processed_input[key] = value
 
         r = self._session.post(self._url, {
             "module": module,
             "action": action,
             "request_id": randint(10000, 20000),
             "token": self._token,
-            "input": json.dumps(input)
+            "input": json.dumps(processed_input)
         }, files={"Filedata": file} if file else None)
 
         r.raise_for_status()

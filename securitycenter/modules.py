@@ -1,6 +1,8 @@
 from base64 import b64decode
+from cStringIO import StringIO
 from calendar import timegm
 from datetime import datetime
+from zipfile import ZipFile
 
 
 class Module(object):
@@ -54,12 +56,11 @@ class Auth(Module):
         return r
 
     def logout(self):
-        r = self._request("logout")
-
-        self._sc._token = None
-        self._sc._session.cookies.clear()
-
-        return r
+        try:
+            return self._request("logout")
+        finally:
+            self._sc._token = None
+            self._sc._session.cookies.clear()
 
     def save_fingerprint(self):
         return self._request("saveFingerprint")
@@ -89,19 +90,17 @@ class Plugin(Module):
     def get_page(self, size=None, offset=None, since=None, type=None, sort_field=None, sort_direction=None, filter_field=None, filter_string=None):
         return self._fetch("getPage", size, offset, since, type, sort_field, sort_direction, filter_field, filter_string)
 
-    def get_details(self, plugin_id):
-        return self._request("getDetails", {"pluginID": plugin_id})
+    def get_details(self, id):
+        return self._request("getDetails", {"pluginID": id})
 
-    def get_source(self, plugin_id):
-        return b64decode(self._request("getSource", {"pluginID": plugin_id})["source"])
+    def get_source(self, id):
+        return b64decode(self._request("getSource", {"pluginID": id})["source"])
 
     def get_families(self):
         return self._request("getFamilies")
 
-    def get_plugins(self, family_ids):
-        return self._request("getPlugins", {
-            "families": [{"id": int(id)} for id in family_ids]
-        })
+    def get_plugins(self, families):
+        return self._request("getPlugins", {"families": [{"id": int(f_id)} for f_id in families]})
 
     def update(self, type="all"):
         return self._request("update", {"type": type})
@@ -276,10 +275,12 @@ class File(Module):
     _name = "file"
 
     def upload(self, file, return_content=None):
-        if return_content is not None:
-            return_content = str(return_content).lower()
-
         return self._request("upload", {"returnContent": return_content}, file)
+
+    def clear(self, name):
+        return self._request("clear", {"filename": name})
+
+    # how to get existing files?
 
     def name_or_upload(self, data):
         if isinstance(data, basestring):
@@ -287,3 +288,104 @@ class File(Module):
 
         r = self.upload(data, False)
         return r["filename"]
+
+
+class Scan(Module):
+    _name = "scan"
+
+    def init(self):
+        return self._request("init")
+
+    def add(self):
+        #TODO scan::add
+        raise NotImplementedError
+
+    def edit(self):
+        #TODO scan::edit
+        raise NotImplementedError
+
+    def copy(self, id, name):
+        return self._request("copy", {"id": id, "name": name})
+
+    def delete_simulate(self, *ids):
+        return self._request("deleteSimulate", {
+            "scans": [{"id": s_id} for s_id in ids]
+        })
+
+    def delete(self, *ids):
+        return self._request("delete", {
+            "scans": [{"id": s_id} for s_id in ids]
+        })
+
+    def launch(self, id):
+        return self._request("launch", {"scanID": id})
+
+    def pause(self, result):
+        return self._request("pause", {"scanResultID": result})
+
+    def resume(self, result):
+        return self._request("resume", {"scanResultID": result})
+
+    def stop(self, result, type="discard"):
+        # possible values for type: discard, import, rollover
+        return self._request("stop", {"scanResultID": result, "type": type})
+
+
+class ScanResult(Module):
+    _name = "scanResult"
+
+    def init(self):
+        return self._request("init")
+
+    def get_range(self, start=None, end=None, user=None):
+        if isinstance(start, datetime):
+            start = timegm(start.utctimetuple())
+
+        if isinstance(end, datetime):
+            end = timegm(end.utctimetuple())
+
+        return self._request("getRange", {
+            "startTime": start,
+            "endTime": end,
+            "userID": user
+        })
+
+    def get_progress(self, id):
+        return self._request("getProgress", {"scanResultID": id})
+
+    def download(self, id, type="v2"):
+        r = self._request("download", {
+            "scanResultID": id,
+            "downloadType": type
+        }, parse=False)
+
+        z = ZipFile(StringIO(r.content))
+        return z.read(z.namelist()[0])
+
+    def import_(self, id, mitigated_age=None, track_ip=None, virtual=None):
+        return self._request("import", {
+            "scanResultID": id,
+            "classifyMitigatedAge": mitigated_age,
+            "dhcpTracking": track_ip,
+            "scanningVirtualHosts": virtual
+        })
+
+    def delete(self, *ids):
+        return self._request("delete", {
+            "scanResults": [{"id": id} for id in ids]
+        })
+
+
+class NessusResults(Module):
+    _name = "nessusResults"
+
+    def upload(self, file, repo, mitigated_age=None, track_ip=None, virtual=None):
+        filename = self._sc.file.name_or_upload(file)
+
+        return self._request("upload", {
+            "filename": filename,
+            "repID": repo,
+            "classifyMitigatedAge": mitigated_age,
+            "dhcpTracking": track_ip,
+            "scanningVirtualHosts": virtual
+        })
