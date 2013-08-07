@@ -69,7 +69,7 @@ class Auth(Module):
 class Plugin(Module):
     _name = "plugin"
 
-    def _fetch(self, action, size, offset, type, sort_field, sort_direction, filter_field, filter_string, since):
+    def _fetch(self, action, size, offset, type, sort, direction, filter_field, filter_string, since):
         if isinstance(since, datetime):
             since = timegm(since.utctimetuple())
 
@@ -77,18 +77,18 @@ class Plugin(Module):
             "size": size,
             "offset": offset,
             "type": type,
-            "sortField": sort_field,
-            "sortDirection": sort_direction,
+            "sortField": sort,
+            "sortDirection": direction and direction.upper(),
             "filterField": filter_field,
             "filterString": filter_string,
             "since": since
         })
 
-    def init(self, size=None, offset=None, type=None, sort_field=None, sort_direction=None, filter_field=None, filter_string=None, since=None):
-        return self._fetch("init", size, offset, since, type, sort_field, sort_direction, filter_field, filter_string)
+    def init(self, size=None, offset=None, type=None, sort=None, direction=None, filter_field=None, filter_string=None, since=None):
+        return self._fetch("init", size, offset, since, type, sort, direction, filter_field, filter_string)
 
-    def get_page(self, size=None, offset=None, since=None, type=None, sort_field=None, sort_direction=None, filter_field=None, filter_string=None):
-        return self._fetch("getPage", size, offset, since, type, sort_field, sort_direction, filter_field, filter_string)
+    def get_page(self, size=None, offset=None, since=None, type=None, sort=None, sort_direction=None, filter_field=None, filter_string=None):
+        return self._fetch("getPage", size, offset, since, type, sort, sort_direction, filter_field, filter_string)
 
     def get_details(self, id):
         return self._request("getDetails", {"pluginID": id})
@@ -443,4 +443,58 @@ class Policy(Module):
             "visibility": visibility,
             "description": description,
             "group": group
+        })
+
+
+class Vuln(Module):
+    _name = "vuln"
+
+    def init(self):
+        return self._request("init")
+
+    def query(self, tool, source="cumulative", size=None, offset=None, sort=None, direction=None, scan=None, view=None, filters=None, **filter_by):
+        # source cumulative, patched, individual
+        # directory YYYY-MM-DD from scan finish time, required but ignored by server
+        # view all, patched, or new
+
+        if scan is not None:
+            source = "individual"
+
+            if view is None:
+                view = "all"
+
+        if filters is None:
+            filters = []
+
+        for key, value in filter_by.iteritems():
+            filters.append({
+                "filterName": key,
+                "operator": "=",
+                "value": value
+            })
+
+        if size is not None and offset is not None:
+            end = offset + size
+        else:
+            end = None
+
+        return self._request("query", {
+            "tool": tool, "sourceType": source,
+            "startOffset": offset, "endOffset": end,
+            "sortField": sort, "sortDir": direction and direction.upper(),
+            "filters": filters,
+            "view": view, "dateDirectory": "null", "scanID": scan
+        })
+
+    def download(self):
+        #TODO vuln::download
+        raise NotImplementedError
+
+    def get_ip(self, ip, repos=None):
+        if repos is not None:
+            repos = [{"id": r_id} for r_id in repos]
+
+        return self._request("getIP", {
+            "ip": ip,
+            "repositories": repos
         })

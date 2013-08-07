@@ -27,6 +27,7 @@ class SecurityCenter(object):
         self.scan = modules.Scan(self)
         self.scan_result = modules.ScanResult(self)
         self.system = modules.System(self)
+        self.vuln = modules.Vuln(self)
 
         if _system_init:
             self.system.init()
