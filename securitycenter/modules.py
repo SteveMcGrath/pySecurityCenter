@@ -296,9 +296,37 @@ class Scan(Module):
     def init(self):
         return self._request("init")
 
-    def add(self):
-        #TODO scan::add
-        raise NotImplementedError
+    def add(self, name, repo, description=None, freq="template", when=None,
+            assets=None, ips=None, policy=None, plugin=None, zone=None,
+            credentials=None, mail_launch=None, mail_finish=None,
+            mitigated_age=None, track_ip=None, virtual=None, timeout=None,
+            reports=None):
+
+        assets = assets or []
+        ips = ips or []
+        credentials = credentials or []
+        reports = reports or []
+
+        if plugin is not None:
+            type = "plugin"
+            policyID = None
+        else:
+            type = "policy"
+            policyID = policy
+            policy = None
+
+        return self._request("add", {
+            "name": name, "description": description, "repositoryID": repo,
+            "scheduleFrequency": freq, "scheduleDefinition": when,
+            "assets": [{"id": a_id} for a_id in assets], "ipList": ips,
+            "type": type, "policyID": policyID, "policy": policy,
+            "pluginID": plugin, "zoneID": zone,
+            "credentials": [{"id": c_id} for c_id in credentials],
+            "emailOnLaunch": mail_launch, "emailOnFinish": mail_finish,
+            "classifyMitigatedAge": mitigated_age, "dhcpTracking": track_ip,
+            "scanningVirtualHosts": virtual, "timeout": timeout,
+            "reports": [{"id": r_id} for r_id in reports]
+        })
 
     def edit(self):
         #TODO scan::edit
@@ -498,3 +526,167 @@ class Vuln(Module):
             "ip": ip,
             "repositories": repos
         })
+
+
+class Report(Module):
+    _name = "report"
+
+    def init(self):
+        return self._request("init")
+
+    def add(self):
+        #TODO report::add
+        raise NotImplementedError
+
+    def edit(self):
+        #TODO report::edit
+        raise NotImplementedError
+
+    def copy(self, id, name):
+        return self._request("copy", {"id": id, "name": name})
+
+    def delete(self, ids):
+        return self._request("delete", {"reports": [{"id": id} for id in ids]})
+
+    def export(self, id, type="cleansed"):
+        # type is cleansed, full, or placeholders
+        return self._request("export", {"id": id, "exportType": type}, parse=False)
+
+    def import_(self, file, name=None):
+        filename = self._sc.file.name_or_upload(file)
+        return self._request("import", {"filename": filename, "name": name})
+
+    def launch(self, id):
+        return self._request("launch", {"id": id})
+
+    def stop(self, result):
+        return self._request("stop", {"reportResultID": result})
+
+
+class ReportResult(Module):
+    _name = "reportResult"
+
+    def init(self):
+        return self._request("init")
+
+    def get_range(self, start=None, end=None):
+        if isinstance(start, datetime):
+            start = timegm(start.utctimetuple())
+
+        if isinstance(end, datetime):
+            end = timegm(end.utctimetuple())
+
+        return self._request("getRange", {
+            "startTime": start,
+            "endTime": end
+        })
+
+    def download(self, id):
+        return self._request("download", {"reportResultID": id}, parse=False)
+
+    def share(self, ids, users=None, emails=None):
+        return self._request("share", {
+            "resultID": ids,
+            "userID": users,
+            "email": emails
+        })
+
+    def send(self):
+        #TODO report::send
+        raise NotImplementedError
+
+    def delete(self, *ids):
+        return self._request("delete", {"reportResults": [{"id": id} for id in ids]})
+
+
+class Asset(Module):
+    _name = "asset"
+
+    def init(self):
+        return self._request("init")
+
+    def get_ips(self, id, ips_only=False):
+        return self._request("getIPs", {
+            "id": id,
+            "ipsOnly": int(ips_only)
+        })
+
+    def combine(self, ids, ips, operator):
+        # operator is union, intersection, difference, or complement
+        return self._request("combine", {
+            "assetIDs": [{"id": id} for id in ids],
+            "definedIPs": ips,
+            "operator": operator
+        })
+
+    def add(self):
+        #TODO asset::add
+        raise NotImplementedError
+
+    def edit(self):
+        #TODO asset::edit
+        raise NotImplementedError
+
+    def share_simulate(self, id, users):
+        return self._request("shareSimulate", {
+            "id": id,
+            "users": [{"id": u_id} for u_id in users]
+        })
+
+    def share(self, id, users):
+        return self._request("share", {
+            "id": id,
+            "users": [{"id": u_id} for u_id in users]
+        })
+
+    def delete_simulate(self, *ids):
+        return self._request("deleteSimulate", {
+            "assets": [{"id": id} for id in ids]
+        })
+
+    def delete(self, *ids):
+        return self._request("delete", {
+            "assets": [{"id": id} for id in ids]
+        })
+
+
+class Repository(Module):
+    _name = "repository"
+
+    def init(self):
+        return self._request("init")
+
+    #TODO repository
+
+
+class Zone(Module):
+    _name = "zone"
+
+    def init(self):
+        return self._request("init")
+
+    #TODO: zone
+
+
+class User(Module):
+    _name = "user"
+
+    def init(self):
+        return self._request("init")
+
+    #TODO user
+
+
+class Admin(User):
+    _name = "admin"
+
+    #TODO? admin
+
+
+class Role(Module):
+    _name = "role"
+
+    def init(self):
+        return self._request("init")
+
+    #TODO role

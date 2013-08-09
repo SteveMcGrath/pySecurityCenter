@@ -16,18 +16,26 @@ class SecurityCenter(object):
 
         self._token = None
 
+        self.admin = modules.Admin(self)
+        self.asset = modules.Asset(self)
         self.auth = modules.Auth(self)
         self.credential = modules.Credential(self)
         self.file = modules.File(self)
         self.heartbeat = modules.Heartbeat(self)
         self.message = modules.Message(self)
-        self.nessus_results = modules.NessusResults(self)
+        self.nessus_results = modules.NessusResults(self) # why is this one plural?
         self.plugin = modules.Plugin(self)
         self.policy = modules.Policy(self)
+        self.report = modules.Report(self)
+        self.report_result = modules.ReportResult(self)
+        self.repository = modules.Repository(self)
+        self.role = modules.Role(self)
         self.scan = modules.Scan(self)
         self.scan_result = modules.ScanResult(self)
         self.system = modules.System(self)
+        self.user = modules.User(self)
         self.vuln = modules.Vuln(self)
+        self.zone = modules.Zone(self)
 
         if _system_init:
             self.system.init()
@@ -45,6 +53,7 @@ class SecurityCenter(object):
                 continue
 
             if isinstance(value, bool):
+                # why does the server expect strings instead of bools?
                 value = str(value).lower()
 
             processed_input[key] = value
