@@ -7,8 +7,11 @@ from .exc import raise_for_error, CoreError
 
 
 class SecurityCenter(object):
-    """Open a connection to a Security Center instance.  Modules are
-    registered on the connection object for performing actions.
+    """Open a connection to a Security Center instance.
+
+    Provides the interface for making raw requests to the API.  Modules
+    are registered on the connection object for performing actions in an
+    easier format.
 
     If a username and password are provided, they will be used to
     log in after connecting.
