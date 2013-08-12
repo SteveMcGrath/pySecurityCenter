@@ -6,12 +6,31 @@ from zipfile import ZipFile
 
 
 class Module(object):
+    """API module that knows how to perform actions.
+
+    :param sc: SecurityCenter connection
+    """
+
     _name = ""
+    """sc internal name of module"""
 
     def __init__(self, sc):
         self._sc = sc
 
     def _request(self, action, input=None, file=None, parse=True):
+        """Make an API call to action under the current module.
+
+        :param action: name of action in module
+        :param input: any arguments to be passed to the module::action
+        :type input: dict
+        :param file: file data to upload
+        :type file: file
+        :param parse: if False, don't parse response as JSON
+
+        :return: dict containing API response, or ``Response`` if parse
+                is False
+        """
+
         return self._sc._request(self._name, action, input, file, parse)
 
 
@@ -19,6 +38,14 @@ class System(Module):
     _name = "system"
 
     def init(self):
+        """Retrieves general system information.
+
+        When using two-way SSL, if the client cert is stored, this call
+        will automatically log in the associated user.
+        """
+
+        # since this requires the user to be unauthenticated,
+        # temporarily store and remove the auth token
         token = self._sc._token
 
         try:
@@ -26,11 +53,13 @@ class System(Module):
 
             r = self._request("init")
         finally:
+            # make sure to restore the auth token
             self._sc._token = token
 
         token = r.get("token")
 
         if token:
+            # new token, log out of the old session and set
             if self._sc._token:
                 self._sc.auth.logout()
 
@@ -39,10 +68,101 @@ class System(Module):
         return r
 
 
+class Heartbeat(Module):
+    _name = "heartbeat"
+
+    def init(self):
+        return self._request("init")
+
+    def beat(self, module=None, module_params=None, messages_viewed=None, messages_deleted=None, id=None):
+        if messages_viewed is None:
+            messages_viewed = []
+
+        if messages_deleted is None:
+            messages_deleted = []
+
+        return self._request("beat", {
+            "messagesViewed": [{"id": int(m_id)} for m_id in messages_viewed],
+            "messagesDeleted": [{"id": int(m_id)} for m_id in messages_deleted],
+            "module": module,
+            "moduleParams": module_params,
+            "id": id
+        })
+
+
+class Message(Module):
+    _name = "message"
+
+    def read_all(self, older_than=None):
+        if older_than is None:
+            older_than = datetime.utcnow()
+
+        if isinstance(older_than, datetime):
+            older_than = timegm(older_than.utctimetuple())
+
+        return self._request("readAll", {"olderThan": older_than})
+
+    def delete_all(self, older_than=None):
+        if older_than is None:
+            older_than = datetime.utcnow()
+
+        if isinstance(older_than, datetime):
+            older_than = timegm(older_than.utctimetuple())
+
+        return self._request("deleteAll", {"olderThan": older_than})
+
+
+class File(Module):
+    _name = "file"
+
+    def upload(self, file, return_content=None):
+        """Upload a file for use in import functions.
+
+        :param file: file-like object open for reading
+        :type file: file
+        :param return_content: whether to return the uploaded data as
+                part of the response
+        :return:
+        """
+        return self._request("upload", {"returnContent": return_content}, file)
+
+    def clear(self, name):
+        """Delete a file previously uploaded.
+
+        :param name: name of file returned after upload
+        :return:
+        """
+
+        return self._request("clear", {"filename": name})
+
+    # how to get existing files?
+
+    def name_or_upload(self, data):
+        """If data is a string, assume it's a filename and return it;
+        otherwise assume it's a file, upload it, and return the
+        generated filename.
+
+        This is useful inside import functions to allow new and existing
+        files.
+
+        :param data: filename or file-like object to upload
+        :return: filename
+        """
+
+        if isinstance(data, basestring):
+            return data
+
+        r = self.upload(data, False)
+        return r["filename"]
+
+
 class Auth(Module):
     _name = "auth"
 
     def login(self, username, password):
+        """Authenticate with username and password."""
+
+        # log out if already logged in
         if self._sc._token:
             self.logout()
 
@@ -56,20 +176,27 @@ class Auth(Module):
         return r
 
     def logout(self):
+        """Clear the auth data from the server and client."""
+
         try:
             return self._request("logout")
         finally:
+            # if the user was timed out, the request will fail, but we
+            # still need to clear the auth data
             self._sc._token = None
             self._sc._session.cookies.clear()
 
     def save_fingerprint(self):
+        """When using two-way SSL, this stores the client cert to enable
+        automatic login without a username/password."""
+
         return self._request("saveFingerprint")
 
 
 class Plugin(Module):
     _name = "plugin"
 
-    def _fetch(self, action, size, offset, type, sort, direction, filter_field, filter_string, since):
+    def _fetch(self, action, size, offset, since, type, sort, direction, filter_field, filter_string):
         if isinstance(since, datetime):
             since = timegm(since.utctimetuple())
 
@@ -84,16 +211,27 @@ class Plugin(Module):
             "since": since
         })
 
-    def init(self, size=None, offset=None, type=None, sort=None, direction=None, filter_field=None, filter_string=None, since=None):
+    def init(self, size=None, offset=None, since=None, type=None, sort=None, direction=None, filter_field=None, filter_string=None):
         return self._fetch("init", size, offset, since, type, sort, direction, filter_field, filter_string)
 
-    def get_page(self, size=None, offset=None, since=None, type=None, sort=None, sort_direction=None, filter_field=None, filter_string=None):
-        return self._fetch("getPage", size, offset, since, type, sort, sort_direction, filter_field, filter_string)
+    def get_page(self, size=None, offset=None, since=None, type=None, sort=None, direction=None, filter_field=None, filter_string=None):
+        return self._fetch("getPage", size, offset, since, type, sort, direction, filter_field, filter_string)
 
     def get_details(self, id):
         return self._request("getDetails", {"pluginID": id})
 
     def get_source(self, id):
+        """Returns the NASL source of a plugin.
+
+        The API returns the script base64 encoded.  This is decoded
+        and returned in plain text.
+
+        If the script is encrypted, the result will say something about
+        that instead of the source.
+
+        :param id: plugin id
+        :return:
+        """
         return b64decode(self._request("getSource", {"pluginID": id})["source"])
 
     def get_families(self):
@@ -225,69 +363,6 @@ class Credential(Module):
         return self._request("delete", {
             "credentials": [{"id": id} for id in ids]
         })
-
-
-class Heartbeat(Module):
-    _name = "heartbeat"
-
-    def init(self):
-        return self._request("init")
-
-    def beat(self, module=None, module_params=None, messages_viewed=None, messages_deleted=None, id=None):
-        if messages_viewed is None:
-            messages_viewed = []
-
-        if messages_deleted is None:
-            messages_deleted = []
-
-        return self._request("beat", {
-            "messagesViewed": [{"id": int(m_id)} for m_id in messages_viewed],
-            "messagesDeleted": [{"id": int(m_id)} for m_id in messages_deleted],
-            "module": module,
-            "moduleParams": module_params,
-            "id": id
-        })
-
-
-class Message(Module):
-    _name = "message"
-
-    def read_all(self, older_than=None):
-        if older_than is None:
-            older_than = datetime.utcnow()
-
-        if isinstance(older_than, datetime):
-            older_than = timegm(older_than.utctimetuple())
-
-        return self._request("readAll", {"olderThan": older_than})
-
-    def delete_all(self, older_than=None):
-        if older_than is None:
-            older_than = datetime.utcnow()
-
-        if isinstance(older_than, datetime):
-            older_than = timegm(older_than.utctimetuple())
-
-        return self._request("deleteAll", {"olderThan": older_than})
-
-
-class File(Module):
-    _name = "file"
-
-    def upload(self, file, return_content=None):
-        return self._request("upload", {"returnContent": return_content}, file)
-
-    def clear(self, name):
-        return self._request("clear", {"filename": name})
-
-    # how to get existing files?
-
-    def name_or_upload(self, data):
-        if isinstance(data, basestring):
-            return data
-
-        r = self.upload(data, False)
-        return r["filename"]
 
 
 class Scan(Module):
