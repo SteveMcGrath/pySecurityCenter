@@ -1,2 +1,2 @@
-Steve McGrath <steve@chigeek.com>
-David Lord <davidism@gmail.com>
+- Steve McGrath <steve@chigeek.com>
+- David Lord <davidism@gmail.com>
