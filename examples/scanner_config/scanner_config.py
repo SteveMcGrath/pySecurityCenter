@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import securitycenter
+from securitycenter.v1 import SecurityCenter
 import sys
 import csv
 
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     scip = raw_input('Enter Address for SecurityCenter : ')
     scpass = raw_input('Enter SecurityCenter Admin Password : ')
     try:
-        sc = securitycenter.SecurityCenter(scip, 'admin', scpass)
+        sc = SecurityCenter(scip, 'admin', scpass)
     except:
         print 'ERROR: Authentication Failed.'
         sys.exit()

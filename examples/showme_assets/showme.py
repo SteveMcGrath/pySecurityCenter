@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-import securitycenter
+from securitycenter.v1 import SecurityCenter
 
 # Please fill out the information below
 username = 'USERNAME'
 password = 'PASSWORD'
 host = 'HOSTNAME OR IP ADDRESS'
 
-sc = securitycenter.SecurityCenter(host, username, password)
+sc = SecurityCenter(host, username, password)
 
 assets = sc.assets()
 

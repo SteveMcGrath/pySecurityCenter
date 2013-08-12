@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Example Python Security Center Script
 
-import securitycenter
+from securitycenter.v1 import SecurityCenter
 
 # Provide the login info & security center address here:
 username = 'api_user'
@@ -10,11 +10,11 @@ host = 'securitycenter.home.lan'
 
 # Instantiate a Security Center instance and login with the credentials
 # provided
-sc = securitycenter.SecurityCenter(host,username,password)
+sc = SecurityCenter(host,username,password)
 
-# Now to query the api for vulnerabilities that have publicly known exploits 
+# Now to query the api for vulnerabilities that have publicly known exploits
 # with high or critical severity and only look for active vulns (no PVS).
-vulns = sc.query('vulndetails', exploitAvailable='true', 
+vulns = sc.query('vulndetails', exploitAvailable='true',
                  pluginType='active', severity='3,4')
 
 # If we simply wanted to print the IP & Vulnerability name, we could uncomment
@@ -24,7 +24,7 @@ vulns = sc.query('vulndetails', exploitAvailable='true',
 
 
 # However I was thinking we could generate something a little nicer, so we will
-# run through all of the data and parse it into a tiered dictionary like the 
+# run through all of the data and parse it into a tiered dictionary like the
 # example here:
 # ips = {
 #   '127.0.0.1': [{VULNERABILITY DICT}, {VULNERABILITY DICT}],

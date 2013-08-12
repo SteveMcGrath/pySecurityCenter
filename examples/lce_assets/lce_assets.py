@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import securitycenter
+from securitycenter.v1 import SecurityCenter
 import time
 
 # NOTE: all time is based on Unix time. 86400 is 1 day in seconds.
@@ -25,7 +25,7 @@ host = 'HOST'
 username = 'api_user'
 password = 's3cr3tp@ssw0rd'
 
-sc = securitycenter.SecurityCenter(host, username, password)
+sc = SecurityCenter(host, username, password)
 
 for update in update_list:
     events = sc.query('sumip', source='lce', **update['filters'])
