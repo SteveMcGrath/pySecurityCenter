@@ -1,16 +1,20 @@
 from setuptools import setup
 
+with open("README.rst") as f:
+    long_description = f.read()
+
 setup(
     name="pySecurityCenter",
     version="2.0-dev",
     description="Security Center 4 API",
-    author="Steven McGrath",
+    long_description=long_description,
+    author="Steve McGrath",
     author_email="smcgrath@tenable.com",
     url="https://github.com/SteveMcGrath/pySecurityCenter",
     packages=["securitycenter"],
     install_requires=["requests"],
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
         "Intended Audience :: Information Technology",
         "License :: OSI Approved :: GNU Lesser General Public License v2 (LGPLv2)",
         "Natural Language :: English",
