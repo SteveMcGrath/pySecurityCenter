@@ -3,7 +3,7 @@ from random import randint
 from urlparse import urljoin
 from requests import Session
 from . import modules
-from .exc import raise_for_error, CoreError
+from .exc import raise_for_error
 
 
 class SecurityCenter(object):
@@ -121,17 +121,34 @@ class SecurityCenter(object):
             return r
 
         # parse json response and check for API errors
-        j = r.json()
-        raise_for_error(j)
-
-        # only allow "regular" responses through
-        # this could change if I figure out what other types really mean
-        if j["type"] != "regular":
-            # e.g. sc.plugin.get_plugins(families=[]) returns type="plugins"
-            # instead of raising an error that it expects at least one family
-            raise CoreError("Irregular response: {}".format(r.content))
+        j = self.parse_response(r)
 
         # may return an empty string or list instead of an error, but it's not
         # always an error
 
         return j["response"]
+
+    @staticmethod
+    def parse_response(r):
+        """Parse the response for errors and return the parsed JSON.
+
+        Useful if you set ``parse`` to false in ``_request`` to get the whole
+        JSON dict instead of the ``response`` value.
+
+        :param r: response object with JSON body
+
+        :return: entire parsed JSON body
+        """
+
+        j = r.json()
+        raise_for_error(j)
+
+        #TODO figure out what response types mean
+        # only allow "regular" responses through
+        # this could change if I figure out what other types really mean
+        # if j["type"] != "regular":
+        #     # e.g. sc.plugin.get_plugins(families=[]) returns type="plugins"
+        #     # instead of raising an error that it expects at least one family
+        #     raise CoreError("Irregular response: {}".format(r.content))
+
+        return j
