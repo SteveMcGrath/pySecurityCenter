@@ -2,6 +2,7 @@ from base64 import b64decode
 from cStringIO import StringIO
 from calendar import timegm
 from datetime import datetime
+from functools import wraps
 from zipfile import ZipFile
 
 
@@ -32,6 +33,51 @@ class Module(object):
         """
 
         return self._sc._request(self._name, action, input, file, parse)
+
+
+class _Empty(object):
+    pass
+
+
+def extract_value(key, default=_Empty, _all_key="_all"):
+    """Extract the value of a key from a returned dict.
+
+    Creates a decorator that will get the value of a key from a function
+    returning a dictionary.
+
+    When calling the decorated function, set ``_all`` to True to make
+    this a no-op and return the entire dictionary.
+
+    If the function requires that ``_all`` is set for some input, add
+    the key _all to the returned dictionary.  For example, normally
+    return a filename, but if called as ``f(..., verbose=True)``,
+    return the file stats also.
+
+    :param key: key to get from return
+    :param default: if set, return this if key is not present, otherwise
+            raise KeyError
+    :param _all_key: name of param for "_all_" behavior (default "_all")
+
+    :raise KeyError: if key not in dict and no default
+
+    :return: extracted value
+    """
+
+    #TODO use generator send() to allow pre- and post-processing?
+
+    def decorator(f):
+        @wraps(f)
+        def inner(*args, **kwargs):
+            no_extract = kwargs.pop(_all_key, False)
+            res = f(*args, **kwargs)
+            no_extract = res.pop(_all_key, no_extract)
+            if no_extract:
+                return res
+            if default is _Empty:
+                return res.get(key)
+            return res.get(key, default)
+        return inner
+    return decorator
 
 
 class System(Module):
@@ -115,6 +161,7 @@ class Message(Module):
 class File(Module):
     _name = "file"
 
+    @extract_value("filename")
     def upload(self, file, return_content=None):
         """Upload a file for use in import functions.
 
@@ -122,18 +169,22 @@ class File(Module):
         :type file: file
         :param return_content: whether to return the uploaded data as
                 part of the response
-        :return:
+        :return: random name assigned to file
         """
-        return self._request("upload", {"returnContent": return_content}, file)
+
+        res = self._request("upload", {"returnContent": return_content}, file)
+        if return_content:
+            res["_all"] = True
+        return res
 
     def clear(self, name):
         """Delete a file previously uploaded.
 
         :param name: name of file returned after upload
-        :return:
+        :return: path of deleted file
         """
 
-        return self._request("clear", {"filename": name})
+        return self._request("clear", {"filename": name})["filename"]
 
     # how to get existing files?
 
@@ -152,8 +203,7 @@ class File(Module):
         if isinstance(data, basestring):
             return data
 
-        r = self.upload(data, False)
-        return r["filename"]
+        return self.upload(data, False)
 
 
 class Auth(Module):
@@ -166,14 +216,14 @@ class Auth(Module):
         if self._sc._token:
             self.logout()
 
-        r = self._request("login", {
+        res = self._request("login", {
             "username": username,
             "password": password
         })
 
-        self._sc._token = r["token"]
+        self._sc._token = res["token"]
 
-        return r
+        return res
 
     def logout(self):
         """Clear the auth data from the server and client."""
@@ -211,14 +261,16 @@ class Plugin(Module):
             "since": since
         })
 
+    @extract_value("plugins")
     def init(self, size=None, offset=None, since=None, type=None, sort=None, direction=None, filter_field=None, filter_string=None):
         return self._fetch("init", size, offset, since, type, sort, direction, filter_field, filter_string)
 
+    @extract_value("plugins")
     def get_page(self, size=None, offset=None, since=None, type=None, sort=None, direction=None, filter_field=None, filter_string=None):
         return self._fetch("getPage", size, offset, since, type, sort, direction, filter_field, filter_string)
 
     def get_details(self, id):
-        return self._request("getDetails", {"pluginID": id})
+        return self._request("getDetails", {"pluginID": id})["plugin"]
 
     def get_source(self, id):
         """Returns the NASL source of a plugin.
@@ -235,10 +287,12 @@ class Plugin(Module):
         return b64decode(self._request("getSource", {"pluginID": id})["source"])
 
     def get_families(self):
-        return self._request("getFamilies")
+        return self._request("getFamilies")["families"]
 
     def get_plugins(self, families):
-        return self._request("getPlugins", {"families": [{"id": int(f_id)} for f_id in families]})
+        return self._request("getPlugins", {
+            "families": [{"id": int(f_id)} for f_id in families]
+        })["families"]
 
     def update(self, type="all"):
         return self._request("update", {"type": type})
@@ -252,6 +306,7 @@ class Plugin(Module):
 class Credential(Module):
     _name = "credential"
 
+    @extract_value("credentials")
     def init(self):
         return self._request("init")
 
@@ -346,7 +401,7 @@ class Credential(Module):
         return self._request("shareSimulate", {
             "id": id,
             "users": [{"id": u_id} for u_id in users]
-        })
+        })["effects"]
 
     def share(self, id, users):
         return self._request("share", {
@@ -357,20 +412,22 @@ class Credential(Module):
     def delete_simulate(self, *ids):
         return self._request("deleteSimulate", {
             "credentials": [{"id": id} for id in ids]
-        })
+        })["effects"]
 
     def delete(self, *ids):
         return self._request("delete", {
             "credentials": [{"id": id} for id in ids]
-        })
+        })["credentials"]
 
 
 class Scan(Module):
     _name = "scan"
 
+    @extract_value("scans")
     def init(self):
         return self._request("init")
 
+    @extract_value("scan")
     def add(self, name, repo, description=None, freq="template", when=None,
             assets=None, ips=None, policy=None, plugin=None, zone=None,
             credentials=None, mail_launch=None, mail_finish=None,
@@ -407,27 +464,29 @@ class Scan(Module):
         #TODO scan::edit
         raise NotImplementedError
 
+    @extract_value("scan")
     def copy(self, id, name):
         return self._request("copy", {"id": id, "name": name})
 
     def delete_simulate(self, *ids):
         return self._request("deleteSimulate", {
             "scans": [{"id": s_id} for s_id in ids]
-        })
+        })["effects"]
 
     def delete(self, *ids):
         return self._request("delete", {
             "scans": [{"id": s_id} for s_id in ids]
-        })
+        })["scans"]
 
+    @extract_value("scanResult")
     def launch(self, id):
         return self._request("launch", {"scanID": id})
 
     def pause(self, result):
-        return self._request("pause", {"scanResultID": result})
+        return self._request("pause", {"scanResultID": result})["scanResults"]
 
     def resume(self, result):
-        return self._request("resume", {"scanResultID": result})
+        return self._request("resume", {"scanResultID": result})["scanResults"]
 
     def stop(self, result, type="discard"):
         # possible values for type: discard, import, rollover
@@ -437,6 +496,7 @@ class Scan(Module):
 class ScanResult(Module):
     _name = "scanResult"
 
+    @extract_value("scanResults")
     def init(self):
         return self._request("init")
 
@@ -451,7 +511,7 @@ class ScanResult(Module):
             "startTime": start,
             "endTime": end,
             "userID": user
-        })
+        })["scanResults"]
 
     def get_progress(self, id):
         return self._request("getProgress", {"scanResultID": id})
@@ -476,7 +536,7 @@ class ScanResult(Module):
     def delete(self, *ids):
         return self._request("delete", {
             "scanResults": [{"id": id} for id in ids]
-        })
+        })["scanResults"]
 
 
 class NessusResults(Module):
@@ -497,6 +557,7 @@ class NessusResults(Module):
 class Policy(Module):
     _name = "policy"
 
+    @extract_value("policies")
     def init(self):
         return self._request("init")
 
@@ -512,7 +573,7 @@ class Policy(Module):
         return self._request("shareSimulate", {
             "id": id,
             "users": [{"id": u_id} for u_id in users]
-        })
+        })["effects"]
 
     def share(self, id, users):
         return self._request("share", {
@@ -526,12 +587,12 @@ class Policy(Module):
     def delete_simulate(self, *ids):
         return self._request("deleteSimulate", {
             "policies": [{"id": id} for id in ids]
-        })
+        })["effects"]
 
     def delete(self, *ids):
         return self._request("delete", {
             "policies": [{"id": id} for id in ids]
-        })
+        })["policies"]
 
     def download(self, id):
         return self._request("exportNessusPolicy", {"id": id}, parse=False).content
@@ -540,7 +601,7 @@ class Policy(Module):
         #TODO parse xml to fill other fields
         filename = self._sc.file.name_or_upload(file)
 
-        return self._request("upload", {
+        return self._request("importNessusPolicy", {
             "filename": filename,
             "name": name,
             "visibility": visibility,
@@ -555,6 +616,7 @@ class Vuln(Module):
     def init(self):
         return self._request("init")
 
+    @extract_value("results")
     def query(self, tool, source="cumulative", size=None, offset=None, sort=None, direction=None, scan=None, view=None, filters=None, **filter_by):
         # source cumulative, patched, individual
         # directory YYYY-MM-DD from scan finish time, required but ignored by server
@@ -593,6 +655,7 @@ class Vuln(Module):
         #TODO vuln::download
         raise NotImplementedError
 
+    @extract_value("records")
     def get_ip(self, ip, repos=None):
         if repos is not None:
             repos = [{"id": r_id} for r_id in repos]
@@ -606,6 +669,7 @@ class Vuln(Module):
 class Report(Module):
     _name = "report"
 
+    @extract_value("reports")
     def init(self):
         return self._request("init")
 
@@ -620,17 +684,20 @@ class Report(Module):
     def copy(self, id, name):
         return self._request("copy", {"id": id, "name": name})
 
-    def delete(self, ids):
-        return self._request("delete", {"reports": [{"id": id} for id in ids]})
+    def delete(self, *ids):
+        return self._request("delete", {
+            "reports": [{"id": id} for id in ids]
+        })["reports"]
 
     def export(self, id, type="cleansed"):
         # type is cleansed, full, or placeholders
-        return self._request("export", {"id": id, "exportType": type}, parse=False)
+        return self._request("export", {"id": id, "exportType": type}, parse=False).content
 
     def import_(self, file, name=None):
         filename = self._sc.file.name_or_upload(file)
         return self._request("import", {"filename": filename, "name": name})
 
+    @extract_value("reportResult")
     def launch(self, id):
         return self._request("launch", {"id": id})
 
@@ -641,9 +708,11 @@ class Report(Module):
 class ReportResult(Module):
     _name = "reportResult"
 
+    @extract_value("reportResults")
     def init(self):
         return self._request("init")
 
+    @extract_value("reportResults")
     def get_range(self, start=None, end=None):
         if isinstance(start, datetime):
             start = timegm(start.utctimetuple())
@@ -657,7 +726,7 @@ class ReportResult(Module):
         })
 
     def download(self, id):
-        return self._request("download", {"reportResultID": id}, parse=False)
+        return self._request("download", {"reportResultID": id}, parse=False).content
 
     def share(self, ids, users=None, emails=None):
         return self._request("share", {
@@ -671,15 +740,19 @@ class ReportResult(Module):
         raise NotImplementedError
 
     def delete(self, *ids):
-        return self._request("delete", {"reportResults": [{"id": id} for id in ids]})
+        return self._request("delete", {
+            "reportResults": [{"id": id} for id in ids]
+        })["reportResults"]
 
 
 class Asset(Module):
     _name = "asset"
 
+    @extract_value("assets")
     def init(self):
         return self._request("init")
 
+    @extract_value("viewable_ips")
     def get_ips(self, id, ips_only=False):
         return self._request("getIPs", {
             "id": id,
@@ -706,7 +779,7 @@ class Asset(Module):
         return self._request("shareSimulate", {
             "id": id,
             "users": [{"id": u_id} for u_id in users]
-        })
+        })["effects"]
 
     def share(self, id, users):
         return self._request("share", {
@@ -717,17 +790,18 @@ class Asset(Module):
     def delete_simulate(self, *ids):
         return self._request("deleteSimulate", {
             "assets": [{"id": id} for id in ids]
-        })
+        })["effects"]
 
     def delete(self, *ids):
         return self._request("delete", {
             "assets": [{"id": id} for id in ids]
-        })
+        })["assets"]
 
 
 class Repository(Module):
     _name = "repository"
 
+    @extract_value("repositories")
     def init(self):
         return self._request("init")
 
@@ -737,6 +811,7 @@ class Repository(Module):
 class Zone(Module):
     _name = "zone"
 
+    @extract_value("zones")
     def init(self):
         return self._request("init")
 
@@ -746,6 +821,7 @@ class Zone(Module):
 class User(Module):
     _name = "user"
 
+    @extract_value("users")
     def init(self):
         return self._request("init")
 
@@ -761,6 +837,7 @@ class Admin(User):
 class Role(Module):
     _name = "role"
 
+    @extract_value("roles")
     def init(self):
         return self._request("init")
 
