@@ -354,7 +354,7 @@ class Credential(Module):
             users = [{"id": u_id} for u_id in users]
 
         if prefill:
-            input = {int(c["id"]): c for c in self.init()["credentials"]}[int(id)]
+            input = dict((int(c["id"]), c) for c in self.init()["credentials"])[int(id)]
         else:
             input = {"id": id}
 
@@ -366,7 +366,7 @@ class Credential(Module):
             "visibility": visibility,
             "users": users
         })
-        kwargs = {key: value for key, value in kwargs.iteritems() if value is not None}
+        kwargs = dict((key, value) for key, value in kwargs.iteritems() if value is not None)
         input.update(kwargs)
 
         return self._request("edit", input)
