@@ -354,7 +354,10 @@ class Credential(Module):
             users = [{"id": u_id} for u_id in users]
 
         if prefill:
-            input = dict((int(c["id"]), c) for c in self.init()["credentials"])[int(id)]
+            if isinstance(prefill, bool):
+                input = dict((int(c["id"]), c) for c in self.init()["credentials"])[int(id)]
+            else:
+                input = dict(prefill)
         else:
             input = {"id": id}
 
