@@ -438,7 +438,7 @@ class Scan(Module):
             reports=None):
 
         assets = assets or []
-        ips = ips or []
+        ips = ",".join(ips or [])
         credentials = credentials or []
         reports = reports or []
 
