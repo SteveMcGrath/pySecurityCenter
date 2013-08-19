@@ -418,7 +418,7 @@ Returns a list of the credentials stored within Security Center
 
   sc.credentials()
 
-## cedential_update
+## credential_update
 
 __Required Inputs:__ cred_id
 
