@@ -140,6 +140,36 @@ class SecurityCenter(object):
         # This is an internal function to be able to upload files to Security
         # Center.  Based on the awsome work done with the recipe linked below:
         # http://code.activestate.com/recipes/146306/
+
+        # As we will be accepting both filenames, or file objects 
+        # (because why not!) we will need to make a few determinations on what
+        # we are doing beforehand.
+        if isinstance(filename, file) or isinstance(filename, StringIO.StringIO):
+            
+            # If we are parsing a file object, then we should try to pull as
+            # much information about the file object that was passed as we can,
+            # however we do need to be able to fall back to some generic info
+            # incase we get based a StringIO object as StringIO has no
+            # associated filename.
+            content = filename.read()
+            try:
+                data_name = filename.name
+                content_header = 'Content-Type: %s' %\
+                             (mimetypes.guess_type(data_name)[0] or
+                              'application/octet-stream')
+            except:
+                content_header = 'Content-Type: application/octet-stream'
+                data_name = 'pyobj-%s' % random.randint(20000)
+        else:
+
+            # It appears that we got passed a string object with a filename, so
+            # we will go ahead and parse it as such.
+            data_name = os.path.split(filename)[1]
+            content_header = 'Content-Type: %s' %\
+                             (mimetypes.guess_type(data_name)[0] or
+                              'application/octet-stream')
+            content = open(filename, 'rb').read()
+
         boundry = '----------MultiPartWebFormBoundry'
         data = []
         for item in jdata:
@@ -150,11 +180,10 @@ class SecurityCenter(object):
         data.append('--' + boundry)
         data.append(
             'Content-Disposition: form-data; name="%s"; filename="%s"' %
-            ('Filedata', os.path.split(filename)[1]))
-        data.append('Content-Type: %s' % (mimetypes.guess_type(filename)[0] or
-                                          'application/octet-stream'))
+            ('Filedata', data_name))
+        data.append(content_header)
         data.append('')
-        data.append(open(filename, 'rb').read())
+        data.append(content)
         data.append('--' + boundry + '--')
         data.append('')
         payload = '\r\n'.join(data)
@@ -543,12 +572,13 @@ class SecurityCenter(object):
 
         return self.raw_query('credential', 'edit', data=payload)
 
-    def credential_add(self, name, type, username, password, domain=None,
+    def credential_add(self, name, cred_type, username, password, domain=None,
                        public_key=None, private_key=None, passphrase=None,
                        escalation_type="none", escalation_username=None,
                        escalation_password=None, description=None, group=None,
-                       visibility="user"):
-                       #TODO users=[]
+                       visibility="user", private_key=None, public_key=None,
+                       users=[], community_string=None, kerb_ip=None,
+                       kerb_port=None, kerb_protocol=None, kerb_realm=None):
         """Add a new credential.
 
         :param name: unique reference name for credential
@@ -556,8 +586,8 @@ class SecurityCenter(object):
         :param username:
         :param password:
         :param domain: Windows domain that account belongs to
-        :param public_key: filename of uploaded public key for ssh auth
-        :param private_key: filename of uploaded private key for ssh auth
+        :param public_key: filename or file object of uploaded public key for ssh auth
+        :param private_key: filename or file object of uploaded private key for ssh auth
         :param passphrase: password for private key
         :param escalation_type: "su", "sudo", "su+sudo", "dzdo", "pbrun", "Cisco 'enable'", or default "none"
         :param escalation_username:
@@ -565,14 +595,17 @@ class SecurityCenter(object):
         :param description:
         :param group: custom name for organization
         :param visibility: "user", "organizational", "shared", or "application", default "user"
+        :param users: List of User IDs
+        :param community_string: SNMP Community String
+        :param kerb_ip: Kerberos Host IP 
+        :param kerb_port: Kerberos Host Port 
+        :param kerb_realm: Kerberos Realm 
+        :param kerb_protocol: Kerberos Protocol
         """
-
-        #TODO snmp and kerberos fields
-        #TODO handle file upload for keys
 
         data = {
             "name": name,
-            "type": type,
+            "type": cred_type,
             "username": username,
             "password": password,
             "domain": domain,
@@ -584,15 +617,46 @@ class SecurityCenter(object):
             "escalationPassword": escalation_password,
             "description": description,
             "group": group,
-            "visibility": visibility
+            "visibility": visibility,
+            "users": [{'id': i} for i in users],
+            "ip": kerb_ip,
+            "port": kerb_port,
+            "realm": kerb_realm,
+            "protocol": kerb_protocol,
+            "communityString": community_string,
         }
 
+        if private_key is not None:
+            data['privateKey'] = self._upload(private_key)['filename']
+        if public_key is not None:
+            data['publicKey'] = self._upload(public_key)['filename']
+
+        # Filter out any fields that are of None datatype.
         data = {key: value for key, value in data.iteritems() if value is not None}
 
         return self.raw_query("credential", "add", data=data)
 
-    #TODO: credential_share_simulate
-    #TODO: credential_share
+    def credential_share_simulate(self, cred_id, *user_ids):
+        """Shares a given credential to the specified Users. 
+        
+        :param cred_id: Credential ID
+        :param user_ids: List of User IDs 
+        """
+        return self.raw_query("credential", "shareSimulate", data={
+            'id': cred_id,
+            'users': [{'id': i} for i in user_ids],
+        })
+
+    def credential_share(self, cred_id, *user_ids):
+        """Shares a given credential to the specified Users. 
+        
+        :param cred_id: Credential ID
+        :param user_ids: List of User IDs 
+        """
+        return self.raw_query("credential", "share", data={
+            'id': cred_id,
+            'users': [{'id': i} for i in user_ids],
+        })
 
     def credential_delete_simulate(self, *ids):
         """Show the relationships and dependencies for one or more credentials.
@@ -704,7 +768,7 @@ class SecurityCenter(object):
         ret['total'] = data['pluginCount']
 
         if 'lastUpdates' in data:
-            for item in ['active', 'passive', 'compliance', 'custom']:
+            for item in ['active', 'passive', 'compliance', 'custom', 'event']:
                 itemdata = {}
                 if item in data['lastUpdates']:
                     itemdata = data['lastUpdates'][item]
