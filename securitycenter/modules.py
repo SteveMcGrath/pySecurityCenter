@@ -641,18 +641,35 @@ class Vuln(Module):
                 "value": value
             })
 
-        if size is not None and offset is not None:
-            end = offset + size
+        if size is not None:
+            start = offset or 0
+            end = start + size
         else:
-            end = None
+            start, end = None, None
 
-        return self._request("query", {
+        input = {
             "tool": tool, "sourceType": source,
-            "startOffset": offset, "endOffset": end,
+            "startOffset": start, "endOffset": end,
             "sortField": sort, "sortDir": direction and direction.upper(),
             "filters": filters,
             "view": view, "dateDirectory": "null", "scanID": scan
-        })
+        }
+
+        if tool in ("vulndetails", "listvuln") and size is None:
+            start, end = 0, 1000
+            input["startOffset"] = start
+            input["endOffset"] = end
+            out = self._request("query", input)
+            results = out["results"]
+            total = int(out["totalRecords"])
+            while end < total:
+                start, end = end, end + 1000
+                input["startOffset"] = start
+                input["endOffset"] = end
+                results.extend(self._request("query", input)["results"])
+            return out
+
+        return self._request("query", input)
 
     def download(self):
         #TODO vuln::download
