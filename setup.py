@@ -1,5 +1,6 @@
 from distutils.core import setup
 import sys
+import securitycenter
 
 # A simple little hack to generate the RST file for pretty formatting for pypi.
 try:
@@ -26,11 +27,11 @@ if sys.version_info > (3,):
 
 setup(
     name='pySecurityCenter',
-    version='1.0',
+    version=securitycenter.__version__,
     description='Security Center 4 API Module',
-    author='Steven McGrath',
-    author_email='smcgrath@tenable.com',
-    url='https://github.com/SteveMcGrath/pySecurityCenter',
+    author=securitycenter.__author__,
+    author_email=securitycenter.__author_email__,
+    url=securitycenter.__url__,
     py_modules=['securitycenter'],
     install_requires=requirements,
     classifiers=[
