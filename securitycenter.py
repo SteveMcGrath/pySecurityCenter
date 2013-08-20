@@ -737,38 +737,12 @@ class SecurityCenter(object):
         :type communityString: string
         '''
 
-        data = {
-            "name": name,
-            "type": cred_type,
-            "username": username,
-            "password": password,
-            "domain": domain,
-            "publicKey": public_key,
-            "privateKey": private_key,
-            "passphrase": passphrase,
-            "privilegeEscalation": escalation_type,
-            "escalationUsername": escalation_username,
-            "escalationPassword": escalation_password,
-            "description": description,
-            "group": group,
-            "visibility": visibility,
-            "users": [{'id': i} for i in users],
-            "ip": kerb_ip,
-            "port": kerb_port,
-            "realm": kerb_realm,
-            "protocol": kerb_protocol,
-            "communityString": community_string,
-        }
+        if 'pirvateKey' in options:
+            options['privateKey'] = self._upload(options['privateKey'])['filename']
+        if 'publicKey' in options:
+            options['publicKey'] = self._upload(options['publicKey'])['filename']
 
-        if private_key is not None:
-            data['privateKey'] = self._upload(private_key)['filename']
-        if public_key is not None:
-            data['publicKey'] = self._upload(public_key)['filename']
-
-        # Filter out any fields that are of None datatype.
-        data = {key: value for key, value in data.iteritems() if value is not None}
-
-        return self.raw_query("credential", "add", data=data)
+        return self.raw_query("credential", "add", data=options)
 
     def credential_share_simulate(self, cred_id, *user_ids):
         """Shares a given credential to the specified Users. 
