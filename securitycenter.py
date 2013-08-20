@@ -11,6 +11,12 @@ import urllib2
 from urllib2 import urlopen, Request
 from zipfile import ZipFile
 
+__version__ = '1.1a'
+__author__ = 'Steven McGrath'
+__author_email__ = 'steve@chigeek.com'
+__url__ = 'https://github.com/SteveMcGrath/pySecurityCenter'
+__description__ = 'Python Interface into Tenable\'s SecurityCenter'
+
 # Here we will attempt to import the simplejson module if it exists, otherwise
 # we will fall back to json.  This should solve a lot of issues with python 2.4
 # and 3.x.
@@ -40,9 +46,6 @@ try:
 except ImportError:
     ssl = None
 
-__version__ = '0.3.9'
-__author__ = 'Steven McGrath <steve@chigeek.com>'
-
 
 class APIError(Exception):
     def __init__(self, code, msg):
@@ -54,6 +57,30 @@ class APIError(Exception):
 
 
 class SecurityCenter(object):
+    '''
+    Connects to the SecurityCenter API based on the parameters specified.
+
+    :param host: Address of the SecurityCenter instance.  
+                 Can be IP or Hostname.
+    :param user: Account name for SecurityCenter
+    :param passwd: Account password for SecurityCenter
+    :param port: What port to talk to SecurityCenter on (Default is 443)
+    :param login: Automatically login to SecurityCenter (Default is True)
+    :param key:
+    :param cert:
+    :param debug: Should SecurityCenter output all calls to a debug log?
+                  (Default is False)
+    :param populate: Should the module repopulate the _xrefs list?  
+                     (Default is False)
+
+    :type host: string
+    :type user: string
+    :type passwd: string
+    :type port: int
+    :type login: bool
+    :type debug: bool
+    :type populate: bool
+    '''
     _token = None
     _host = None
     _cookie = None
@@ -98,7 +125,9 @@ class SecurityCenter(object):
             self._build_xrefs()
 
     def _revint(self, version):
-        # Internal function to convert a version string to an integer.
+        '''
+        Internal function to convert a version string to an integer.
+        '''
         intrev = 0
         vsplit = version.split('.')
         for c in range(len(vsplit)):
@@ -107,10 +136,12 @@ class SecurityCenter(object):
         return intrev
 
     def _revcheck(self, func, version):
-        # Internal function to see if a version is func than what we have
-        # determined to be talking to.  This is very useful for newer API calls
-        # to make sure we don't accidentally make a call to something that
-        # doesnt exist.
+        '''
+        Internal function to see if a version is func than what we have
+        determined to be talking to.  This is very useful for newer API calls
+        to make sure we don't accidentally make a call to something that
+        doesnt exist.
+        '''
         current = self._revint(self.version)
         check = self._revint(version)
         if func in ('lt', '<=',):
@@ -123,9 +154,11 @@ class SecurityCenter(object):
             return False
 
     def _build_xrefs(self):
-        # Internal function to populate the xrefs list with the external
-        # references to be used in searching plugins and potentially
-        # other functions as well.
+        '''
+        Internal function to populate the xrefs list with the external
+        references to be used in searching plugins and potentially
+        other functions as well.
+        '''
         xrefs = set()
 
         plugins = self.plugins()
@@ -137,9 +170,11 @@ class SecurityCenter(object):
         self._xrefs = list(xrefs)
 
     def _gen_multipart(self, jdata, filename):
-        # This is an internal function to be able to upload files to Security
-        # Center.  Based on the awsome work done with the recipe linked below:
-        # http://code.activestate.com/recipes/146306/
+        '''
+        This is an internal function to be able to upload files to Security
+        Center.  Based on the awsome work done with the recipe linked below:
+        http://code.activestate.com/recipes/146306/
+        '''
 
         # As we will be accepting both filenames, or file objects 
         # (because why not!) we will need to make a few determinations on what
@@ -192,6 +227,33 @@ class SecurityCenter(object):
 
     def _request(self, module, action, data=None, headers=None, dejson=True,
                  filename=False):
+        '''
+        This is the core internal function for interacting with the API.  All 
+        calls to the API get routed through here.
+
+        :param module: The API module being called (Refer to SecurityCenter API 
+                       Documentation). 
+        
+        :param action: The API action being called (Refer to SecurityCenter API
+                       Documentation). 
+        
+        :param data: A dictionary of the data to send to the API (default None)
+        :param headers: A dictional of additional headers to send to the API 
+                        (default None).
+
+        :param dejson: Should the module convert the JSON response back to a
+                       python dictionary (default is True).
+
+        :param filename: A string filename or file object to be passed to the 
+                         API.  The default is to send nothing.
+
+        :type module: string
+        :type action: string
+        :type data: dict
+        :type headers: dict 
+        :type dejson: bool
+        :type filename: string, fileobj
+        '''
         # This is the post request that will be sent to the API.  We will expand
         # this as we go along, however we should declare the basics first.
         if not data:
@@ -572,36 +634,108 @@ class SecurityCenter(object):
 
         return self.raw_query('credential', 'edit', data=payload)
 
-    def credential_add(self, name, cred_type, username, password, domain=None,
-                       public_key=None, private_key=None, passphrase=None,
-                       escalation_type="none", escalation_username=None,
-                       escalation_password=None, description=None, group=None,
-                       visibility="user", private_key=None, public_key=None,
-                       users=[], community_string=None, kerb_ip=None,
-                       kerb_port=None, kerb_protocol=None, kerb_realm=None):
-        """Add a new credential.
+    def credential_add(self, name, cred_type, **options):
+        '''
+        Adds a new credential into SecurityCenter.  As credentials can be of
+        multiple types, we have different options to specify for each type of
+        credential.
 
-        :param name: unique reference name for credential
-        :param type: "ssh", "windows", "snmp", or "kerberos"
-        :param username:
-        :param password:
-        :param domain: Windows domain that account belongs to
-        :param public_key: filename or file object of uploaded public key for ssh auth
-        :param private_key: filename or file object of uploaded private key for ssh auth
-        :param passphrase: password for private key
-        :param escalation_type: "su", "sudo", "su+sudo", "dzdo", "pbrun", "Cisco 'enable'", or default "none"
-        :param escalation_username:
-        :param escalation_password:
-        :param description:
-        :param group: custom name for organization
-        :param visibility: "user", "organizational", "shared", or "application", default "user"
-        :param users: List of User IDs
-        :param community_string: SNMP Community String
-        :param kerb_ip: Kerberos Host IP 
-        :param kerb_port: Kerberos Host Port 
-        :param kerb_realm: Kerberos Realm 
-        :param kerb_protocol: Kerberos Protocol
-        """
+        **Global Options (Required)**
+
+        :param name: Unique name to be associated to this credential
+        :param cred_type: The type of credential.  Valid values are:
+                          'ssh', 'windows', 'snmp', or 'kerberos'
+        :type name: string
+        :type cred_type: string
+
+        **Windows Credential Options**
+
+        :param username: Account Name
+        :param password: Account Password 
+        :param domain: [Optional] Account Member Domain
+        :type username: string
+        :type password: string
+        :type domain: string
+
+        **Unix/SSH Credential Options**
+
+        SSH Credentials cover a multitude of different types of hosts. 
+        Everything from Linux/Unix boxes to networking gear like Cisco IOS
+        devices.  As a result of this, there are a lot of available options in
+        order to cover as many possible scenarios as possible.  A few examples:
+
+        Simple Username/Password:
+
+        >>> sc.credential_add('Example Linux Root', 'ssh', 
+                username='root', password='r00tp@ssw0rd')
+        
+        Utilizing Sudo:
+
+        >>> sc.credential_add('Example Linux Sudo', 'ssh',
+                username='user', password='p@ssw0rd',
+                privilegeEscalation='sudo',
+                escalationPassword='p@ssw0rd')
+
+        SSH Keys (By Filename):
+
+        >>> sc.credential_add('Example Linux Keys', 'ssh',
+                username='root',
+                privateKey='/path/to/id_rsa',
+                publicKey='/path/to/id_rsa.pub',
+                passphrase='somthing' # Only use this if needed
+            )
+
+        SSH Keys (Using File Objects):
+
+        >>> pubkey = open('/path/to/id_rsa.pub', 'rb')
+        >>> privkey = open('/path/to/id_rsa', 'rb')
+        >>> sc.credential_add('Example Linux Keys 2', 'ssh',
+                username='root',
+                privateKey=privkey,
+                publicKey=pubkey,
+                passphrase='somthing' # Only use this if needed
+            )
+
+        :param username: Account Name
+        :param password: Account Password
+        :param privilegeEscalation: [Optional] The type of privilege escalation 
+                                required for this account.  The default is None.
+                                Valid options are: 'su', 'su+sudo', 'dzdo', 
+                                'pbrun', 'Cisco \'enable\'', or 'none'.
+        :param escalationUsername: [Optional] The username to escalate to.  Only
+                                   used for su+sudo escalation. 
+        :param escalationPassword: [Optional] The password used for escalation.
+        :param publicKey: [Optional] The SSH public RSA/DSA key used for
+                          authentication.
+        :param privateKey: [Optional] The SSH private RSA/DSA key used for 
+                           authentication. 
+        :param passphrase: [Optional] The passphrase needed for the RSA/DSA
+                           keypair.
+        :type username: string
+        :type password: string
+        :type privilegeEscalation: string
+        :type escalationUsername: string
+        :type escalationPassword: string
+        :type publicKey: string [filename], fileobj
+        :type privateKey: string [filename], fileobj
+        :type passphrase: string
+
+        **Kerberos Credential Options**
+
+        :param ip: Kerberos Host IP
+        :param port: Kerberos Host Port
+        :param realm: Kerberos Realm
+        :param protocol: Kerberos Protocol
+        :type ip: string
+        :type port: string
+        :type realm: string
+        :type protocol: string
+
+        **SNMP Community String**
+
+        :param communityString: The community string to connect with. 
+        :type communityString: string
+        '''
 
         data = {
             "name": name,
