@@ -39,10 +39,7 @@ try:
                                            cert_file=self.cert, **kwargs)
 except ImportError:
     ssl = None
-
-__version__ = '0.3.9'
-__author__ = 'Steven McGrath <steve@chigeek.com>'
-
+    
 
 class APIError(Exception):
     def __init__(self, code, msg):

@@ -2,11 +2,10 @@ import json
 from random import randint
 from urlparse import urljoin
 from requests import Session
+from .exceptions import raise_for_error
 from . import modules
-from .exc import raise_for_error
 
-
-class SecurityCenter(object):
+class SecurityCenterClient(object):
     """Open a connection to a Security Center instance.
 
     Provides the interface for making raw requests to the API.  Modules
