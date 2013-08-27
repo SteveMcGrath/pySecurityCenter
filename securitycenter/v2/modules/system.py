@@ -4,7 +4,7 @@ from .base import Module
 
 
 class System(Module):
-    _name = "system"
+    _name = 'system'
 
     def init(self):
         """Retrieves general system information.
@@ -20,12 +20,12 @@ class System(Module):
         try:
             self._sc._token = None
 
-            r = self._request("init")
+            r = self._request('init')
         finally:
             # make sure to restore the auth token
             self._sc._token = token
 
-        token = r.get("token")
+        token = r.get('token')
 
         if token:
             # new token, log out of the old session and set
@@ -38,10 +38,10 @@ class System(Module):
 
 
 class Heartbeat(Module):
-    _name = "heartbeat"
+    _name = 'heartbeat'
 
     def init(self):
-        return self._request("init")
+        return self._request('init')
 
     def beat(self, module=None, module_params=None, messages_viewed=None, messages_deleted=None, id=None):
         if messages_viewed is None:
@@ -50,17 +50,17 @@ class Heartbeat(Module):
         if messages_deleted is None:
             messages_deleted = []
 
-        return self._request("beat", {
-            "messagesViewed": [{"id": int(m_id)} for m_id in messages_viewed],
-            "messagesDeleted": [{"id": int(m_id)} for m_id in messages_deleted],
-            "module": module,
-            "moduleParams": module_params,
-            "id": id
+        return self._request('beat', {
+            'messagesViewed': [{'id': int(m_id)} for m_id in messages_viewed],
+            'messagesDeleted': [{'id': int(m_id)} for m_id in messages_deleted],
+            'module': module,
+            'moduleParams': module_params,
+            'id': id
         })
 
 
 class Message(Module):
-    _name = "message"
+    _name = 'message'
 
     def read_all(self, older_than=None):
         if older_than is None:
@@ -69,7 +69,7 @@ class Message(Module):
         if isinstance(older_than, datetime):
             older_than = timegm(older_than.utctimetuple())
 
-        return self._request("readAll", {"olderThan": older_than})
+        return self._request('readAll', {'olderThan': older_than})
 
     def delete_all(self, older_than=None):
         if older_than is None:
@@ -78,4 +78,4 @@ class Message(Module):
         if isinstance(older_than, datetime):
             older_than = timegm(older_than.utctimetuple())
 
-        return self._request("deleteAll", {"olderThan": older_than})
+        return self._request('deleteAll', {'olderThan': older_than})

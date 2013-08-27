@@ -51,7 +51,7 @@ def extract_value(key, default=_Empty, _all_key='_all'):
     :param key: key to get from return
     :param default: if set, return this if key is not present, otherwise
             raise KeyError
-    :param _all_key: name of param for "_all_" behavior (default "_all")
+    :param _all_key: name of param for '_all_' behavior (default '_all')
 
     :raise KeyError: if key not in dict and no default
 

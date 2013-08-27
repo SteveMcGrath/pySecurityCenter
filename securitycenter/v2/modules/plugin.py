@@ -5,33 +5,33 @@ from .base import Module, extract_value
 
 
 class Plugin(Module):
-    _name = "plugin"
+    _name = 'plugin'
 
     def _fetch(self, action, size, offset, since, type, sort, direction, filter_field, filter_string):
         if isinstance(since, datetime):
             since = timegm(since.utctimetuple())
 
         return self._request(action, {
-            "size": size,
-            "offset": offset,
-            "type": type,
-            "sortField": sort,
-            "sortDirection": direction and direction.upper(),
-            "filterField": filter_field,
-            "filterString": filter_string,
-            "since": since
+            'size': size,
+            'offset': offset,
+            'type': type,
+            'sortField': sort,
+            'sortDirection': direction and direction.upper(),
+            'filterField': filter_field,
+            'filterString': filter_string,
+            'since': since
         })
 
-    @extract_value("plugins")
+    @extract_value('plugins')
     def init(self, size=None, offset=None, since=None, type=None, sort=None, direction=None, filter_field=None, filter_string=None):
-        return self._fetch("init", size, offset, since, type, sort, direction, filter_field, filter_string)
+        return self._fetch('init', size, offset, since, type, sort, direction, filter_field, filter_string)
 
-    @extract_value("plugins")
+    @extract_value('plugins')
     def get_page(self, size=None, offset=None, since=None, type=None, sort=None, direction=None, filter_field=None, filter_string=None):
-        return self._fetch("getPage", size, offset, since, type, sort, direction, filter_field, filter_string)
+        return self._fetch('getPage', size, offset, since, type, sort, direction, filter_field, filter_string)
 
     def get_details(self, id):
-        return self._request("getDetails", {"pluginID": id})["plugin"]
+        return self._request('getDetails', {'pluginID': id})['plugin']
 
     def get_source(self, id):
         """Returns the NASL source of a plugin.
@@ -45,20 +45,20 @@ class Plugin(Module):
         :param id: plugin id
         :return:
         """
-        return b64decode(self._request("getSource", {"pluginID": id})["source"])
+        return b64decode(self._request('getSource', {'pluginID': id})['source'])
 
     def get_families(self):
-        return self._request("getFamilies")["families"]
+        return self._request('getFamilies')['families']
 
     def get_plugins(self, families):
-        return self._request("getPlugins", {
-            "families": [{"id": int(f_id)} for f_id in families]
-        })["families"]
+        return self._request('getPlugins', {
+            'families': [{'id': int(f_id)} for f_id in families]
+        })['families']
 
-    def update(self, type="all"):
-        return self._request("update", {"type": type})
+    def update(self, type='all'):
+        return self._request('update', {'type': type})
 
-    def upload(self, data, type="custom"):
+    def upload(self, data, type='custom'):
         filename = self._sc.file.name_or_upload(data)
 
-        return self._request("upload", {"filename": filename, "type": type})
+        return self._request('upload', {'filename': filename, 'type': type})
