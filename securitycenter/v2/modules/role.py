@@ -1,4 +1,4 @@
-from .base import Module
+from .base import Module, extract_value
 
 
 class Role(Module):
