@@ -24,7 +24,7 @@ from securitycenter import Client
 # Define the needed information to login to the api
 username = 'api_user'
 password = 'secret'
-host = 'https://127.0.0.1'
+url = 'https://127.0.0.1'
 cert = None
 verify = False
 
@@ -33,7 +33,7 @@ unit = 'M' # The unit notation (if any)
 path = '/opt/sc4/repositories' # Base path for repositories
 
 # Here we will instantiate the Security Center module
-sc = Client(host, username, password, cert, verify)
+sc = Client(url, username, password, cert, verify)
 
 # Before we do anything, lets print the header information.
 print ' ' * 40 + 'IP Count\t Raw Size\t NSR Size'

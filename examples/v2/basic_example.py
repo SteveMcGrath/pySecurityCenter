@@ -6,13 +6,13 @@ from securitycenter import Client
 # Provide the login info & security center address here:
 username = 'api_user'
 password = 'secret'
-host = 'https://127.0.0.1'
+url = 'https://127.0.0.1'
 cert = None
 verify = False
 
 # Instantiate a Security Center instance and login with the credentials
 # provided
-sc = Client(host, username, password, cert, verify)
+sc = Client(url, username, password, cert, verify)
 
 # Now to query the api for vulnerabilities that have publicly known exploits
 # with high or critical severity and only look for active vulns (no PVS).

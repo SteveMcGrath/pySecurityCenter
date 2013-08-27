@@ -4,11 +4,11 @@ from securitycenter import Client
 # Please fill out the information below
 username = 'api_user'
 password = 'secret'
-host = 'https://127.0.0.1'
+url = 'https://127.0.0.1'
 cert = None
 verify = False
 
-sc = Client(host, username, password, cert, verify)
+sc = Client(url, username, password, cert, verify)
 
 repos = sc.repository.init()
 assets = sc.asset.init()
