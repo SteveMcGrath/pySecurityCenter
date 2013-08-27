@@ -9,7 +9,7 @@ setup(
     version=securitycenter.__version__,
     description="Security Center 4 API Library",
     long_description=long_description,
-    author=", ".join(securitycenter.__authors__),
+    author="Steven McGrath",
     author_email="steve@chigeek.com",
     url="https://github.com/SteveMcGrath/pySecurityCenter",
     packages=[

@@ -39,7 +39,7 @@ try:
                                            cert_file=self.cert, **kwargs)
 except ImportError:
     ssl = None
-    
+
 
 class APIError(Exception):
     def __init__(self, code, msg):
@@ -584,7 +584,7 @@ class SecurityCenter(object):
             "visibility": visibility
         }
 
-        data = {key: value for key, value in data.iteritems() if value is not None}
+        data = dict((key, value) for key, value in data.iteritems() if value is not None)
 
         return self.raw_query("credential", "add", data=data)
 
