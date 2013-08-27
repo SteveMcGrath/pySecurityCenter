@@ -14,8 +14,8 @@ setup(
     url="https://github.com/SteveMcGrath/pySecurityCenter",
     packages=[
         "securitycenter",
-        "securitycenter.orm",
-        "securitycenter.orm.modules",
+        "securitycenter.v2",
+        "securitycenter.v2.modules",
     ],
     install_requires=["requests"],
     classifiers=[
