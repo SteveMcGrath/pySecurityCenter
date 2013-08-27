@@ -1,4 +1,5 @@
-from base import *
+from .base import Module
+
 
 class NessusResults(Module):
     _name = "nessusResults"

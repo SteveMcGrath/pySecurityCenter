@@ -1,4 +1,9 @@
-from base import *
+from calendar import timegm
+from datetime import datetime
+from StringIO import StringIO
+from zipfile import ZipFile
+from .base import Module, extract_value
+
 
 class ScanResult(Module):
     _name = "scanResult"

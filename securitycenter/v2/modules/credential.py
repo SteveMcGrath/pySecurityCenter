@@ -1,4 +1,5 @@
-from base import *
+from .base import Module, extract_value
+
 
 class Credential(Module):
     _name = "credential"

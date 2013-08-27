@@ -1,4 +1,5 @@
-from base import *
+from .base import Module
+
 
 class Auth(Module):
     _name = "auth"

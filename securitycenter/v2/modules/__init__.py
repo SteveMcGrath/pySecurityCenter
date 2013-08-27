@@ -2,7 +2,7 @@ from .admin import Admin
 from .asset import Asset
 from .auth import Auth
 from .credential import Credential
-from .fileobj import File
+from .file import File
 from .heartbeat import Heartbeat
 from .message import Message
 from .nessus_results import NessusResults

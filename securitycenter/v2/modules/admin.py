@@ -1,4 +1,5 @@
-from base import *
+from .user import User
+
 
 class Admin(User):
     _name = "admin"

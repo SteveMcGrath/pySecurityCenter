@@ -1,4 +1,7 @@
-from base import *
+from calendar import timegm
+from datetime import datetime
+from .base import Module, extract_value
+
 
 class ReportResult(Module):
     _name = "reportResult"

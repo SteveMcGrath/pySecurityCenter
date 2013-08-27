@@ -1,4 +1,8 @@
-from base import *
+from base64 import b64decode
+from calendar import timegm
+from datetime import datetime
+from .base import Module, extract_value
+
 
 class Plugin(Module):
     _name = "plugin"

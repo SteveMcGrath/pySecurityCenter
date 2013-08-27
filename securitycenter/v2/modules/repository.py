@@ -1,4 +1,5 @@
-form base import *
+from .base import Module, extract_value
+
 
 class Repository(Module):
     _name = "repository"
