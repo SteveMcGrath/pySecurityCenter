@@ -10,10 +10,10 @@ class APIError(Exception):
         self.message = message
 
     def __str__(self):
-        return "[{}] {}".format(self.code, self.message)
+        return '[{}] {}'.format(self.code, self.message)
 
     def __repr__(self):
-        return "{}({!r}, {!r})".format(self.__class__.__name__, self.code, self.message)
+        return '{}({!r}, {!r})'.format(self.__class__.__name__, self.code, self.message)
 
 
 class CoreError(Exception):
@@ -32,11 +32,11 @@ def raise_for_error(data):
     """
 
     try:
-        code = data["error_code"]
+        code = data['error_code']
     except KeyError:
         return
 
-    message = data["error_msg"]
+    message = data['error_msg']
 
     # code 0 is an OK response, all others are errors
     if not code:

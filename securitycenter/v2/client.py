@@ -5,7 +5,8 @@ from requests import Session
 from .exceptions import raise_for_error
 from . import modules
 
-class SecurityCenterClient(object):
+
+class Client(object):
     """Open a connection to a Security Center instance.
 
     Provides the interface for making raw requests to the API.  Modules
@@ -34,7 +35,7 @@ class SecurityCenterClient(object):
 
     def __init__(self, url, username=None, password=None, cert=None, verify=False, _system_init=True):
         # true endpoint is "request.php"
-        self._url = urljoin(url, "request.php")
+        self._url = urljoin(url, 'request.php')
 
         # set up session with SSL
         self._session = Session()
@@ -106,12 +107,12 @@ class SecurityCenterClient(object):
 
         # make the request, and check for HTTP errors
         r = self._session.post(self._url, {
-            "module": module,
-            "action": action,
-            "request_id": randint(10000, 20000),
-            "token": self._token,
-            "input": json.dumps(processed_input)
-        }, files={"Filedata": file} if file else None)
+            'module': module,
+            'action': action,
+            'request_id': randint(10000, 20000),
+            'token': self._token,
+            'input': json.dumps(processed_input)
+        }, files={'Filedata': file} if file else None)
 
         r.raise_for_status()
 
@@ -125,7 +126,7 @@ class SecurityCenterClient(object):
         # may return an empty string or list instead of an error, but it's not
         # always an error
 
-        return j["response"]
+        return j['response']
 
     @staticmethod
     def parse_response(r):
@@ -145,8 +146,8 @@ class SecurityCenterClient(object):
         #TODO figure out what response types mean
         # only allow "regular" responses through
         # this could change if I figure out what other types really mean
-        # if j["type"] != "regular":
-        #     # e.g. sc.plugin.get_plugins(families=[]) returns type="plugins"
+        # if j['type'] != 'regular':
+        #     # e.g. sc.plugin.get_plugins(families=[]) returns type='plugins'
         #     # instead of raising an error that it expects at least one family
         #     raise CoreError("Irregular response: {}".format(r.content))
 

@@ -1,3 +1,3 @@
-import modules
-import exceptions
-from client import SecurityCenterClient
+from . import modules
+from . import exceptions
+from .client import Client
