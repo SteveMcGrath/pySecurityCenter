@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from securitycenter.v1 import SecurityCenter
+from securitycenter import SecurityCenter
 import time
 
 # NOTE: all time is based on Unix time. 86400 is 1 day in seconds.

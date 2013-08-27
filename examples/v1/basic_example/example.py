@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Example Python Security Center Script
 
-from securitycenter.v1 import SecurityCenter
+from securitycenter import SecurityCenter
 
 # Provide the login info & security center address here:
 username = 'api_user'

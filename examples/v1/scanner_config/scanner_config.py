@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from securitycenter.v1 import SecurityCenter
+from securitycenter import SecurityCenter
 import sys
 import csv
 

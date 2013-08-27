@@ -14,7 +14,7 @@
 # Date: 05/01/2012
 
 import sccsv
-from securitycenter.v1 import SecurityCenter
+from securitycenter import SecurityCenter
 import json
 import os
 from ConfigParser import ConfigParser
