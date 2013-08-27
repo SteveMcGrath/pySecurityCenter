@@ -7,7 +7,8 @@ from .base import Module, extract_value
 class Plugin(Module):
     _name = 'plugin'
 
-    def _fetch(self, action, size, offset, since, type, sort, direction, filter_field, filter_string):
+    def _fetch(self, action, size, offset, since, type, sort, direction,
+               filter_field, filter_string):
         if isinstance(since, datetime):
             since = timegm(since.utctimetuple())
 
@@ -23,12 +24,18 @@ class Plugin(Module):
         })
 
     @extract_value('plugins')
-    def init(self, size=None, offset=None, since=None, type=None, sort=None, direction=None, filter_field=None, filter_string=None):
-        return self._fetch('init', size, offset, since, type, sort, direction, filter_field, filter_string)
+    def init(self, size=None, offset=None, since=None, type=None,
+             sort=None, direction=None,
+             filter_field=None, filter_string=None):
+        return self._fetch('init', size, offset, since, type,
+                           sort, direction, filter_field, filter_string)
 
     @extract_value('plugins')
-    def get_page(self, size=None, offset=None, since=None, type=None, sort=None, direction=None, filter_field=None, filter_string=None):
-        return self._fetch('getPage', size, offset, since, type, sort, direction, filter_field, filter_string)
+    def get_page(self, size=None, offset=None, since=None, type=None,
+                 sort=None, direction=None,
+                 filter_field=None, filter_string=None):
+        return self._fetch('getPage', size, offset, since, type,
+                           sort, direction, filter_field, filter_string)
 
     def get_details(self, id):
         return self._request('getDetails', {'pluginID': id})['plugin']
@@ -45,7 +52,8 @@ class Plugin(Module):
         :param id: plugin id
         :return:
         """
-        return b64decode(self._request('getSource', {'pluginID': id})['source'])
+        return b64decode(self._request('getSource',
+                                       {'pluginID': id})['source'])
 
     def get_families(self):
         return self._request('getFamilies')['families']

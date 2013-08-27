@@ -42,9 +42,12 @@ class Policy(Module):
         })['policies']
 
     def download(self, id):
-        return self._request('exportNessusPolicy', {'id': id}, parse=False).content
+        return self._request('exportNessusPolicy', {
+            'id': id
+        }, parse=False).content
 
-    def upload(self, file, name=None, visibility='user', description=None, group=None):
+    def upload(self, file, name=None, visibility='user', description=None,
+               group=None):
         #TODO parse xml to fill other fields
         filename = self._sc.file.name_or_upload(file)
 

@@ -160,8 +160,9 @@ class SecurityCenter(object):
 
     def _request(self, module, action, data=None, headers=None, dejson=True,
                  filename=False):
-        # This is the post request that will be sent to the API.  We will expand
-        # this as we go along, however we should declare the basics first.
+        # This is the post request that will be sent to the API.  We will
+        # expand this as we go along, however we should declare the basics
+        # first.
         if not data:
             data = {}
         if not headers:
@@ -185,14 +186,14 @@ class SecurityCenter(object):
             headers['Cookie'] = self._cookie
 
         if filename:
-            # If a filename is specified then we will need to build a multipipart
-            # object.
+            # If a filename is specified then we will need to build a
+            # multipipart object.
             content_type, payload = self._gen_multipart(jdata, filename)
             headers['Content-Type'] = content_type
         else:
-            # Here we will url encode the payload and then calculate it's length for
-            # the Content-Length header.  We might as well set the Content-Type
-            # header here as well.
+            # Here we will url encode the payload and then calculate it's
+            # length for the Content-Length header.  We might as well set the
+            # Content-Type header here as well.
             payload = urlencode(jdata)
             headers['Content-Type'] = 'application/x-www-form-urlencoded'
 
@@ -276,7 +277,8 @@ class SecurityCenter(object):
 
         [{'filterName': FILTERNAME, 'operator': '=', 'value': VALUE}]
 
-        While we dont expect this to be used much, its there incase it's needed.
+        While we dont expect this to be used much, its there in case it's
+        needed.
 
         The default request size is also set to 1000.  This means that the
         maximum request size that a singular query can consume is 1000
@@ -286,8 +288,8 @@ class SecurityCenter(object):
         the mitigated dataset instead of the cumulative dataset.
 
         If the source is `"individual"`, `scan` should be passed a scan id and
-        `directory` should be passed a date directory as a string `"YYYY-mm-dd"`
-        or as a `datetime` to be converted.
+        `directory` should be passed a date directory as a string
+        `"YYYY-mm-dd"` or as a `datetime` to be converted.
 
         For a list of the available filters that can be performed, please
         consult the Security Center API documentation.
@@ -296,8 +298,8 @@ class SecurityCenter(object):
 
         data = []       # This is the list that we will be returning back to
                         # the calling function once we complete.
-        payload = {}    # The dataset that we will be sending to the API via the
-                        # raw_query function.
+        payload = {}    # The dataset that we will be sending to the API via
+                        # the raw_query function.
 
         # A simple data dictionary to determine the module that we will be used
         stype = {
@@ -308,9 +310,10 @@ class SecurityCenter(object):
             'lce': 'events',
         }
 
-        # When the source is "individual", scan and directory should be provided
-        # as well, and will be set in the payload.
-        if source == "individual" and scan is not None and directory is not None:
+        # When the source is "individual", scan and directory should be
+        # provided as well, and will be set in the payload.
+        if (source == "individual" and scan is not None and
+                directory is not None):
             # convert directory passed as datetime to string if necessary
             if isinstance(directory, date):
                 directory = directory.strftime("%Y-%m-%d")
@@ -324,8 +327,8 @@ class SecurityCenter(object):
         if filters is None:
             filters = []
 
-        # Here is where we expand the filterset dictionary to something that the
-        # API can actually understand.
+        # Here is where we expand the filterset dictionary to something that
+        # the API can actually understand.
         for item in filterset:
             filters.append({
                 'filterName': item,
@@ -471,9 +474,11 @@ class SecurityCenter(object):
             for user in users:
                 ulist.append({'id': int(user)})
             payload['users'] = ulist
-        if payload['type'] == 'dynamic' and rules is not None and isinstance(rules, list):
+        if (payload['type'] == 'dynamic' and rules is not None and
+                isinstance(rules, list)):
             payload['rules'] = rules
-        if payload['type'] == 'static' and ips is not None and isinstance(ips, list):
+        if (payload['type'] == 'static' and ips is not None and
+                isinstance(ips, list)):
             payload['definedIPs'] = ','.join(ips)
 
         # And now that we have everything defined, we can go ahead and send
@@ -525,7 +530,8 @@ class SecurityCenter(object):
                     payload['username'] = cred['username']
                     payload['publickey'] = cred['publickey']
                     payload['privatekey'] = cred['privatekey']
-                    payload['priviledgeEscalation'] = cred['priviledgeEscalation']
+                    payload['priviledgeEscalation'] =\
+                        cred['priviledgeEscalation']
                     payload['escalationUsername'] = cred['escalationUsername']
 
                 if cred['type'] == 'windows':
@@ -556,12 +562,14 @@ class SecurityCenter(object):
         :param public_key: filename of uploaded public key for ssh auth
         :param private_key: filename of uploaded private key for ssh auth
         :param passphrase: password for private key
-        :param escalation_type: "su", "sudo", "su+sudo", "dzdo", "pbrun", "Cisco 'enable'", or default "none"
+        :param escalation_type: "su", "sudo", "su+sudo", "dzdo", "pbrun",
+                "Cisco 'enable'", or default "none"
         :param escalation_username:
         :param escalation_password:
         :param description:
         :param group: custom name for organization
-        :param visibility: "user", "organizational", "shared", or "application", default "user"
+        :param visibility: "user", "organizational", "shared",
+                or "application", default "user"
         """
 
         #TODO snmp and kerberos fields
@@ -584,7 +592,10 @@ class SecurityCenter(object):
             "visibility": visibility
         }
 
-        data = dict((key, value) for key, value in data.iteritems() if value is not None)
+        data = dict(
+            (key, value) for key, value in data.iteritems()
+            if value is not None
+        )
 
         return self.raw_query("credential", "add", data=data)
 
@@ -610,7 +621,8 @@ class SecurityCenter(object):
         })
 
     def plugins(self, plugin_type='all', sort='id', direction='asc',
-                size=1000, offset=0, all=True, loops=0, since=None, **filterset):
+                size=1000, offset=0, all=True, loops=0, since=None,
+                **filterset):
         """plugins
         Returns a list of of the plugins and their associated families.  For
         simplicity purposes, the plugin family names will be injected into the
@@ -619,8 +631,8 @@ class SecurityCenter(object):
         """
         plugins = []
 
-        # First we need to generate the basic payload that we will be augmenting
-        # to build the
+        # First we need to generate the basic payload that we will be
+        # augmenting to build the
         payload = {
             'size': size,
             'offset': offset,
@@ -643,9 +655,9 @@ class SecurityCenter(object):
             payload['since'] = calendar.timegm(since.utctimetuple())
 
         # And now we run through the loop needed to pull all of the data.  This
-        # may take some time even though we are pulling large data sets.  At the
-        # time of development of this module, there were over 55k active plugins
-        # and over 7k passive ones.
+        # may take some time even though we are pulling large data sets.  At
+        # the time of development of this module, there were over 55k active
+        # plugins and over 7k passive ones.
         while all or loops > 0:
             # First things first, we need to query the data.
             data = self.raw_query('plugin', 'init', data=payload)
@@ -656,13 +668,15 @@ class SecurityCenter(object):
             # referenced.  Will re-activate this code when I can get a SC4.2
             # Instance up and running to test...
             # ---
-            # Next we convert the family dictionary list into a flat dictionary.
+            # Next we convert the family dictionary list into a flat
+            # dictionary.
             #fams = {}
             #for famitem in data['families']:
             #    fams[famitem['id']] = famitem['name']
 
             # Then we parse thtrough the data set, adding in the family name
-            # into the plugin definition before adding it into the plugins list.
+            # into the plugin definition before adding it into the plugins
+            # list.
             for plugin in data['plugins']:
             #    plugin['familyName'] = fams[plugin['familyID']]
                 plugins.append(plugin)
@@ -695,9 +709,10 @@ class SecurityCenter(object):
 
         # For backwards compatability purposes, we will be handling this a bit
         # differently than I would like.  We are going to check to see if each
-        # value exists and override the default value of 0.  The only value that
-        # I know existed in bost 4.2 and 4.4 is pluginCount, the rest aren't
-        # listed in the API docs, however return back from my experimentation.
+        # value exists and override the default value of 0.  The only value
+        # that I know existed in bost 4.2 and 4.4 is pluginCount, the rest
+        # aren't listed in the API docs, however return back from my
+        # experimentation.
         ret['total'] = data['pluginCount']
 
         if 'lastUpdates' in data:
@@ -753,7 +768,8 @@ class SecurityCenter(object):
 
     def vulns(self):
         """vulns
-        Returns all available vulnerabilities from the Security Center instance.
+        Returns all available vulnerabilities from the Security Center
+        instance.
         """
         return self.raw_query('vuln', 'init')
 
@@ -819,7 +835,8 @@ class SecurityCenter(object):
             'downloadType': format,
             'scanResultID': scan_id,
         }
-        data = self.raw_query('scanResult', 'download', data=payload, dejson=False)
+        data = self.raw_query('scanResult', 'download', data=payload,
+                              dejson=False)
         bobj = StringIO()
         bobj.write(data)
         zfile = ZipFile(bobj)
@@ -838,7 +855,8 @@ class SecurityCenter(object):
 
         UN-DOCUMENTED CALL: This function is not considered stable.
         """
-        return self.raw_query('file', 'upload', data={'returnContent': 'false'},
+        return self.raw_query('file', 'upload',
+                              data={'returnContent': 'false'},
                               filename=filename)
 
     def dashboard_import(self, name, filename):

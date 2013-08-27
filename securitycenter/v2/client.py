@@ -33,7 +33,8 @@ class Client(object):
     :param _system_init: whether to call ``system.init`` on connect
     """
 
-    def __init__(self, url, username=None, password=None, cert=None, verify=False, _system_init=True):
+    def __init__(self, url, username=None, password=None,
+                 cert=None, verify=False, _system_init=True):
         # true endpoint is "request.php"
         self._url = urljoin(url, 'request.php')
 
@@ -53,7 +54,7 @@ class Client(object):
         self.file = modules.File(self)
         self.heartbeat = modules.Heartbeat(self)
         self.message = modules.Message(self)
-        self.nessus_results = modules.NessusResults(self) # why is this one plural?
+        self.nessus_results = modules.NessusResults(self)
         self.plugin = modules.Plugin(self)
         self.policy = modules.Policy(self)
         self.report = modules.Report(self)

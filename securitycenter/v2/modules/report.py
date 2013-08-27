@@ -28,7 +28,9 @@ class Report(Module):
 
     def export(self, id, type='cleansed'):
         # type is cleansed, full, or placeholders
-        return self._request('export', {'id': id, 'exportType': type}, parse=False).content
+        return self._request('export', {
+            'id': id, 'exportType': type
+        }, parse=False).content
 
     def import_(self, file, name=None):
         filename = self._sc.file.name_or_upload(file)
@@ -63,7 +65,9 @@ class ReportResult(Module):
         })
 
     def download(self, id):
-        return self._request('download', {'reportResultID': id}, parse=False).content
+        return self._request('download', {
+            'reportResultID': id
+        }, parse=False).content
 
     def share(self, ids, users=None, emails=None):
         return self._request('share', {

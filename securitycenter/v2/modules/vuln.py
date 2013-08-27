@@ -8,9 +8,12 @@ class Vuln(Module):
         return self._request('init')
 
     @extract_value('results')
-    def query(self, tool, source='cumulative', size=None, offset=None, sort=None, direction=None, scan=None, view=None, filters=None, **filter_by):
+    def query(self, tool, source='cumulative', size=None, offset=None,
+              sort=None, direction=None, scan=None, view=None,
+              filters=None, **filter_by):
         # source cumulative, patched, individual
-        # directory YYYY-MM-DD from scan finish time, required but ignored by server
+        # directory YYYY-MM-DD from scan finish time
+        #     required but ignored by server
         # view all, patched, or new
 
         if scan is not None:

@@ -18,7 +18,6 @@ class Scan(Module):
             credentials=None, mail_launch=None, mail_finish=None,
             mitigated_age=None, track_ip=None, virtual=None, timeout=None,
             reports=None):
-
         assets = assets or []
         ips = ','.join(ips or [])
         credentials = credentials or []
@@ -125,9 +124,10 @@ class ScanResult(Module):
 
 
 class NessusResults(Module):
-    _name = 'nessusResults'
+    _name = 'nessusResults'  # why is this one plural?
 
-    def upload(self, file, repo, mitigated_age=None, track_ip=None, virtual=None):
+    def upload(self, file, repo, mitigated_age=None, track_ip=None,
+               virtual=None):
         filename = self._sc.file.name_or_upload(file)
 
         return self._request('upload', {

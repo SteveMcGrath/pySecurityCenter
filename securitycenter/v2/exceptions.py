@@ -13,7 +13,8 @@ class APIError(Exception):
         return '[{0}] {1}'.format(self.code, self.message)
 
     def __repr__(self):
-        return '{0}({1!r}, {2!r})'.format(self.__class__.__name__, self.code, self.message)
+        return '{0}({1!r}, {2!r})'.format(self.__class__.__name__,
+                                          self.code, self.message)
 
 
 class CoreError(Exception):
