@@ -1,12 +1,11 @@
 from setuptools import setup
-import securitycenter
 
 with open('README.rst') as f:
     long_description = f.read()
 
 setup(
     name='pySecurityCenter',
-    version=securitycenter.__version__,
+    version="2.0-dev",
     description='Security Center 4 API Library',
     long_description=long_description,
     author='Steven McGrath',
