@@ -9,3 +9,9 @@ class User(Module):
         return self._request("init")
 
     #TODO user
+
+
+class Admin(User):
+    _name = "admin"
+
+    #TODO? admin, might be duplicate of user

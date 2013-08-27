@@ -1,20 +1,14 @@
-from .admin import Admin
 from .asset import Asset
 from .auth import Auth
 from .credential import Credential
 from .file import File
-from .heartbeat import Heartbeat
-from .message import Message
-from .nessus_results import NessusResults
 from .plugin import Plugin
 from .policy import Policy
-from .report import Report
-from .report_result import ReportResult
+from .report import Report, ReportResult
 from .repository import Repository
 from .role import Role
-from .scan import Scan
-from .scan_result import ScanResult
-from .system import System
-from .user import User
+from .scan import Scan, ScanResult, NessusResults
+from .system import System, Heartbeat, Message
+from .user import User, Admin
 from .vuln import Vuln
 from .zone import Zone
