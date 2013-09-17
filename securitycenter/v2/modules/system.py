@@ -1,6 +1,6 @@
 from calendar import timegm
 from datetime import datetime
-from .base import Module
+from .base import Module, extract_value
 
 
 class System(Module):
@@ -81,3 +81,10 @@ class Message(Module):
             older_than = timegm(older_than.utctimetuple())
 
         return self._request('deleteAll', {'olderThan': older_than})
+
+    @extract_value('messages')
+    def get_page(self, id=None, size=None):
+        return self._request('getPage', {
+            'id': id,
+            'size': size
+        })

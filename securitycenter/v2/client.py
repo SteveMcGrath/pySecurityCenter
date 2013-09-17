@@ -48,6 +48,7 @@ class Client(object):
 
         # register available modules, passing self as connection
         self.admin = modules.Admin(self)
+        self.alert = modules.Alert(self)
         self.asset = modules.Asset(self)
         self.auth = modules.Auth(self)
         self.credential = modules.Credential(self)
