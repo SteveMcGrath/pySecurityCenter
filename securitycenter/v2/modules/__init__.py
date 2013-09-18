@@ -1,3 +1,4 @@
+from .alert import Alert
 from .asset import Asset
 from .auth import Auth
 from .credential import Credential
