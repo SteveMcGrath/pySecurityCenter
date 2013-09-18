@@ -9,11 +9,11 @@ class Zone(Module):
         return self._request('init')
 
     def add(self):
-        #TODO asset::add
+        #TODO zone::add
         raise NotImplementedError
 
     def edit(self):
-        #TODO asset::edit
+        #TODO zone::edit
         raise NotImplementedError
 
     def delete_simulate(self, zone_id):
