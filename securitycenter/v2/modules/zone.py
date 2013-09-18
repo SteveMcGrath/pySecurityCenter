@@ -23,10 +23,12 @@ class Zone(Module):
 
     def delete(self, zone_id):
         """Deletes a specific Zone or group of Zones.
+        
         :param zone_id: the id of specified Zone
 
         :return: dict containing the id of the deleted Zones
         """
+
         return self._request('delete', {
             'zones': [{'id': id} for id in zone_id]
         })['zones']
