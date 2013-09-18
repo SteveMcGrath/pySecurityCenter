@@ -8,4 +8,25 @@ class Zone(Module):
     def init(self):
         return self._request('init')
 
-    #TODO: zone
+    def add(self):
+        #TODO asset::add
+        raise NotImplementedError
+
+    def edit(self):
+        #TODO asset::edit
+        raise NotImplementedError
+
+    def delete_simulate(self, zone_id):
+        return self._request('deleteSimulate', {
+            'zones': [{'id': id} for id in zone_id]
+        })['effects']
+
+    def delete(self, zone_id):
+        """Deletes a specific Zone or group of Zones.
+        :param zone_id: the id of specified Zone
+
+        :return: dict containing the id of the deleted Zones
+        """
+        return self._request('delete', {
+            'zones': [{'id': id} for id in zone_id]
+        })['zones']
