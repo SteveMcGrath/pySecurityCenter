@@ -16,19 +16,19 @@ class Zone(Module):
         #TODO zone::edit
         raise NotImplementedError
 
-    def delete_simulate(self, zone_id):
+    def delete_simulate(self, *ids):
         return self._request('deleteSimulate', {
-            'zones': [{'id': id} for id in zone_id]
+            'zones': [{'id': id} for id in ids]
         })['effects']
 
-    def delete(self, zone_id):
+    def delete(self, *ids):
         """Deletes a specific Zone or group of Zones.
         
-        :param zone_id: the id of specified Zone
+        :param *ids: the id of specified Zone
 
         :return: dict containing the id of the deleted Zones
         """
 
         return self._request('delete', {
-            'zones': [{'id': id} for id in zone_id]
+            'zones': [{'id': id} for id in ids]
         })['zones']
