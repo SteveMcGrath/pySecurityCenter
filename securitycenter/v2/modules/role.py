@@ -22,8 +22,8 @@ class Role(Module):
         })['effects']
 
     def delete(self, *ids):
-        """Deletes a set of roles. All users set to one of these roles will be put into the ROLE_NONE role
-        which has very limited permissions.
+        """Deletes a set of roles. All users set to one of these roles will be
+        put into the ROLE_NONE role which has very limited permissions.
 
         :param ids: the id of the selected role
 
