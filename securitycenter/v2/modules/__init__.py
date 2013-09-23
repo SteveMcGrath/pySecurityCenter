@@ -1,5 +1,6 @@
 from .alert import Alert
 from .asset import Asset
+from .attribute import AttributeSets
 from .auth import Auth
 from .credential import Credential
 from .file import File

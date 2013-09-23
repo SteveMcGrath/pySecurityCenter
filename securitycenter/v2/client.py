@@ -50,6 +50,7 @@ class Client(object):
         self.admin = modules.Admin(self)
         self.alert = modules.Alert(self)
         self.asset = modules.Asset(self)
+        self.attribute = modules.AttributeSets(self)
         self.auth = modules.Auth(self)
         self.credential = modules.Credential(self)
         self.file = modules.File(self)
