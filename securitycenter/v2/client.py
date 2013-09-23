@@ -47,6 +47,7 @@ class Client(object):
         self._token = None
 
         # register available modules, passing self as connection
+        self.accept_risk_rules = modules.AcceptRiskRules(self)
         self.admin = modules.Admin(self)
         self.alert = modules.Alert(self)
         self.asset = modules.Asset(self)

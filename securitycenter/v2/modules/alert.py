@@ -6,28 +6,35 @@ class Alert(Module):
 
 	@extract_value('alerts')
 	def init(self):
+		"""Returns a list of all alerts and their metadata
+.
+
+		"""
 		return self._request('init')
 
 	def edit(self):
 		#TODO asset::edit
-+        raise NotImplementedError 
+		raise NotImplementedError 
 
-	def delete(self):
-		#TODO asset::edit
-+        raise NotImplementedError 
+	def delete(self, owner, *ids):
+		return self._request('delete', {
+			'alerts': [{'id': id} for id in ids}],
+			'ownerID': owner
+			}) ['alerts']
 
-	def execute(self):
-		#TODO asset::edit
-+        raise NotImplementedError 
+	def execute(self, id):
+		return self._request('execute', {
+			'id': id
+			}) 
 
 	def query(self):
-		#TODO asset::edit
-+        raise NotImplementedError 
+		#TODO asset::query
+		raise NotImplementedError 
 
 	def validateAdd(self):
-		#TODO asset::edit
-+        raise NotImplementedError 
+		#TODO asset::validateAdd
+		raise NotImplementedError 
 
 	def validateEdit(self):
-		#TODO asset::edit
-+        raise NotImplementedError 
+		#TODO asset::validateEdit
+		raise NotImplementedError 
