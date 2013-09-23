@@ -7,6 +7,52 @@ class Vuln(Module):
     def init(self):
         return self._request('init')
 
+    def validate_params(self, user_id, org_id, start_offset, end_offset,
+        tool=None, source_type=None, view=None, date_directory=None, scan_id=None):
+        """Validate the parameters.
+
+        :param user_id: the user's id
+        :param org_id: the org's id
+        :param start_offset: the numeric value for starting record
+        :param end_offset: the numeric value for ending record
+        :param tool: the tool to be used for the query
+        :param source_type: the source type
+        :param view: a view for the individual data source
+        :param date_directory: a date directory for data source
+        :param scan_id: scan id for data source
+
+        :return: return values
+        """
+
+        if source_type is not None:
+            self.view = view
+            self.date_directory = date_directory
+            self.scan_id = scan_id
+
+        return self._request('validateParams', {
+            'userId': user_id,
+            'orgID': org_id,
+            'tool': tool,
+            'startOffset': start_offset,
+            'endOffset': end_offset,
+            'sourceType': source_type,
+            'view': view,
+            'dateDirectory': date_directory,
+            'scanID': scan_id
+        })
+
+    def scrub_params(self, filters):
+        """Perform input scrubbing by removing whitespace and new lines.
+
+        :param filters: identify what will be scrubbed
+
+        :return: return array scrubbed params
+        """
+
+        return self._request('scrubParams', {
+            'filters': filters
+        })
+
     @extract_value('results')
     def query(self, tool, source='cumulative', size=None, offset=None,
               sort=None, direction=None, scan=None, view=None,
@@ -62,56 +108,6 @@ class Vuln(Module):
 
         return self._request('query', input)
 
-    def download(self):
-        #TODO vuln::download
-        raise NotImplementedError
-
-    def validate_params(self, user_id, org_id, start_offset, end_offset, 
-        tool=None, source_type=None, view=None, date_directory=None, scan_id=None):
-        """Validate the parameters.
-
-        :param user_id: the user's id
-        :param org_id: the org's id
-        :param start_offset: the numeric value for starting record
-        :param end_offset: the numeric value for ending record
-        :param tool: the tool to be used for the query
-        :param source_type: the source type
-        :param view: a view for the individual data source
-        :param date_directory: a date directory for data source
-        :param scan_id: scan id for data source
-
-        :return: return values
-        """
-
-        if source_type is not None:
-            self.view = view
-            self.date_directory = date_directory
-            self.scan_id = scan_id
-
-        return self._request('validateParams', {
-            'userId': user_id,
-            'orgID': org_id,
-            'tool': tool,
-            'startOffset': start_offset,
-            'endOffset': end_offset,
-            'sourceType': source_type,
-            'view': view,
-            'dateDirectory': date_directory,
-            'scanID': scan_id
-        })
-
-    def scrub_params(self, filters):
-        """Perform input scrubbing by removing whitespace and new lines.
-
-        :param filters: identify what will be scrubbed
-
-        :return: return array scrubbed params
-        """
-
-        return self._request('scrubParams', {
-            'filters': filters
-        })
-
     @extract_value('records')
     def get_ip(self, ip, repos=None):
         if repos is not None:
@@ -133,6 +129,10 @@ class Vuln(Module):
         return self._request('getAssetData', {
             'id': id
         })
+
+    def download(self):
+        #TODO vuln::download
+        raise NotImplementedError
 
     def get_asset_intersections(self, ip, asset_id, dns_name, repos):
         #TODO vuln::getAssetIntersections
