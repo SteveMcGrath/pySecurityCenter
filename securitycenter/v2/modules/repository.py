@@ -16,7 +16,19 @@ class Repository(Module):
         #TODO repository::edit
         raise NotImplementedError
 
-    #TODO repository: import
+    def delete_simulate(self, *ids):
+        return self._request('deleteSimulate', {
+            'repositories': [{'id': id} for id in ids]
+        })['effects']
+
+    def delete(self, *ids):
+        return self._request('delete', {
+            'repositories': [{'id': id} for id in ids]
+        })['assets']
+
+    def import_(self):
+        #TODO repository::import
+        raise NotImplementedError
 
     def export(self):
         #TODO repository::export
@@ -44,8 +56,4 @@ class Repository(Module):
 
     def generate_nessus_file(self):
         #TODO repository::generateNessusFile
-        raise NotImplementedError
-
-    def delete(self):
-        #TODO repository::delete
         raise NotImplementedError
