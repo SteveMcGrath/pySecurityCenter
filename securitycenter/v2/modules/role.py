@@ -8,4 +8,28 @@ class Role(Module):
     def init(self):
         return self._request('init')
 
-    #TODO role
+    def add(self):
+        #TODO role::add
+        raise NotImplementedError
+
+    def edit(self):
+        #TODO role::edit
+        raise NotImplementedError
+
+    def delete_simulate(self, *ids):
+        return self._request('deleteSimulate', {
+            'roles': [{'id': id} for id in ids]
+        })['effects']
+
+    def delete(self, *ids):
+        """Deletes a set of roles. All users set to one of these roles will be put into the ROLE_NONE role
+        which has very limited permissions.
+
+        :param ids: the id of the selected role
+
+        :return: the id of the deleted roles
+        """
+
+        return self._request('delete', {
+            'roles': [{'id': id} for id in ids]
+        })['roles']
