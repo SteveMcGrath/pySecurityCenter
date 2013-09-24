@@ -64,15 +64,8 @@ class Repository(Module):
         :return: return repositories available in database
         """
 
-        # return self._request('getRemoteRepositories', {
-        #     'repositories': [{'host': host} for host in hosts]
-        # })
-
-        # note: decide which one
-
-        return self._request('getRemoteRepositories', {
-            'host': host
-        })
+        #TODO repository::getRemoteRepositories
+        raise NotImplementedError
 
     def download_remote_repositories(self):
         #TODO repository::downloadRemoteRepositories
