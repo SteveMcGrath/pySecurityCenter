@@ -117,9 +117,9 @@ class Repository(Module):
             'nessusScheduleDefinition': nessus_def
         })
 
-    def validate_edit(self, repos_id, type, name, description, ip, correlation, remote_id, remote_ip,
-                      remote_type, nessus_type, download_format='v2', org=None,
-                      remote_def=None, nessus_def=None):
+    def validate_edit(self, repos_id, type, name, description, ip, correlation,
+                      remote_id, remote_ip, remote_type, nessus_type, download_format='v2',
+                      org=None, remote_def=None, nessus_def=None):
         """Validate editing a repository.
 
         :param id: the repository id
