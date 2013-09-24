@@ -61,12 +61,14 @@ class Repository(Module):
 
         :param host: attribute host is expected to be a valid host IP address
 
-        :return: returns repositories in database
+        :return: return repositories available in database
         """
 
         # return self._request('getRemoteRepositories', {
         #     'repositories': [{'host': host} for host in hosts]
         # })
+
+        # decide which one
 
         return self._request('getRemoteRepositories', {
             'host': host
@@ -79,7 +81,7 @@ class Repository(Module):
     def validate_add(self, type, data_format, correlation, remote_type, nessus_type,
                      download_format='v2', org=None, description=None, enable_trend=True,
                      remote_def=None, nessus_def=None):
-        """Validate the added repository.
+        """Validate adding a repository.
 
         :param type: the repository type
         :param data_format: repository data format should be IPv4
@@ -87,14 +89,16 @@ class Repository(Module):
         :param remote_type: the schedule type for the repository
         :param nessus_type: the Nessus schedule type for the repository
         :param download_format: need to be a valid download format for Nessus v2
-        :param org: the organization associated with the repository
+        :param org: dict of organization id
         :param description: repository description
         :param enable_trend: default is set to true
         :param remote_def: the schedule definition for the repository
         :param nessus_def: the Nessus schedule definition for the repository
 
-        :return: return valid repository information
+        :return: return valid added repository information
         """
+
+        #include correlation LCELib section?
 
         if org is not None:
             org = [{'id': id} for id in org]
@@ -113,9 +117,50 @@ class Repository(Module):
             'nessusScheduleDefinition': nessus_def
         })
 
-    def validate_edit(self):
-        #TODO repository::validateEdit
-        raise NotImplementedError
+    def validate_edit(self, repos_id, type, name, description, ip, correlation, remote_id, remote_ip,
+                      remote_type, nessus_type, download_format='v2', org=None,
+                      remote_def=None, nessus_def=None):
+        """Validate editing a repository.
+
+        :param id: the repository id
+        :param type: the repository type
+        :param name: the repository name
+        :param description: the repository description
+        :param ip: valid IP address in IPv4 or IPv6 depending on data_format
+        :param correlation: need to be a valid repository correlation
+        :param remote_id: the repository remote id
+        :param remote_ip: the repository remote ip
+        :param remote_type: the schedule type for the repository (default set to never)
+        :param nessus_type: Nessus schedule type (default set to never)
+        :param download_format: need to be a valid download format for Nessus v2
+        :param org: dict of organization id
+        :param remote_def: schedule definition for the repository
+        :param nessus_def: Nessus schedule definition for the repository
+
+        :return: return valid edited repository information
+        """
+
+        #include correlation LCELib section?
+
+        if org is not None:
+            org = [{'id': id} for id in org]
+
+        return self._request('validateEdit', {
+            'repID': repos_id,
+            'type': type,
+            'name': name,
+            'organizations': org,
+            'description': description,
+            'ipRange': ip,
+            'correlation': correlation,
+            'remoteID': remote_id,
+            'remoteIP': remote_ip,
+            'downloadFormat': download_format,
+            'remoteScheduleType': remote_type,
+            'remoteScheduleDefinition': remote_def,
+            'nessusScheduleType': nessus_type,
+            'nessusScheduleDefinition': nessus_def
+        })
 
     def generate_nessus_file(self):
         #TODO repository::generateNessusFile
