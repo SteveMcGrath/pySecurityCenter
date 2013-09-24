@@ -68,7 +68,7 @@ class Repository(Module):
         #     'repositories': [{'host': host} for host in hosts]
         # })
 
-        # decide which one
+        # note: decide which one
 
         return self._request('getRemoteRepositories', {
             'host': host
@@ -122,7 +122,7 @@ class Repository(Module):
                       org=None, remote_def=None, nessus_def=None):
         """Validate editing a repository.
 
-        :param id: the repository id
+        :param repos_id: the repository id
         :param type: the repository type
         :param name: the repository name
         :param description: the repository description
