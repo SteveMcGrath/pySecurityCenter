@@ -8,4 +8,18 @@ class Role(Module):
     def init(self):
         return self._request('init')
 
-    #TODO role
+
+    def add(self):
+    	#TODO role::add
+        raise NotImplementedError
+
+
+	def edit(self):
+		#TODO role::edit
+        raise NotImplementedError
+
+
+	def delete(self, *ids):
+		return self._request('delete',{
+			'roles': [{'id': id} for id in ids]
+			}) ['roles']

@@ -17,7 +17,7 @@ class Alert(Module):
 
 	def delete(self, owner, *ids):
 		return self._request('delete', {
-			'alerts': [{'id': id} for id in ids}],
+			'alerts': [{'id': id} for id in ids],
 			'ownerID': owner
 			}) ['alerts']
 
