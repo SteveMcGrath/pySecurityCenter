@@ -65,6 +65,7 @@ class Client(object):
         self.role = modules.Role(self)
         self.scan = modules.Scan(self)
         self.scan_result = modules.ScanResult(self)
+        self.status = modules.Status(self)
         self.system = modules.System(self)
         self.user = modules.User(self)
         self.vuln = modules.Vuln(self)
