@@ -93,7 +93,7 @@ class Repository(Module):
         :param remote_def: the schedule definition for the repository
         :param nessus_def: the Nessus schedule definition for the repository
 
-        :return:
+        :return: return valid repository information
         """
 
         if org is not None:
