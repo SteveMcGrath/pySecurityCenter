@@ -6,8 +6,7 @@ class Alert(Module):
 
 	@extract_value('alerts')
 	def init(self):
-		"""Returns a list of all alerts and their metadata
-.
+		"""Returns a list of all alerts and their metadata.
 
 		"""
 		return self._request('init')
@@ -27,9 +26,16 @@ class Alert(Module):
 			'id': id
 			}) 
 
-	def query(self):
-		#TODO asset::query
-		raise NotImplementedError 
+	def query(self, start = None, stop = None, sort=None, direction=None,
+              filters=None, tool = None):
+
+		input = {
+            'startOffset': start, 'endOffset': end,
+            'sortField': sort, 'sortDir': direction and direction.upper(),            
+            'filters': filters, 'tool': tool
+        }
+		
+		return self._request('query', input) 
 
 	def validateAdd(self):
 		#TODO asset::validateAdd
