@@ -77,6 +77,60 @@ class Scan(Module):
         return self._request('stop', {'scanResultID': result, 'type': type})
 
 
+class PassiveScanner(Module):
+    _name = 'passiveScanner'
+
+    def init(self):
+        return self._request('init')
+
+    def add(self):
+        #TODO scan::add
+        raise NotImplementedError
+
+    def edit(self):
+        #TODO scan::edit
+        raise NotImplementedError
+
+    def delete(self):
+        #TODO scan::delete
+        raise NotImplementedError
+
+    def update_status(self):
+        return self._request('updateStatus')
+
+    def validate_add(self, ip, name, port, description=None, repos=None,
+                     username=None, password=None):
+        """Validate the added passive scanner.
+
+        :param ip: valid IP address for passive scanner
+        :param name: name for the scanner
+        :param port: valid port for the scanner
+        :param description: description for the scanner
+        :param repos: array of repository ID associated with scanner
+        :param username: login username for scanner
+        :param password: login password for scanner
+
+        :return: return params used
+        """
+
+        if repos is not None:
+            repos = [{'id': id} for id in repos]
+
+        return self._request('validateAdd', {
+            'ip': ip,
+            'name': name,
+            'port': port,
+            'description': description,
+            'repositories': repos,
+            'username': username,
+            'password': password
+        })
+
+    def validate_edit(self):
+        #TODO scan::validateEdit
+        raise NotImplementedError
+
+
 class ScanResult(Module):
     _name = 'scanResult'
 
