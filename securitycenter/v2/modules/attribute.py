@@ -2,7 +2,7 @@ from .base import Module, extract_value
 
 
 class AttributeSets(Module):
-    _name = "attribute_sets"
+    _name = "attributeSets"
 
     def init(self):
         return self._request('init')
