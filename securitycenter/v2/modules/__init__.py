@@ -3,6 +3,7 @@ from .asset import Asset
 from .attribute import AttributeSets
 from .auth import Auth
 from .credential import Credential
+from .daemon import Daemons
 from .file import File
 from .plugin import Plugin
 from .policy import Policy

@@ -53,6 +53,7 @@ class Client(object):
         self.attribute = modules.AttributeSets(self)
         self.auth = modules.Auth(self)
         self.credential = modules.Credential(self)
+        self.daemon = modules.Daemons(self)
         self.file = modules.File(self)
         self.heartbeat = modules.Heartbeat(self)
         self.message = modules.Message(self)
