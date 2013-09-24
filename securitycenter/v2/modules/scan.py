@@ -110,7 +110,7 @@ class PassiveScanner(Module):
         :param username: login username for scanner
         :param password: login password for scanner
 
-        :return: return params used
+        :return: return params used for adding
         """
 
         if repos is not None:
@@ -126,9 +126,35 @@ class PassiveScanner(Module):
             'password': password
         })
 
-    def validate_edit(self):
-        #TODO scan::validateEdit
-        raise NotImplementedError
+    def validate_edit(self, s_id, ip, name, port, username, password,
+                      description, repos=None):
+        """Validate the edited passive scanner.
+
+        :param s_id: the scanner id
+        :param ip: valid IP address when editing a scanner
+        :param name: name for the passive scanner
+        :param port: port for the scanner
+        :param username: login username for the scanner
+        :param password: login password for the scanner
+        :param description: scanner description
+        :param repos: an array of repository ID associated with scanner
+
+        :return: return params used for editing
+        """
+
+        if repos is not None:
+            repos = [{'id': id} for id in repos]
+
+        return self._request('validateEdit', {
+            'scannerID': s_id,
+            'ip': ip,
+            'name': name,
+            'port': port,
+            'username': username,
+            'password': password,
+            'description': description,
+            'repositories': repos
+        })
 
 
 class ScanResult(Module):
