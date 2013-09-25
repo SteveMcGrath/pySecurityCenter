@@ -8,4 +8,15 @@ class Zone(Module):
     def init(self):
         return self._request('init')
 
-    #TODO: zone
+    def add(self):
+    	#TODO add
+    	raise NotImplementedError
+
+	def edit(self):
+		#TODO edit
+		raise NotImplementedError
+
+	def delete(self, *ids):
+		return self._request('delete',{
+			'zones': [{'id':id} for id in ids]
+		})
