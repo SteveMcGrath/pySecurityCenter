@@ -77,6 +77,84 @@ class Scan(Module):
         return self._request('stop', {'scanResultID': result, 'type': type})
 
 
+class Scanner(Module):
+    _name = 'scanner'
+
+    @extract_value('scanners')
+    def init(self):
+        return self._request('init')
+
+    def add(self):
+        #TODO scanner::add
+        raise NotImplementedError
+
+    def edit(self):
+        #TODO scanner::edit
+        raise NotImplementedError
+
+    def delete_simulate(self, *ids):
+        return self._request('deleteSimulate', {
+            'scanner': [{'id': id} for id in ids]
+        })['effects']
+
+    def delete(self, *ids):
+        """Deletes a specific scanner.
+
+        :param *ids: the id of specified scanner
+
+        :return: dict containing the id of the deleted scanner
+        """
+
+        return self._request('delete', {
+            'scanner': [{'id': id} for id in ids]
+        })['scanner']
+
+    def update_status(self):
+        return self._request('updateStatus')
+
+    def get_cert_info(self, id):
+        return self._request('getCertInfo', {
+            'scannerID': id
+        })
+
+    def validate_add(self, auth, description=None, zones=None, username=None,
+                     password=None, verify_host=True, manage=False, enabled=True,
+                     cert=None):
+        """Validate adding a scanner.
+
+        :param auth: authorization type for the scanner
+        :param description: description for scanner
+        :param zones:
+        :param username: login username for scanner
+        :param password: login password for scanner
+        :param verify_host:
+        :param manage: manage plugins
+        :param enabled: is the scanner enabled
+        :param cert: valid cert used for the scanner
+
+        :return: return valid added scanner information
+        """
+
+        if zones is not None:
+            zones = [{'id': id} for id in zones]
+
+        return self._request('validateAdd', {
+            'authType': auth,
+            'description': description,
+            'zones': zones,
+            'username': username,
+            'password': password,
+            'verifyHost': verify_host,
+            'managePlugins': manage,
+            'enabled': enabled,
+            'cert': cert
+        })
+
+    def validate_edit(self):
+        #TODO scanner::validateEdit
+        raise NotImplementedError
+
+
 class PassiveScanner(Module):
     _name = 'passiveScanner'
 
@@ -91,9 +169,22 @@ class PassiveScanner(Module):
         #TODO scan::edit
         raise NotImplementedError
 
-    def delete(self):
-        #TODO scan::delete
-        raise NotImplementedError
+    def delete_simulate(self, *ids):
+        return self._request('deleteSimulate', {
+            'passiveScanner': [{'id': id} for id in ids]
+        })['effects']
+
+    def delete(self, *ids):
+        """Deletes a specific passive scanner.
+
+        :param *ids: the id of specified passive scanner
+
+        :return: dict containing the id of the deleted passive scanner
+        """
+
+        return self._request('delete', {
+            'passiveScanner': [{'id': id} for id in ids]
+        })['passiveScanner']
 
     def update_status(self):
         return self._request('updateStatus')
@@ -103,12 +194,12 @@ class PassiveScanner(Module):
         """Validate the added passive scanner.
 
         :param ip: valid IP address for passive scanner
-        :param name: name for the scanner
-        :param port: valid port for the scanner
-        :param description: description for the scanner
-        :param repos: array of repository ID associated with scanner
-        :param username: login username for scanner
-        :param password: login password for scanner
+        :param name: name for the passive scanner
+        :param port: valid port for the passive scanner
+        :param description: description for the passive scanner
+        :param repos: array of repository ID associated with passive scanner
+        :param username: login username for passive scanner
+        :param password: login password for passive scanner
 
         :return: return params used for adding
         """
@@ -130,14 +221,14 @@ class PassiveScanner(Module):
                       description, repos=None):
         """Validate the edited passive scanner.
 
-        :param s_id: the scanner id
-        :param ip: valid IP address when editing a scanner
+        :param s_id: the passive scanner id
+        :param ip: valid IP address when editing a passive scanner
         :param name: name for the passive scanner
-        :param port: port for the scanner
-        :param username: login username for the scanner
-        :param password: login password for the scanner
-        :param description: scanner description
-        :param repos: an array of repository ID associated with scanner
+        :param port: port for the passive scanner
+        :param username: login username for the passive scanner
+        :param password: login password for the passive scanner
+        :param description: passive scanner description
+        :param repos: an array of repository ID associated with passive scanner
 
         :return: return params used for editing
         """
