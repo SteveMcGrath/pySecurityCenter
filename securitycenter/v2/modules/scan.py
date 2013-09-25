@@ -117,17 +117,16 @@ class Scanner(Module):
             'scannerID': id
         })
 
-    def validate_add(self, auth, description=None, zones=None, username=None,
-                     password=None, verify_host=True, manage=False, enabled=True,
+    def validate_add(self, description=None, zones=None, username=None,
+                     password=None, host=True, manage=False, enabled=True,
                      cert=None):
         """Validate adding a scanner.
 
-        :param auth: authorization type for the scanner
         :param description: description for scanner
-        :param zones:
+        :param zones: zone associated with the scanner
         :param username: login username for scanner
         :param password: login password for scanner
-        :param verify_host:
+        :param host: verified host for the scanner
         :param manage: manage plugins
         :param enabled: is the scanner enabled
         :param cert: valid cert used for the scanner
@@ -139,20 +138,51 @@ class Scanner(Module):
             zones = [{'id': id} for id in zones]
 
         return self._request('validateAdd', {
-            'authType': auth,
             'description': description,
             'zones': zones,
             'username': username,
             'password': password,
-            'verifyHost': verify_host,
+            'verifyHost': host,
             'managePlugins': manage,
             'enabled': enabled,
             'cert': cert
         })
 
-    def validate_edit(self):
-        #TODO scanner::validateEdit
-        raise NotImplementedError
+    def validate_edit(self, id, ip, name, description, port, host, manage=False,
+                      enabled=True, cert=None, username=None, zones=None):
+        """Validate editing a scanner.
+
+        :param id: id of edited scanner
+        :param ip: valid IP address for the scanner
+        :param name: Scanner name
+        :param description: description for scanner
+        :param port: port used
+        :param host: verified host for the scanner
+        :param manage: manage plugins
+        :param enabled: is the scanner enabled ?
+        :param cert: valid cert used for the scanner
+        :param username: login username for scanner
+        :param zones: zone associated with the scanner
+
+        :return: return valid edited scanner information
+        """
+
+        if zones is not None:
+            zones = [{'id': id} for id in zones]
+
+        return self._request('validateEdit', {
+            'scannerID': id,
+            'ip': ip,
+            'name': name,
+            'description': description,
+            'port': port,
+            'verifyHost': host,
+            'managePlugins': manage,
+            'enabled': enabled,
+            'cert': cert,
+            'username': username,
+            'zones': zones
+        })
 
 
 class PassiveScanner(Module):
