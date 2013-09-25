@@ -72,11 +72,11 @@ class Scanner(Module):
             'cert': cert
         })
 
-    def validate_edit(self, id, ip, name, description, port, host, manage=False,
+    def validate_edit(self, s_id, ip, name, description, port, host, manage=False,
                       enabled=True, cert=None, username=None, zones=None):
         """Validate editing a scanner.
 
-        :param id: id of edited scanner
+        :param s_id: id of edited scanner
         :param ip: valid IP address for the scanner
         :param name: Scanner name
         :param description: description for scanner
@@ -95,7 +95,7 @@ class Scanner(Module):
             zones = [{'id': id} for id in zones]
 
         return self._request('validateEdit', {
-            'scannerID': id,
+            'scannerID': s_id,
             'ip': ip,
             'name': name,
             'description': description,
