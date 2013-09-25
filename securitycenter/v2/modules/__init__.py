@@ -10,7 +10,8 @@ from .policy import Policy
 from .report import Report, ReportResult
 from .repository import Repository
 from .role import Role
-from .scan import Scan, Scanner, PassiveScanner, ScanResult, NessusResults
+from .scan import Scan, ScanResult, NessusResults
+from .scanner import Scanner, PassiveScanner
 from .status import Status
 from .system import System, Heartbeat, Message
 from .user import User, Admin
