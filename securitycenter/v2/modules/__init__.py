@@ -9,6 +9,7 @@ from .plugin import Plugin
 from .policy import Policy
 from .report import Report, ReportResult
 from .repository import Repository
+from .resource import Resource
 from .role import Role
 from .scan import Scan, ScanResult, NessusResults
 from .scanner import Scanner, PassiveScanner

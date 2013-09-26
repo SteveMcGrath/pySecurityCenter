@@ -64,6 +64,7 @@ class Client(object):
         self.report = modules.Report(self)
         self.report_result = modules.ReportResult(self)
         self.repository = modules.Repository(self)
+        self.resource = modules.Resource(self)
         self.role = modules.Role(self)
         self.scan = modules.Scan(self)
         self.scanner = modules.Scanner(self)
