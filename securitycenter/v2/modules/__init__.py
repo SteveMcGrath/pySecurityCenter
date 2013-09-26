@@ -13,6 +13,7 @@ from .role import Role
 from .scan import Scan, ScanResult, NessusResults
 from .scanner import Scanner, PassiveScanner
 from .status import Status
+from .style import Style
 from .system import System, Heartbeat, Message
 from .user import User, Admin
 from .vuln import Vuln

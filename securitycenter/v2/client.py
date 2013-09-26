@@ -69,6 +69,7 @@ class Client(object):
         self.scanner = modules.Scanner(self)
         self.scan_result = modules.ScanResult(self)
         self.status = modules.Status(self)
+        self.style = modules.Style(self)
         self.system = modules.System(self)
         self.user = modules.User(self)
         self.vuln = modules.Vuln(self)
