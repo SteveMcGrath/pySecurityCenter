@@ -17,6 +17,7 @@ from .scanner import Scanner, PassiveScanner
 from .status import Status
 from .style import Style
 from .system import System, Heartbeat, Message
+from .ticket import Ticket
 from .user import User, Admin
 from .vuln import Vuln
 from .zone import Zone

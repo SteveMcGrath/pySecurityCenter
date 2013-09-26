@@ -73,6 +73,7 @@ class Client(object):
         self.status = modules.Status(self)
         self.style = modules.Style(self)
         self.system = modules.System(self)
+        self.ticket = modules.Ticket(self)
         self.user = modules.User(self)
         self.vuln = modules.Vuln(self)
         self.zone = modules.Zone(self)
