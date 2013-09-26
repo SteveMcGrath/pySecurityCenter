@@ -56,6 +56,7 @@ class Client(object):
         self.daemon = modules.Daemons(self)
         self.file = modules.File(self)
         self.heartbeat = modules.Heartbeat(self)
+        self.logging = modules.Logging(self)
         self.message = modules.Message(self)
         self.nessus_results = modules.NessusResults(self)
         self.passive_scanner = modules.PassiveScanner(self)

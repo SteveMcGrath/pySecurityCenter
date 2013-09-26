@@ -5,6 +5,7 @@ from .auth import Auth
 from .credential import Credential
 from .daemon import Daemons
 from .file import File
+from .logging import Logging
 from .plugin import Plugin
 from .policy import Policy
 from .report import Report, ReportResult
