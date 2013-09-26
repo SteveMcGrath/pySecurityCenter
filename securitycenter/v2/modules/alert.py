@@ -2,45 +2,63 @@ from .base import Module, extract_value
 
 
 class Alert(Module):
-	_name = "alert"
+    _name = "alert"
 
-	@extract_value('alerts')
-	def init(self):
-		"""Returns a list of all alerts and their metadata.
+    @extract_value('alerts')
+    def init(self):
+        """Returns a list of all alerts and their metadata.
 
-		"""
-		return self._request('init')
+        """
+        return self._request('init')
 
-	def edit(self):
-		#TODO asset::edit
-		raise NotImplementedError 
+    def edit(self):
+        #TODO asset::edit
+        raise NotImplementedError
 
-	def delete(self, owner, *ids):
-		return self._request('delete', {
-			'alerts': [{'id': id} for id in ids],
-			'ownerID': owner
-			}) ['alerts']
+    def delete(self, owner, *ids):
+        """Deletes alerts.
 
-	def execute(self, id):
-		return self._request('execute', {
-			'id': id
-			}) 
+        :param owner: owner's ID
+        :param ids: alert IDs
 
-	def query(self, start = None, stop = None, sort=None, direction=None,
-              filters=None, tool = None):
+        :return params
+        """
+        return self._request('delete', {
+            'alerts': [{'id': id} for id in ids],
+            'ownerID': owner
+        })['alerts']
 
-		input = {
-            'startOffset': start, 'endOffset': end,
+    def execute(self, id):
+        return self._request('execute', {
+            'id': id
+        })
+
+    def query(self, start=None, stop=None, sort=None, direction=None,
+              filters=None, tool=None):
+        """Queries Alert module
+
+        :param start: startOffset
+        :param stop: endOffset
+        :param sort: sortField
+        :param direction: sortDir
+        :param filters: filters
+        :param tool: tool
+
+        :return params
+        """
+
+        input = {
+            'startOffset': start, 'endOffset': stop,
             'sortField': sort, 'sortDir': direction and direction.upper(),            
             'filters': filters, 'tool': tool
         }
-		
-		return self._request('query', input) 
 
-	def validateAdd(self):
-		#TODO asset::validateAdd
-		raise NotImplementedError 
+        return self._request('query', input)
 
-	def validateEdit(self):
-		#TODO asset::validateEdit
-		raise NotImplementedError 
+    def validate_add(self):
+        #TODO asset::validateAdd
+        raise NotImplementedError
+
+    def validate_edit(self):
+        #TODO asset::validateEdit
+        raise NotImplementedError
