@@ -8,83 +8,78 @@ class User(Module):
     def init(self):
         return self._request('init')
 
+    def delete(self, *ids):
+        """Deletes user
+
+        :param ids: list of user ids
+
+        "return: returns response
+        """
+        return self._request('delete', {
+            'users': [{'id': id} for id in ids]
+        })
 
     def add(self):
-    	#TODO vuln::download
+        #TODO: user::add
         raise NotImplementedError
 
-
-	def edit(self):
-		#TODO vuln::download
+    def edit(self):
+        #TODO user::edit
         raise NotImplementedError
 
+    def query(self, ids, start=None, sort=None, stop=None,
+              tool=None, password=None):
+        """Query Users module.
 
-	def delete(self, *ids):
-		"""Deletes user
+        :param ids: specified user filters IDs
+        :param start: startOffset
+        :param sort: sortField
+        :param stop: endOffset
+        :param tool: query tool
+        :param password: user password
 
-		:param ids: list of user ids
+        return: return params used
+        """
 
-		"return: returns response
+        return self._request('query', {
+            'endOffset': stop,
+            'startOffset': start,
+            'sortField': sort,
+            'tool': tool,
+            'password': password,
+            'filters': [{'id': id} for id in ids]
+        })
 
-		"""
-		return self._request('delete',{
-			'users': [{'id':id} for id in ids]
-		} )
+    def change_password(self,password):
+        """Change user's password
 
+        :param password: user's specified password
 
-	def query(self, filters = None, start = None, sort = None, stop = None, 
-				tool = None, password = None):
-		"""Query Users module.
+        :return: returns response
+        """
 
-		:param filters: specified user filters
-		:param start: startOffset
-		:param sort: sortField
-		:param stop: endOffset
-		:param tool: query tool
-		:param password: user password
+        return self._request('password', {
+            'password': password
+        })
 
-		return: return params used
-		"""
+    def get_coverage(self, user):
+        """Get coverage for user.
 
-		return self._request('query', {
-			'endOffset': end
-			'startOffset': start
-			'sortField': sort
-			'tool': tool
-			'password': password
-			'filters': [{'id':id} for id in ids]
-			})
+        :param user: user's ID
 
+        :return: returns user's coverage
+        """
 
-	def changePassword(self,password):
-		"""Change user's password
+        return self._request('getCoverage', {
+            'userID': user
+        })['userID']
 
-		:param password: user's specified password
-
-		:return: returns response
-		"""
-
-		return self._request('password': password)
-
-
-	def getCoverage(self, user):
-		"""Get coverage for user.
-
-		:param user: user's ID
-
-		:return: returns user's coverage
-		"""
-
-		return self._request('userID': user)
-
-
-	def validateAdd(self):[{'id':id} for id in ids]
-		#TODO vuln::validateAdd
+    def validate_add(self):
+        #TODO vuln::validateAdd
         raise NotImplementedError
 
-
-	def validateEdit(self):
-		#TODO vuln::validateEdit
+    def validate_edit(self):
+        #TODO vuln::validateEdit
         raise NotImplementedError
 
 
