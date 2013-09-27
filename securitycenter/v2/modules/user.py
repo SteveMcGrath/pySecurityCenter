@@ -38,7 +38,7 @@ class User(Module):
         :param tool: query tool
         :param password: user password
 
-        return: return params used
+        :return: return params used
         """
 
         return self._request('query', {
