@@ -12,7 +12,7 @@ class Alert(Module):
         return self._request('init')
 
     def edit(self):
-        #TODO asset::edit
+        #TODO alert::edit
         raise NotImplementedError
 
     def delete(self, owner, *ids):
@@ -56,9 +56,9 @@ class Alert(Module):
         return self._request('query', input)
 
     def validate_add(self):
-        #TODO asset::validateAdd
+        #TODO alert::validateAdd
         raise NotImplementedError
 
     def validate_edit(self):
-        #TODO asset::validateEdit
+        #TODO alert::validateEdit
         raise NotImplementedError
