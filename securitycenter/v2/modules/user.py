@@ -23,10 +23,20 @@ class UserPrefs(Module):
     def init(self):
         return self._request('init')
 
-    def set(self):
-        #TODO user:set
-        raise NotImplementedError
+    def set(self, id, timezone):
+        """Set user preferences. Attributes are optional for normal users.
+
+        :param id: the user id
+        :param timezone: preferred timezone
+
+        :return: return params used
+        """
+
+        return self._request('set', {
+            'userID': id,
+            'prefTimeZone': timezone
+        })
 
     def set_module_prefs(self):
-        #TODO user:setMOdulePrefs
+        #TODO user:setModulePrefs
         raise NotImplementedError
