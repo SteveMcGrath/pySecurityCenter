@@ -8,7 +8,37 @@ class User(Module):
     def init(self):
         return self._request('init')
 
-    #TODO user
+    def add(self):
+        #TODO user: add
+        raise NotImplementedError
+
+    def edit(self):
+        #TODO user:edit
+        raise NotImplementedError
+
+    def delete(self):
+        #TODO user:delete
+        raise NotImplementedError
+
+    def query(self):
+        #TODO user:query
+        raise NotImplementedError
+
+    def change_password(self):
+        #TODO user:changePassword
+        raise NotImplementedError
+
+    def get_coverage(self):
+        #TODO user:getCoverage
+        raise NotImplementedError
+
+    def validate_add(self):
+        #TODO user::validateAdd
+        raise NotImplementedError
+
+    def validate_edit(self):
+        #TODO user::validateEdit
+        raise NotImplementedError
 
 
 class Admin(User):
