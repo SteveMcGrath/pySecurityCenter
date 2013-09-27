@@ -75,6 +75,7 @@ class Client(object):
         self.system = modules.System(self)
         self.ticket = modules.Ticket(self)
         self.user = modules.User(self)
+        self.user_prefs = modules.UserPrefs(self)
         self.vuln = modules.Vuln(self)
         self.zone = modules.Zone(self)
 

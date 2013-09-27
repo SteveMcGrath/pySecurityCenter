@@ -15,3 +15,18 @@ class Admin(User):
     _name = 'admin'
 
     #TODO? admin, might be duplicate of user
+
+
+class UserPrefs(Module):
+    _name = 'userPrefs'
+
+    def init(self):
+        return self._request('init')
+
+    def set(self):
+        #TODO user:set
+        raise NotImplementedError
+
+    def set_module_prefs(self):
+        #TODO user:setMOdulePrefs
+        raise NotImplementedError
