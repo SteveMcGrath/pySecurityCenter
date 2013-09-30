@@ -6,6 +6,7 @@ from .credential import Credential
 from .daemon import Daemons
 from .file import File
 from .logging import Logging
+from .organization import Organization
 from .plugin import Plugin
 from .policy import Policy
 from .report import Report, ReportResult

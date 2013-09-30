@@ -59,6 +59,7 @@ class Client(object):
         self.logging = modules.Logging(self)
         self.message = modules.Message(self)
         self.nessus_results = modules.NessusResults(self)
+        self.org = modules.Organization(self)
         self.passive_scanner = modules.PassiveScanner(self)
         self.plugin = modules.Plugin(self)
         self.policy = modules.Policy(self)
