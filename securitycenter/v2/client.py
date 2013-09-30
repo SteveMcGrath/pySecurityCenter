@@ -60,6 +60,7 @@ class Client(object):
         self.plugin = modules.Plugin(self)
         self.policy = modules.Policy(self)
         self.report = modules.Report(self)
+        self.report_images = modules.ReportImages(self)
         self.report_result = modules.ReportResult(self)
         self.repository = modules.Repository(self)
         self.role = modules.Role(self)
