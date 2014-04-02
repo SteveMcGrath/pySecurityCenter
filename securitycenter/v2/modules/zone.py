@@ -23,7 +23,7 @@ class Zone(Module):
 
     def delete(self, *ids):
         """Deletes a specific Zone or group of Zones.
-        
+
         :param *ids: the id of specified Zone
 
         :return: dict containing the id of the deleted Zones

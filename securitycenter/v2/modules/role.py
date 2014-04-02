@@ -4,7 +4,7 @@ from .base import Module, extract_value
 class Role(Module):
     _name = 'role'
 
-    @extract_value('roles')
+    @extract_value('role')
     def init(self):
         return self._request('init')
 
@@ -26,8 +26,6 @@ class Role(Module):
         put into the ROLE_NONE role which has very limited permissions.
 
         :param ids: the id of the selected role
-
-        :return: the id of the deleted roles
         """
 
         return self._request('delete', {

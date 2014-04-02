@@ -158,3 +158,7 @@ class Repository(Module):
     def generate_nessus_file(self):
         #TODO repository::generateNessusFile
         raise NotImplementedError
+
+    def import_repository(self):
+        #TODO: repository::import_repository
+        raise NotImplementedError

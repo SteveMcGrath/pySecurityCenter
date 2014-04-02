@@ -84,3 +84,34 @@ class ReportResult(Module):
         return self._request('delete', {
             'reportResults': [{'id': id} for id in ids]
         })['reportResults']
+
+
+class ReportImages(Module):
+    _name = 'reportImages'
+
+    @extract_value('reportImages')
+    def init(self):
+        return self._request('init')
+
+    def add(self):
+        #TODO: reportImages::add
+        raise NotImplementedError
+
+    def edit(self):
+        #TODO: reportImages::edit
+        raise NotImplementedError
+
+    def delete(self, images):
+        """Deletes specified report images.
+
+        :param images: reportImages
+
+        :return param
+        """
+        return self._request('delete', {
+            'reportImages': images
+        })
+
+    def get_details(self):
+        #TODO: reportImages::get_details
+        raise NotImplementedError

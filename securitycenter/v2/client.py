@@ -47,6 +47,7 @@ class Client(object):
         self._token = None
 
         # register available modules, passing self as connection
+        self.accept_risk_rules = modules.AcceptRiskRules(self)
         self.admin = modules.Admin(self)
         self.alert = modules.Alert(self)
         self.asset = modules.Asset(self)
@@ -64,6 +65,7 @@ class Client(object):
         self.plugin = modules.Plugin(self)
         self.policy = modules.Policy(self)
         self.report = modules.Report(self)
+        self.report_images = modules.ReportImages(self)
         self.report_result = modules.ReportResult(self)
         self.repository = modules.Repository(self)
         self.resource = modules.Resource(self)
