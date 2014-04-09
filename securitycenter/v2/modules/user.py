@@ -19,9 +19,46 @@ class User(Module):
             'users': [{'id': id} for id in ids]
         })
 
-    def add(self):
-        #TODO: user::add
-        raise NotImplementedError
+    def add(self, username, role_id, first_name, last_name=None, title=None, phone=None, email=None):
+        """Add user.
+
+        :param first_name: user first name
+        :param last_name: user last name
+        :param title: user title
+        :param role_id: user role
+        :param phone: user phone number
+        :param email: user email
+        :param username: user username
+
+        :return: returns response
+        """
+        #TODO: add support for lces, id, fingerprint, repositories, state, city
+        #TODO: add support for queries, assets, address, authType, policies
+        #TODO: add support for country, credentials
+        return self._request('add', {
+            'lces': [],
+            'firstname': first_name,
+            'id': "no_id",
+            'lastname': last_name,
+            'address': "",
+            'authType': "ldap",
+            'fingerprint': "",
+            'roleID': role_id,
+            'title': title,
+            'repositories': [],
+            'state': "",
+            'city': "",
+            'policies': [],
+            'country': "",
+            'phone': phone,
+            'parentID': "1",
+            'credentials': [],
+            'queries': [],
+            'email': email,
+            'assets': {'isAccessible': [],
+                       'definesUser': [{'id': "0"}]},
+            'username': username
+        })
 
     def edit(self):
         #TODO user::edit
