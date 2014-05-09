@@ -1,4 +1,4 @@
-import securitycenter
+from securitycenter.v1 import SecurityCenter
 import time
 import re
 
@@ -7,7 +7,7 @@ password = 'PASSWORD'
 hostname = 'HOSTNAME'
 days = 7
 
-sc = securitycenter.SecurityCenter(hostname, username, password)
+sc = SecurityCenter(hostname, username, password)
 
 queries = [{
     'eventName': 'Unique_Windows_Executable',
@@ -23,7 +23,7 @@ queries = [{
 procs = set()
 
 for query in queries:
-    data = sc.query('syslog', source='lce', 
+    data = sc.query('syslog', source='lce',
                     eventName=query['eventName'],
                     endtime=int(time.time()),
                     starttime=(int(time.time()) - (86400 * days))

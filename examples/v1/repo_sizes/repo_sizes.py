@@ -7,7 +7,7 @@
 # ----------
 # Example Output
 # ----------
-# [root@securitycenter ~]# ./repo_sizes.py 
+# [root@securitycenter ~]# ./repo_sizes.py
 #                                     IP Count     Raw Size    NSR Size
 #                                     --------    ---------   ---------
 #   1: Active                            117         24.14M      18.34M
@@ -17,20 +17,20 @@
 #   5: Ad-Hoc                              2          0.01M       0.02M
 #   6: Offline                          4853         89.72M     120.97M
 #   7: Traceroutes                         0          1.06M       0.00M
-import securitycenter
+from securitycenter.v1 import SecurityCenter
 import os
 
 # Define the needed information to login to the api
 username = 'ADMINUSERNAME'
 password = 'PASSWORD'
 hostname = 'localhost'
-convert = 1024 * 1024               # This will convert bytes to Megabytes 
+convert = 1024 * 1024               # This will convert bytes to Megabytes
                                     #   in base 1024.
 unit = 'M'                          # The unit notation (if any)
 path = '/opt/sc4/repositories'      # Base path for repositories
 
 # Here we will instantiate the Security Center module
-sc = securitycenter.SecurityCenter(hostname, username, password)
+sc = SecurityCenter(hostname, username, password)
 
 # Before we do anything, lets print the header information.
 print ' ' * 40 + 'IP Count\t Raw Size\t NSR Size'
@@ -51,6 +51,6 @@ for repo in sc.repositories()['repositories']:
 
     # Lastly, lets print this stuff out to stdout ;)
     print '%3d: %-30s\t%6d\t\t%8s%s\t%8s%s' % (
-        int(repo['id']), repo['name'], int(repo['ipCount']), 
-        '%.2f' % float(float(raw_size) / convert), unit, 
+        int(repo['id']), repo['name'], int(repo['ipCount']),
+        '%.2f' % float(float(raw_size) / convert), unit,
         '%.2f' % float(float(nsr_size) / convert), unit)
