@@ -11,8 +11,8 @@ import urllib2
 from urllib2 import urlopen, Request
 from zipfile import ZipFile
 
-__version__ = '1.1a'
-__author__ = 'Steven McGrath'
+__version__ = '1.1.5'
+__author__ = 'Steven McGrath <steve@chigeek.com>'
 __author_email__ = 'steve@chigeek.com'
 __url__ = 'https://github.com/SteveMcGrath/pySecurityCenter'
 __description__ = 'Python Interface into Tenable\'s SecurityCenter'
@@ -45,13 +45,6 @@ try:
                                            cert_file=self.cert, **kwargs)
 except ImportError:
     ssl = None
-
-<<<<<<< Updated upstream:securitycenter.py
-=======
-__version__ = '1.1.4'
-__author__ = 'Steven McGrath <steve@chigeek.com>'
-
->>>>>>> Stashed changes:securitycenter/base.py
 
 class APIError(Exception):
     def __init__(self, code, msg):
@@ -521,20 +514,15 @@ class SecurityCenter(object):
 
     def asset_update(self, asset_id, name=None, description=None,
                      visibility=None, group=None, users=None,
-<<<<<<< Updated upstream:securitycenter.py
-                     ips=None, rules=None):
-        """asset_update asset_id, [name], [description], [visibility], [group],
-=======
                      ips=None, rules=None, dns=None):
         '''asset_update asset_id, [name], [description], [visibility], [group],
->>>>>>> Stashed changes:securitycenter/base.py
-                        [users], [ips], [rules]
+                        [users], [ips], [rules], [dns]
         The Asset Update function will update the Asset ID defined with the
         values that have been specified.  Only those specified will be updated
         as a query is first made to pre-populate the update with all of the
         existing information, then override that information with the new data
         presented by the caller.
-        """
+        '''
 
         payload = None
         # First thing we need to do is query the api for the current asset

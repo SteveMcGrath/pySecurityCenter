@@ -27,21 +27,12 @@ if sys.version_info > (3,):
 
 setup(
     name='pySecurityCenter',
-<<<<<<< Updated upstream
-    version=securitycenter.__version__,
-    description='Security Center 4 API Module',
-    author=securitycenter.__author__,
-    author_email=securitycenter.__author_email__,
-    url=securitycenter.__url__,
-    py_modules=['securitycenter'],
-=======
-    version='1.1.4',
+    version='1.1.5',
     description='Security Center API Module',
     author='Steven McGrath',
     author_email='smcgrath@tenable.com',
     url='https://github.com/SteveMcGrath/pySecurityCenter',
     packages=['securitycenter'],
->>>>>>> Stashed changes
     install_requires=requirements,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
