@@ -46,6 +46,12 @@ try:
 except ImportError:
     ssl = None
 
+<<<<<<< Updated upstream:securitycenter.py
+=======
+__version__ = '1.1.4'
+__author__ = 'Steven McGrath <steve@chigeek.com>'
+
+>>>>>>> Stashed changes:securitycenter/base.py
 
 class APIError(Exception):
     def __init__(self, code, msg):
@@ -515,8 +521,13 @@ class SecurityCenter(object):
 
     def asset_update(self, asset_id, name=None, description=None,
                      visibility=None, group=None, users=None,
+<<<<<<< Updated upstream:securitycenter.py
                      ips=None, rules=None):
         """asset_update asset_id, [name], [description], [visibility], [group],
+=======
+                     ips=None, rules=None, dns=None):
+        '''asset_update asset_id, [name], [description], [visibility], [group],
+>>>>>>> Stashed changes:securitycenter/base.py
                         [users], [ips], [rules]
         The Asset Update function will update the Asset ID defined with the
         values that have been specified.  Only those specified will be updated
@@ -535,14 +546,20 @@ class SecurityCenter(object):
                     'type': asset['type'],
                     'name': asset['name'],
                     'description': asset['description'],
-                    'visibility': asset['visibility'],
-                    'group': asset['group'],
-                    'users': asset['users']
                 }
+                if self.version[:3] == '4.8':
+                    payload['tags'] = asset['tags']
+                else:
+                    payload['visibility'] = asset['visibility']
+                    payload['group'] = asset['group']
+                    payload['users'] = asset['users']
                 if asset['type'] == 'dynamic':
                     payload['rules'] = asset['rules']
                 if asset['type'] == 'static':
                     payload['definedIPs'] = asset['definedIPs']
+                if asset['type'] == 'dnsname':
+                    payload['definedDNSNames'] = asset['definedDNSNames']
+
 
         # New we need to check to see if we actually got to pre-load the
         # payload.  If we didnt, then there isn an existing Asset list and we
@@ -556,10 +573,14 @@ class SecurityCenter(object):
             payload['name'] = name
         if description is not None and isinstance(description, str):
             payload['description'] = description
-        if visibility is not None and isinstance(visibility, str):
-            payload['visibility'] = visibility
-        if group is not None and isinstance(group, str):
-            payload['group'] = group
+        if self.version[:3] != '4.8':
+            if visibility is not None and isinstance(visibility, str):
+                payload['visibility'] = visibility
+            if group is not None and isinstance(group, str):
+                payload['group'] = group
+        else:
+            if group is not None and isinstance(group, str):
+                payload['tags'] = group
         if users is not None and isinstance(users, list):
             ulist = []
             for user in users:
@@ -569,6 +590,9 @@ class SecurityCenter(object):
             payload['rules'] = rules
         if payload['type'] == 'static' and ips is not None and isinstance(ips, list):
             payload['definedIPs'] = ','.join(ips)
+        if payload['type'] == 'dnsname' and dns is not None\
+                                        and isinstance(dns, list):
+            payload['definedDNSNames'] = ','.join(dns)
 
         # And now that we have everything defined, we can go ahead and send
         # the api request payload and return the response.
@@ -1039,3 +1063,14 @@ class SecurityCenter(object):
             'filename': data['filename'],
             'name': name,
         })
+
+
+    def download_repository(self, repo_id):
+        '''download_repository Repository_Id
+        Download the tarball of the repository id specified.
+
+        UN-DOCUMENTED CALL: This function is not considered stable.
+        '''
+        return self.raw_query('repository', 'export', data={
+            'id': repo_id
+        }, dejson=False)
