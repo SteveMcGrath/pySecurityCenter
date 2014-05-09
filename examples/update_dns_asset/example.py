@@ -3,9 +3,9 @@ import securitycenter
 import csv
 
 # Please fill out the information below
-username = 'steve'
-password = 'p@ssw0rd'
-host = '25.98.203.19'
+username = 'USERNAME'
+password = 'PASSWORD'
+host = 'HOSTNAME OR IP ADDRESS'
 
 # Now to connect to the SC Instance
 sc = securitycenter.SecurityCenter(host, username, password)
