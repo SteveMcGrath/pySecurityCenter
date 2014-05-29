@@ -1,9 +1,4 @@
-from base64 import b64decode
-from cStringIO import StringIO
-from calendar import timegm
-from datetime import datetime
 from functools import wraps
-from zipfile import ZipFile
 
 
 class Module(object):
@@ -12,7 +7,7 @@ class Module(object):
     :param sc: SecurityCenter connection
     """
 
-    _name = ""
+    _name = ''
     """sc internal name of module"""
 
     def __init__(self, sc):
@@ -39,7 +34,7 @@ class _Empty(object):
     pass
 
 
-def extract_value(key, default=_Empty, _all_key="_all"):
+def extract_value(key, default=_Empty, _all_key='_all'):
     """Extract the value of a key from a returned dict.
 
     Creates a decorator that will get the value of a key from a function
@@ -56,7 +51,7 @@ def extract_value(key, default=_Empty, _all_key="_all"):
     :param key: key to get from return
     :param default: if set, return this if key is not present, otherwise
             raise KeyError
-    :param _all_key: name of param for "_all_" behavior (default "_all")
+    :param _all_key: name of param for '_all_' behavior (default '_all')
 
     :raise KeyError: if key not in dict and no default
 

@@ -1,9 +1,10 @@
-from base import *
+from .base import Module, extract_value
+
 
 class File(Module):
-    _name = "file"
+    _name = 'file'
 
-    @extract_value("filename")
+    @extract_value('filename')
     def upload(self, file, return_content=None):
         """Upload a file for use in import functions.
 
@@ -14,9 +15,9 @@ class File(Module):
         :return: random name assigned to file
         """
 
-        res = self._request("upload", {"returnContent": return_content}, file)
+        res = self._request('upload', {'returnContent': return_content}, file)
         if return_content:
-            res["_all"] = True
+            res['_all'] = True
         return res
 
     def clear(self, name):
@@ -26,7 +27,7 @@ class File(Module):
         :return: path of deleted file
         """
 
-        return self._request("clear", {"filename": name})["filename"]
+        return self._request('clear', {'filename': name})['filename']
 
     # how to get existing files?
 

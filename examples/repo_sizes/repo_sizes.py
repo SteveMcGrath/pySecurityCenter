@@ -17,7 +17,7 @@
 #   5: Ad-Hoc                              2          0.01M       0.02M
 #   6: Offline                          4853         89.72M     120.97M
 #   7: Traceroutes                         0          1.06M       0.00M
-from securitycenter.v1 import SecurityCenter
+from securitycenter import SecurityCenter
 import os
 
 # Define the needed information to login to the api

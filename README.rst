@@ -22,8 +22,8 @@ Basic Usage
 Create a SecurityCenter instance to log in.  API "modules" are attributes on
 the instance.  API "actions" are methods on the modules. ::
 
-    >>> from securitycenter import SecurityCenter
-    >>> sc = SecurityCenter("host", "user", "pass")
+    >>> from securitycenter import Client
+    >>> sc = Client("host", "user", "pass")
     >>> ips = sc.vuln.query("sumip")["results"]
     >>> len(ips)
     240
@@ -40,20 +40,20 @@ The Requests library supports both server verification and sending a client
 certificate for two-way SSL. ::
 
     # verification, system trust chain
-    SecurityCenter("host", verify=True)
+    Client("host", verify=True)
 
     # verification, custom trust chain
-    SecurityCenter("host", verify="path/to/chain")
+    Client("host", verify="path/to/chain")
 
     # two-way
     # cert can be combined public and private, or (pub, priv) tuple
-    SecurityCenter("host", cert="path/to/cert", verify="path/to/chain")
+    Client("host", cert="path/to/cert", verify="path/to/chain")
 
 Security Center can log in a user based on a client certificate instead of a
 username and password.  To enable that, first log in with a username and
 password while providing a certificate, then register the certificate. ::
 
-    sc = SecurityCenter("host", "user", "pass", cert="path/to/cert")
+    sc = Client("host", "user", "pass", cert="path/to/cert")
     sc.auth.save_fingerprint()
 
 Available Modules

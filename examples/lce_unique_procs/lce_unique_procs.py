@@ -1,4 +1,4 @@
-from securitycenter.v1 import SecurityCenter
+from securitycenter import SecurityCenter
 import time
 import re
 
