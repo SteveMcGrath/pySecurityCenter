@@ -7,6 +7,11 @@ queries into the API as painless and manageable as possible.
 [Source Code Repository](https://github.com/SteveMcGrath/pySecurityCenter)
 
 # Changelog
+__v2.0a2__
+
+* Pulled in the 75~ commits from David with the ORM code.
+* Reworked the code to use the orm/base standpoint instead of v1/v2
+
 __v2.0a1__
 
 * Initial rev with David's merged ORM code.
