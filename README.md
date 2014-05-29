@@ -7,6 +7,17 @@ queries into the API as painless and manageable as possible.
 [Source Code Repository](https://github.com/SteveMcGrath/pySecurityCenter)
 
 # Changelog
+__v2.0a1__
+
+* Initial rev with David's merged ORM code.
+* All ORM code is to be considered Alpha for now.
+* Added stubs in the API base for SecurityCenter 5 when released.
+
+__v1.1__
+
+* Changed the module structure to support the ORM model from David
+* Fixed the Asset update to support SC4.8's switch to tagging and groups
+
 __v1.0__
 
 * Changed Rev to 1.x as the code has been sufficiently stable.
@@ -75,6 +86,10 @@ directly from the [cheeseshop][]:
 [cheeseshop]: http://pypi.python.org/pypi/pySecurityCenter
 
 # How to use
+
+**Note**: All examples are currently using the Base module, not the ORM.  The
+          document will be updated eventually to explain how to use both methods
+          at a later date.
 
 The new interface is designed to be a lot easier to use than the previous one.
 While currently there are fewer functions to present the data back to you, what

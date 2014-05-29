@@ -11,12 +11,6 @@ import urllib2
 from urllib2 import urlopen, Request
 from zipfile import ZipFile
 
-__version__ = '1.1.5'
-__author__ = 'Steven McGrath <steve@chigeek.com>'
-__author_email__ = 'steve@chigeek.com'
-__url__ = 'https://github.com/SteveMcGrath/pySecurityCenter'
-__description__ = 'Python Interface into Tenable\'s SecurityCenter'
-
 # Here we will attempt to import the simplejson module if it exists, otherwise
 # we will fall back to json.  This should solve a lot of issues with python 2.4
 # and 3.x.
@@ -54,8 +48,10 @@ class APIError(Exception):
     def __str__(self):
         return repr('[%s]: %s' % (self.code, self.msg))
 
+class SecurityCenter5(object):
+    pass
 
-class SecurityCenter(object):
+class SecurityCenter4(object):
     '''
     Connects to the SecurityCenter API based on the parameters specified.
 
