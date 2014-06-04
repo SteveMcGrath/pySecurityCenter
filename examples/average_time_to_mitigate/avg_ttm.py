@@ -1,5 +1,4 @@
 import securitycenter
-from datetime import timedelta
 
 HOST = 'HOSTNAME or IP_ADDRESS'
 USER = 'USERNAME'
