@@ -1,4 +1,4 @@
-examples/csv_gen/config.ini
+examples/csv_gen/csv_gen.conf
 *.csv
 *.html
 README
