@@ -1,8 +1,15 @@
 from setuptools import setup
+import os
 import securitycenter
 
-with open("README.md") as f:
-    long_description = f.read()
+long_description = ''
+try:
+    from pypandoc import convert
+    if os.path.exists('README.md'):
+        long_description = convert('README.md', 'rst')
+except ImportError:
+    print("warning: pypandoc module not found, could not convert README.md to RST")
+
 
 setup(
     name="pySecurityCenter",
@@ -21,7 +28,7 @@ setup(
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Information Technology",
-        "License :: OSI Approved :: GNU Lesser General Public License v2 (LGPLv2)",
+        "License :: OSI Approved :: BSD License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 2.4",
