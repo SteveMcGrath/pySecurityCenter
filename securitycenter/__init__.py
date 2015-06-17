@@ -10,6 +10,6 @@ __authors__ = [
     'Steven McGrath <steve@chigeek.com>', 
     'David Lord <davidism@gmail.com>',
 ]
-__version__ = '2.0a2'
+__version__ = '2.1'
 __url__ = 'https://github.com/SteveMcGrath/pySecurityCenter'
 __description__ = 'Python Interface into Tenable\'s SecurityCenter'
