@@ -1,2 +1,0 @@
-- Steve McGrath <steve@chigeek.com>
-- David Lord <davidism@gmail.com>
