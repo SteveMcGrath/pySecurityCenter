@@ -1,6 +1,5 @@
 from setuptools import setup
 import os
-import securitycenter
 
 long_description = ''
 try:
@@ -13,10 +12,13 @@ except ImportError:
 
 setup(
     name="pySecurityCenter",
-    version=securitycenter.__version__,
+    version='2.1.1',
     description="Security Center API Library",
-    long_description=long_description,
-    author=", ".join(securitycenter.__authors__),
+    long_description='Python Interface into Tenable\'s SecurityCenter',
+    author=', '.join([
+        'Steven McGrath <steve@chigeek.com>', 
+        'David Lord <davidism@gmail.com>',
+    ]),
     author_email="steve@chigeek.com",
     url="https://github.com/SteveMcGrath/pySecurityCenter",
     packages=[
