@@ -1,5 +1,5 @@
 examples/csv_gen/csv_gen.conf
-*.csv
+#*.csv
 *.html
 README
 
