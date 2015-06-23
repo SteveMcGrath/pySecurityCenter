@@ -4,8 +4,8 @@ The SecurityCenter 5 RESTful API is a significant departure from the JSON/RPC AP
 
 ````
 >>> from securitycenter import SecurityCenter5
->>> sc = SecurityCenter5('securitycenter')
->>> sc.login('steve','p@ssw0rd')
+>>> sc = SecurityCenter5('HOSTNAME')
+>>> sc.login('USERNAME','PASSWORD')
 ````
 
 Instead of functionalizing every API call thats available, the methodology instead is to provide a base layer into the API, and only functionalize things that are seen to be dofficult and/or cumbersome to handle gracefully.  As a result of this, the calls that will be primarially used here are the following:
