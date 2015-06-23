@@ -29,7 +29,7 @@ class SecurityCenter5(object):
         passes and there is a desire to develop them.
 
         For more information, please See Tenable's official API documentation
-        at: https://support.tenable.com/support-center/cerberus-support-center/includes/widgets/sc_api/Scanner.html
+        at: https://support.tenable.com/support-center/cerberus-support-center/includes/widgets/sc_api/index.html
         '''
         self._host = host
         self._port = port
@@ -53,11 +53,13 @@ class SecurityCenter5(object):
         return url, headers
 
     def _resp_error_check(self, response):
-        data = response.json()
-        if data['error_code']:
-            raise APIError(data['error_code'], data['error_msg'])
-        else:
-            return response
+        try:
+            d = response.json()
+            if d['error_code']:
+                raise APIError(d['error_code'], d['error_msg'])
+        except ValueError:
+            pass
+        return response
 
     def _kwarg_builder(self, headers={}, **kwargs):
         kwargs['headers'] = headers
