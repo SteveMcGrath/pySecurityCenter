@@ -15,6 +15,7 @@ from urllib import urlencode
 import urllib2
 from urllib2 import urlopen, Request
 from zipfile import ZipFile
+from .base import APIError
 
 # Here we will attempt to import the simplejson module if it exists, otherwise
 # we will fall back to json.  This should solve a lot of issues with python 2.4
