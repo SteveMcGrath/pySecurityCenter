@@ -1,26 +1,10 @@
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-import requests
-import logging
+from .base import BaseAPI, APIError, logging
 
 
-class APIError(Exception):
-    def __init__(self, code, msg):
-        self.code = code
-        self.msg = msg
-
-    def __str__(self):
-        return repr('[%s]: %s' % (self.code, self.msg))
-
-
-class SecurityCenter5(object):
-    _host = None
-    _port = 443
-    _token = None
-    _ssl_verify = False
+class SecurityCenter5(BaseAPI):
     _cookies = {}
-    verbose = False
-
-    def __init__(self, host, port=443, ssl_verify=False, scheme='https'):
+    _pre = 'rest/'
+    def __init__(self, host, port=443, ssl_verify=False, scheme='https', log=False):
         '''SecurityCenter 5 API Wrapper
         This class is designed to handle authentication management for the
         SecurityCenter 5.x API.  This is by no means a complete model of
@@ -31,26 +15,13 @@ class SecurityCenter5(object):
         For more information, please See Tenable's official API documentation
         at: https://support.tenable.com/support-center/cerberus-support-center/includes/widgets/sc_api/index.html
         '''
-        self._host = host
-        self._port = port
-        self._ssl_verify = ssl_verify
-        self._scheme = scheme
-        try:
-            url, headers = self._pre_req('system')
-            kwargs = self._kwarg_builder({})
-            d = requests.get(url, **kwargs).json()
-            self.version = d['response']['version']
-            self.build_id = d['response']['buildID']
-            self.license = d['response']['licenseStatus']
-            self.uuid = d['response']['uuid']
-        except:
-            raise APIError(404, 'Invalid SecurityCenter Instance')
-
-    def _pre_req(self, path, headers={}):
-        if self._token:
-            headers['X-SecurityCenter'] = self._token
-        url = '%s://%s:%s/rest/%s' % (self._scheme, self._host, self._port, path) 
-        return url, headers
+        BaseAPI.__init__(self, host, port, ssl_verify, scheme, log)
+        d = self.get('system').json()
+        self.version = d['response']['version']
+        self.build_id = d['response']['buildID']
+        self.license = d['response']['licenseStatus']
+        self.uuid = d['response']['uuid']
+        #raise APIError(404, 'Invalid SecurityCenter Instance')
 
     def _resp_error_check(self, response):
         try:
@@ -61,51 +32,12 @@ class SecurityCenter5(object):
             pass
         return response
 
-    def _kwarg_builder(self, headers={}, **kwargs):
-        kwargs['headers'] = headers
+    def _builder(self, **kwargs):
+        kwargs = BaseAPI._builder(self, **kwargs)
+        if self._token:
+            kwargs['headers']['X-SecurityCenter'] = self._token
         kwargs['cookies'] = self._cookies
-        kwargs['verify'] = self._ssl_verify
-        if not self._ssl_verify:
-            requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-        if self.verbose:
-            print kwargs
         return kwargs
-
-    def head(self, path, headers={}, **kwargs):
-        '''Calls the specified path with the HEAD method'''
-        url, headers = self._pre_req(path, headers)
-        resp = requests.post(url, **self._kwarg_builder(headers, **kwargs))
-        return self._resp_error_check(resp)  
-
-    def get(self, path, headers={}, **kwargs):
-        '''Calls the specified path with the GET method'''
-        url, headers = self._pre_req(path, headers)
-        resp = requests.get(url, **self._kwarg_builder(headers, **kwargs))
-        return self._resp_error_check(resp)
-
-    def post(self, path, headers={}, **kwargs):
-        '''Calls the specified path with the POST method'''
-        url, headers = self._pre_req(path, headers)
-        resp = requests.post(url, **self._kwarg_builder(headers, **kwargs))
-        return self._resp_error_check(resp)     
-
-    def put(self, path, headers={}, **kwargs):
-        '''Calls the specified path with the PUT method'''
-        url, headers = self._pre_req(path, headers)
-        resp = requests.put(url, **self._kwarg_builder(headers, **kwargs))
-        return self._resp_error_check(resp)
-
-    def patch(self, path, headers={}, **kwargs):
-        '''Calls the specified path with the PATCH method'''
-        url, headers = self._pre_req(path, headers)
-        resp = requests.patch(url, **self._kwarg_builder(headers, **kwargs))
-        return self._resp_error_check(resp)
-
-    def delete(self, path, headers={}, **kwargs):
-        '''Calls the specified path with the DELETE method'''
-        url, headers = self._pre_req(path, headers)
-        resp = requests.delete(url, **self._kwarg_builder(headers, **kwargs))
-        return self._resp_error_check(resp)
 
     def login(self, user, passwd):
         '''Logs the user into SecurityCenter and stores the needed token and cookies.'''
