@@ -8,6 +8,7 @@ import httplib
 import logging
 import mimetypes
 import os
+import ssl
 import random
 from StringIO import StringIO
 from urllib import urlencode
@@ -214,7 +215,7 @@ class SecurityCenter4(object):
         content_type = 'multipart/form-data; boundary=%s' % boundry
         return content_type, payload
 
-    def _request(self, module, action, data={}, headers={}, dejson=True,
+    def _request(self, module, action, data=None, headers=None, dejson=True,
                  filename=False):
         '''
         This is the core internal function for interacting with the API.  All 
@@ -291,7 +292,7 @@ class SecurityCenter4(object):
         ]))
 
         # Now it's time to make the connection and actually talk to SC.
-        resp = urlopen(Request(self._url, payload, headers))
+        resp = urlopen(Request(self._url, payload, headers), context=ssl.SSLContext(ssl.PROTOCOL_TLSv1))
         data = resp.read()
 
         # And we need to log the response as well....
