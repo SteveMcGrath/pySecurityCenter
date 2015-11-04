@@ -17,11 +17,13 @@ class SecurityCenter5(BaseAPI):
         '''
         BaseAPI.__init__(self, host, port, ssl_verify, scheme, log)
         d = self.get('system').json()
-        self.version = d['response']['version']
-        self.build_id = d['response']['buildID']
-        self.license = d['response']['licenseStatus']
-        self.uuid = d['response']['uuid']
-        #raise APIError(404, 'Invalid SecurityCenter Instance')
+        try:
+            self.version = d['response']['version']
+            self.build_id = d['response']['buildID']
+            self.license = d['response']['licenseStatus']
+            self.uuid = d['response']['uuid']
+        except:
+            raise APIError(404, 'Invalid SecurityCenter Instance')
 
     def _resp_error_check(self, response):
         try:

@@ -4,10 +4,17 @@ from .base import BaseAPI, APIError, logging
 class Nessus(BaseAPI):
     _access = None
     _secret = None
+    managed = False
+    enterprise = False
     def __init__(self, host, port=8834, ssl_verify=False, scheme='https', log=False):
         BaseAPI.__init__(self, host, port, ssl_verify, scheme, log)
+        #try:
+        d = self.get('server/properties').json()
         try:
-            d = self.get('server/properties')
+            if 'managed' in d:
+                self.managed = d['managed']
+            if 'enterprise' in d:
+                self.enterprise = d['enterprise']
             self.type = d['nessus_type']
             self.version = d['server_version']
             self.ui_build = d['nessus_ui_build']
@@ -27,7 +34,7 @@ class Nessus(BaseAPI):
     def login(self, username=None, password=None, access=None, secret=None):
         if username and password:
             resp = self.post('session', json={'username': username, 'password': password})
-            if resp.status == 200:
+            if resp.status_code == 200:
                 self._token = resp.json()['token']
             else:
                 raise APIError(resp.status, resp.json()['error'])
