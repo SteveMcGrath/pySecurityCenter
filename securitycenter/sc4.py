@@ -2,17 +2,10 @@
 # This code will eventually be phased out.  Once Tenable stops supporting #
 # SecurityCenter 4, the 4.x API code will be depricated out.              #
 ###########################################################################
-import calendar
 from datetime import date, datetime, timedelta
-import httplib
-import logging
-import mimetypes
-import os
-import ssl
-import random
+import os, sys, ssl, random, httplib, logging, mimetypes, urllib2, calendar
 from StringIO import StringIO
 from urllib import urlencode
-import urllib2
 from urllib2 import urlopen, Request
 from zipfile import ZipFile
 from .base import APIError
@@ -28,23 +21,18 @@ except ImportError:
 # Test for SSL support.  Sets a flag has_ssl and defines an HTTPSHandler that
 # provides two-way SSL.
 # http://stackoverflow.com/a/5707951/400617
-try:
-    import ssl
+class HTTPSClientAuthHandler(urllib2.HTTPSHandler):
+    def __init__(self, key, cert):
+        urllib2.HTTPSHandler.__init__(self)
+        self.key = key
+        self.cert = cert
 
-    class HTTPSClientAuthHandler(urllib2.HTTPSHandler):
-        def __init__(self, key, cert):
-            urllib2.HTTPSHandler.__init__(self)
-            self.key = key
-            self.cert = cert
+    def https_open(self, req):
+        return self.do_open(self.getConnection, req)
 
-        def https_open(self, req):
-            return self.do_open(self.getConnection, req)
-
-        def getConnection(self, host, **kwargs):
-            return httplib.HTTPSConnection(host, key_file=self.key,
-                                           cert_file=self.cert, **kwargs)
-except ImportError:
-    ssl = None
+    def getConnection(self, host, **kwargs):
+        return httplib.HTTPSConnection(host, key_file=self.key,
+                                       cert_file=self.cert, **kwargs)
 
 
 class SecurityCenter4(object):
@@ -293,7 +281,13 @@ class SecurityCenter4(object):
         ]))
 
         # Now it's time to make the connection and actually talk to SC.
-        resp = urlopen(Request(self._url, payload, headers), context=ssl.SSLContext(ssl.PROTOCOL_TLSv1))
+        v = sys.version_info
+        if v.major = 2 and v.minor >= 7 and v.micro >= 9:
+            # as the SSL validation issue only exists for newer versions
+            # of urllib, we will only perform the context change when necessary...
+            resp = urlopen(Request(self._url, payload, headers), context=ssl.SSLContext(ssl.PROTOCOL_TLSv1))
+        else:
+            resp = urlopen(Request(self._url, payload, headers))
         data = resp.read()
 
         # And we need to log the response as well....
