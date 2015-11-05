@@ -2,7 +2,7 @@ from .base import BaseAPI, APIError, logging
 
 
 class SecurityCenter5(BaseAPI):
-    _cookies = {}
+    #_cookies = {}
     _pre = 'rest/'
     def __init__(self, host, port=443, ssl_verify=False, scheme='https', log=False):
         '''SecurityCenter 5 API Wrapper
@@ -38,20 +38,16 @@ class SecurityCenter5(BaseAPI):
         kwargs = BaseAPI._builder(self, **kwargs)
         if self._token:
             kwargs['headers']['X-SecurityCenter'] = self._token
-        kwargs['cookies'] = self._cookies
         return kwargs
 
     def login(self, user, passwd):
         '''Logs the user into SecurityCenter and stores the needed token and cookies.'''
         resp = self.post('token', json={'username': user, 'password': passwd})
         self._token = resp.json()['response']['token']
-        self._cookies['TNS_SESSIONID'] = resp.cookies['TNS_SESSIONID']
 
     def logout(self):
         '''Logs out of SecurityCenter and removed the cookies and token.'''
         resp = self.delete('token')
-        self._token = None
-        self._cookies = {}
 
     def analysis(self, *filters, **kwargs):
         '''Analysis
