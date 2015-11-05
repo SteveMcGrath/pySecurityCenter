@@ -20,9 +20,11 @@ class BaseAPI(object):
     _ssl_verify = False
     verbose = False
     _log = None
+    _session = None
 
     def __init__(self, host, port=443, ssl_verify=False, scheme='https', log=False):
         '''BaseAPI Initialization'''
+        self._session = requests.Session()
         self._host = host
         self._port = port
         self._ssl_verify = ssl_verify
@@ -55,38 +57,38 @@ class BaseAPI(object):
     def _resp_error_check(self, response):
         try:
             d = response.json()
-            if d['error']:
-                raise APIError(response.status, d['error'])
+            if 'error' in d and d['error']:
+                raise APIError(response.status_code, d['error'])
         except ValueError:
             pass
         return response
 
     def head(self, path, **kwargs):
         '''Calls the specified path with the HEAD method'''
-        resp = requests.head(self._url(path), **self._builder(**kwargs))
+        resp = self._session.head(self._url(path), **self._builder(**kwargs))
         return self._resp_error_check(resp)  
 
     def get(self, path, **kwargs):
         '''Calls the specified path with the GET method'''
-        resp = requests.get(self._url(path), **self._builder(**kwargs))
+        resp = self._session.get(self._url(path), **self._builder(**kwargs))
         return self._resp_error_check(resp)
 
     def post(self, path, **kwargs):
         '''Calls the specified path with the POST method'''
-        resp = requests.post(self._url(path), **self._builder(**kwargs))
+        resp = self._session.post(self._url(path), **self._builder(**kwargs))
         return self._resp_error_check(resp)     
 
     def put(self, path, **kwargs):
         '''Calls the specified path with the PUT method'''
-        resp = requests.put(self._url(path), **self._builder(**kwargs))
+        resp = self._session.put(self._url(path), **self._builder(**kwargs))
         return self._resp_error_check(resp)
 
     def patch(self, path, **kwargs):
         '''Calls the specified path with the PATCH method'''
-        resp = requests.patch(self._url(path), **self._builder(**kwargs))
+        resp = self._session.patch(self._url(path), **self._builder(**kwargs))
         return self._resp_error_check(resp)
 
     def delete(self, path, **kwargs):
         '''Calls the specified path with the DELETE method'''
-        resp = requests.delete(self._url(path), **self._builder(**kwargs))
+        resp = self._session.delete(self._url(path), **self._builder(**kwargs))
         return self._resp_error_check(resp)
