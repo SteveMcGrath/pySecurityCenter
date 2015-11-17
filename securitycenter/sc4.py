@@ -282,7 +282,7 @@ class SecurityCenter4(object):
 
         # Now it's time to make the connection and actually talk to SC.
         v = sys.version_info
-        if v.major == 2 and v.minor >= 7 and v.micro >= 9:
+        if v[0] == 2 and v[1] >= 7 and v[2] >= 9:
             # as the SSL validation issue only exists for newer versions
             # of urllib, we will only perform the context change when necessary...
             resp = urlopen(Request(self._url, payload, headers), context=ssl.SSLContext(ssl.PROTOCOL_TLSv1))
