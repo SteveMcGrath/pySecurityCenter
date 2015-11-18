@@ -1149,7 +1149,7 @@ class SecurityCenter4(object):
         data = {
             'hostType': rule_type,
             'port': port,
-            'comments': comments,
+            'comments': comment,
             'protocol': proto,
             'pluginID': plugin_id,
             'repIDs': [{'id': i} for i in repo_ids]
