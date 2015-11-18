@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, Text, Date, DateTime, Boolean, create_en
 from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from copy import copy
+import sys
 
 
 Base = declarative_base()
@@ -28,6 +29,8 @@ class Host(Base):
     entries = relationship('Entry', backref='host')
 
     def changes(self, start=None, end=None):
+        sys.stdout.write('running changelog for %s/%s...' % (self.id, self.dns))
+        sys.stdout.flush()
         entries = self.entries
         dates = sorted(set([e.timestamp for e in entries]))
         changes = []
@@ -46,6 +49,8 @@ class Host(Base):
                     i.change = 'removed'
                     i.timestamp = date
                     changes.append(i)
+        sys.stdout.write('\tdone\n')
+        sys.stdout.flush()
         return sorted(changes, key=lambda c: c.timestamp)
 Host.metadata.create_all(engine)
 
@@ -54,7 +59,6 @@ class Entry(Base):
     __tablename__ = 'entries'
     id = Column(Integer, primary_key=True)
     host_id = Column(Integer, ForeignKey('hosts.id'))
-    #host = Column(Text)
     patch = Column(Text)
     name = Column(Text)
     version = Column(Text)
