@@ -42,3 +42,7 @@ nosetests.xml
 
 # PyCharm
 .idea
+examples/sc4/csv_gen/test1.csv
+examples/sc4/gen_software_report/test1.csv
+examples/sc5/software_change/database.db
+examples/sc5/software_change/config.conf
