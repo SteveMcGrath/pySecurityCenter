@@ -16,7 +16,7 @@ def generate_html_report(base_path, asset_id):
         print 'Invalid Asset ID (%s)!' % asset_id
         return
     filename = os.path.join(base_path, '%s-INV-CHANGE-%s.html' % (
-        asset.name, 
+        asset.name,
         datetime.now().strftime('%Y-%m-%d.%H.%M.%S'))
     )
     print 'Generating Report : %s' % filename

@@ -54,7 +54,7 @@ def main():
 
     if populate:
         sc = SecurityCenter(config.get('SecurityCenter', 'host'))
-        sc.login(config.get('SecurityCenter', 'user'), 
+        sc.login(config.get('SecurityCenter', 'user'),
                  b64decode(config.get('SecurityCenter', 'pass')))
         for asset_id in config.get('SecurityCenter', 'asset_ids').split(','):
             population.gen(sc, int(asset_id), config.getint('SecurityCenter', 'expire'))

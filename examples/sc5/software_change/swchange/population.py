@@ -19,7 +19,7 @@ def gen(sc, asset, expire):
     resw = re.compile(r'^([\w\s\.\(\-\)\+]*)')
     s = Session()
     ts = datetime.datetime.now()
-    for vuln in sc.analysis(('pluginID','=','20811,22869'), 
+    for vuln in sc.analysis(('pluginID','=','20811,22869'),
                             ('asset', '=', {'id': str(asset)}),
                             tool='vulndetails'):
 
@@ -60,7 +60,7 @@ def gen(sc, asset, expire):
                     entry = Entry()
                     entry.name = item
                     entry.timestamp = ts
-                    entry.host_id = host.id  
+                    entry.host_id = host.id
                     s.add(entry)
                     s.commit()
             elif 'Solaris 11 system' in vuln['pluginText']:
@@ -71,8 +71,8 @@ def gen(sc, asset, expire):
                     entry.version = item[1]
                     entry.timestamp = ts
                     entry.host_id = host.id
-                    s.add(entry)  
-                    s.commit()  
+                    s.add(entry)
+                    s.commit()
             elif 'Mac OS X system' in vuln['pluginText']:
                 software = re.findall('  ([a-zA-Z0-9\.\-\_]*\.pkg)\n',vuln['pluginText'])
                 for item in software:
@@ -80,8 +80,8 @@ def gen(sc, asset, expire):
                     entry.name = item
                     entry.timestamp = ts
                     entry.host_id = host.id
-                    s.add(entry)  
-                    s.commit()   
+                    s.add(entry)
+                    s.commit()
             else:
                 sys.stdout.write('\t[NO FORMATTER]')
                 sys.stdout.flush()
@@ -112,17 +112,17 @@ def gen(sc, asset, expire):
                     if len(vers) > 0: new.version = vers[0]
                     try:
                         if len(dates) > 0:
-                            date = datetime.date(year=int(dates[0][0]), 
+                            date = datetime.date(year=int(dates[0][0]),
                                                  month=int(dates[0][1]),
                                                  day=int(dates[0][2]))
                             new.date = date
                         else:
                             dates = reinvdate.findall(line)
                             if len(dates) > 0:
-                                date = datetime.date(year=int(dates[0][2]), 
+                                date = datetime.date(year=int(dates[0][2]),
                                                      month=int(dates[0][0]),
                                                      day=int(dates[0][1]))
-                                new.date = date                        
+                                new.date = date
                     except:
                         pass
                     if patches:
