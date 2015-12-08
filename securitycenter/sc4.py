@@ -39,7 +39,7 @@ class SecurityCenter4(object):
     '''
     Connects to the SecurityCenter API based on the parameters specified.
 
-    :param host: Address of the SecurityCenter instance.  
+    :param host: Address of the SecurityCenter instance.
                  Can be IP or Hostname.
     :param user: Account name for SecurityCenter
     :param passwd: Account password for SecurityCenter
@@ -49,7 +49,7 @@ class SecurityCenter4(object):
     :param cert:
     :param debug: Should SecurityCenter output all calls to a debug log?
                   (Default is False)
-    :param populate: Should the module repopulate the _xrefs list?  
+    :param populate: Should the module repopulate the _xrefs list?
                      (Default is False)
 
     :type host: string
@@ -155,11 +155,11 @@ class SecurityCenter4(object):
         http://code.activestate.com/recipes/146306/
         '''
 
-        # As we will be accepting both filenames, or file objects 
+        # As we will be accepting both filenames, or file objects
         # (because why not!) we will need to make a few determinations on what
         # we are doing beforehand.
         if isinstance(filename, file) or isinstance(filename, StringIO.StringIO):
-            
+
             # If we are parsing a file object, then we should try to pull as
             # much information about the file object that was passed as we can,
             # however we do need to be able to fall back to some generic info
@@ -207,29 +207,29 @@ class SecurityCenter4(object):
     def _request(self, module, action, data=None, headers=None, dejson=True,
                  filename=False):
         '''
-        This is the core internal function for interacting with the API.  All 
+        This is the core internal function for interacting with the API.  All
         calls to the API get routed through here.
 
-        :param module: The API module being called (Refer to SecurityCenter API 
-                       Documentation). 
-        
+        :param module: The API module being called (Refer to SecurityCenter API
+                       Documentation).
+
         :param action: The API action being called (Refer to SecurityCenter API
-                       Documentation). 
-        
+                       Documentation).
+
         :param data: A dictionary of the data to send to the API (default None)
-        :param headers: A dictional of additional headers to send to the API 
+        :param headers: A dictional of additional headers to send to the API
                         (default None).
 
         :param dejson: Should the module convert the JSON response back to a
                        python dictionary (default is True).
 
-        :param filename: A string filename or file object to be passed to the 
+        :param filename: A string filename or file object to be passed to the
                          API.  The default is to send nothing.
 
         :type module: string
         :type action: string
         :type data: dict
-        :type headers: dict 
+        :type headers: dict
         :type dejson: bool
         :type filename: string, fileobj
         '''
@@ -285,7 +285,10 @@ class SecurityCenter4(object):
         if v[0] == 2 and v[1] >= 7 and v[2] >= 9:
             # as the SSL validation issue only exists for newer versions
             # of urllib, we will only perform the context change when necessary...
-            resp = urlopen(Request(self._url, payload, headers), context=ssl.SSLContext(ssl.PROTOCOL_TLSv1))
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            resp = urlopen(Request(self._url, payload, headers), context=ctx)
         else:
             resp = urlopen(Request(self._url, payload, headers))
         data = resp.read()
@@ -650,7 +653,7 @@ class SecurityCenter4(object):
         **Windows Credential Options**
 
         :param username: Account Name
-        :param password: Account Password 
+        :param password: Account Password
         :param domain: [Optional] Account Member Domain
         :type username: string
         :type password: string
@@ -658,16 +661,16 @@ class SecurityCenter4(object):
 
         **Unix/SSH Credential Options**
 
-        SSH Credentials cover a multitude of different types of hosts. 
+        SSH Credentials cover a multitude of different types of hosts.
         Everything from Linux/Unix boxes to networking gear like Cisco IOS
         devices.  As a result of this, there are a lot of available options in
         order to cover as many possible scenarios as possible.  A few examples:
 
         Simple Username/Password:
 
-        >>> sc.credential_add('Example Linux Root', 'ssh', 
+        >>> sc.credential_add('Example Linux Root', 'ssh',
                 username='root', password='r00tp@ssw0rd')
-        
+
         Utilizing Sudo:
 
         >>> sc.credential_add('Example Linux Sudo', 'ssh',
@@ -697,17 +700,17 @@ class SecurityCenter4(object):
 
         :param username: Account Name
         :param password: Account Password
-        :param privilegeEscalation: [Optional] The type of privilege escalation 
+        :param privilegeEscalation: [Optional] The type of privilege escalation
                                 required for this account.  The default is None.
-                                Valid options are: 'su', 'su+sudo', 'dzdo', 
+                                Valid options are: 'su', 'su+sudo', 'dzdo',
                                 'pbrun', 'Cisco \'enable\'', or 'none'.
         :param escalationUsername: [Optional] The username to escalate to.  Only
-                                   used for su+sudo escalation. 
+                                   used for su+sudo escalation.
         :param escalationPassword: [Optional] The password used for escalation.
         :param publicKey: [Optional] The SSH public RSA/DSA key used for
                           authentication.
-        :param privateKey: [Optional] The SSH private RSA/DSA key used for 
-                           authentication. 
+        :param privateKey: [Optional] The SSH private RSA/DSA key used for
+                           authentication.
         :param passphrase: [Optional] The passphrase needed for the RSA/DSA
                            keypair.
         :type username: string
@@ -732,7 +735,7 @@ class SecurityCenter4(object):
 
         **SNMP Community String**
 
-        :param communityString: The community string to connect with. 
+        :param communityString: The community string to connect with.
         :type communityString: string
         '''
 
@@ -744,10 +747,10 @@ class SecurityCenter4(object):
         return self.raw_query("credential", "add", data=options)
 
     def credential_share_simulate(self, cred_id, *user_ids):
-        """Shares a given credential to the specified Users. 
-        
+        """Shares a given credential to the specified Users.
+
         :param cred_id: Credential ID
-        :param user_ids: List of User IDs 
+        :param user_ids: List of User IDs
         """
         return self.raw_query("credential", "shareSimulate", data={
             'id': cred_id,
@@ -755,10 +758,10 @@ class SecurityCenter4(object):
         })
 
     def credential_share(self, cred_id, *user_ids):
-        """Shares a given credential to the specified Users. 
-        
+        """Shares a given credential to the specified Users.
+
         :param cred_id: Credential ID
-        :param user_ids: List of User IDs 
+        :param user_ids: List of User IDs
         """
         return self.raw_query("credential", "share", data={
             'id': cred_id,
@@ -1121,7 +1124,7 @@ class SecurityCenter4(object):
         })
 
 
-    def risk_rule(self, rule_type, rule_value, port, proto, plugin_id, 
+    def risk_rule(self, rule_type, rule_value, port, proto, plugin_id,
                   repo_ids, comment='', expires='-1', severity=None):
         '''accept_risk rule_type, rule_value, port, proto, plugin_id, comment
         Creates an accept rick rule based on information provided.
