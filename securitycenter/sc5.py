@@ -85,7 +85,7 @@ class SecurityCenter5(BaseAPI):
         def return_results(**kwargs):
             return kwargs['resp'].json()['response']['results']
 
-        # These values are commonly used and/or are generally not changed from the default.  
+        # These values are commonly used and/or are generally not changed from the default.
         # If we do not see them specified by the user then we will need to add these in
         # for later parsing...
         if 'page' not in kwargs: kwargs['page'] = 'all'
@@ -122,7 +122,7 @@ class SecurityCenter5(BaseAPI):
         count = 0
         total_records = opts['page_size']
         while total_records > count:
-            # Here we actually make the calls.  
+            # Here we actually make the calls.
             resp = self.post('analysis', json=kwargs)
             opts['page_kwargs']['resp'] = resp
             out = opts['page_obj'](**opts['page_kwargs'])
