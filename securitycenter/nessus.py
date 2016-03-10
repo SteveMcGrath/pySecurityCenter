@@ -37,7 +37,7 @@ class Nessus(BaseAPI):
             if resp.status_code == 200:
                 self._token = resp.json()['token']
             else:
-                raise APIError(resp.status, resp.json()['error'])
+                raise APIError(resp.status_code, resp.json()['error'])
         elif access and secret:
             self._access = access
             self._secret = secret
