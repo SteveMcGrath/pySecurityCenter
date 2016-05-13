@@ -2,7 +2,6 @@ from .base import BaseAPI, APIError, logging
 
 
 class SecurityCenter5(BaseAPI):
-    #_cookies = {}
     _pre = 'rest/'
     def __init__(self, host, port=443, ssl_verify=False, scheme='https', log=False):
         '''SecurityCenter 5 API Wrapper

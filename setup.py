@@ -12,11 +12,11 @@ except ImportError:
 
 setup(
     name="pySecurityCenter",
-    version='2.1.12',
+    version='2.1.14',
     description="Security Center API Library",
     long_description='Python Interface into Tenable\'s SecurityCenter',
     author=', '.join([
-        'Steven McGrath <steve@chigeek.com>', 
+        'Steven McGrath <steve@chigeek.com>',
         'David Lord <davidism@gmail.com>',
     ]),
     author_email="steve@chigeek.com",

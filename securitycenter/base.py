@@ -42,7 +42,7 @@ class BaseAPI(object):
             requests_log.propagate = True
 
     def _url(self, path):
-        return '%s://%s:%s/%s%s' % (self._scheme, self._host, self._port, self._pre, path) 
+        return '%s://%s:%s/%s%s' % (self._scheme, self._host, self._port, self._pre, path)
 
     def _builder(self, **kwargs):
         if 'headers' not in kwargs:
@@ -66,29 +66,47 @@ class BaseAPI(object):
     def head(self, path, **kwargs):
         '''Calls the specified path with the HEAD method'''
         resp = self._session.head(self._url(path), **self._builder(**kwargs))
-        return self._resp_error_check(resp)  
+        if 'stream' in kwargs:
+            return resp
+        else:
+            return self._resp_error_check(resp)
 
     def get(self, path, **kwargs):
         '''Calls the specified path with the GET method'''
         resp = self._session.get(self._url(path), **self._builder(**kwargs))
-        return self._resp_error_check(resp)
+        if 'stream' in kwargs:
+            return resp
+        else:
+            return self._resp_error_check(resp)
 
     def post(self, path, **kwargs):
         '''Calls the specified path with the POST method'''
         resp = self._session.post(self._url(path), **self._builder(**kwargs))
-        return self._resp_error_check(resp)     
+        if 'stream' in kwargs:
+            return resp
+        else:
+            return self._resp_error_check(resp)
 
     def put(self, path, **kwargs):
         '''Calls the specified path with the PUT method'''
         resp = self._session.put(self._url(path), **self._builder(**kwargs))
-        return self._resp_error_check(resp)
+        if 'stream' in kwargs:
+            return resp
+        else:
+            return self._resp_error_check(resp)
 
     def patch(self, path, **kwargs):
         '''Calls the specified path with the PATCH method'''
         resp = self._session.patch(self._url(path), **self._builder(**kwargs))
-        return self._resp_error_check(resp)
+        if 'stream' in kwargs:
+            return resp
+        else:
+            return self._resp_error_check(resp)
 
     def delete(self, path, **kwargs):
         '''Calls the specified path with the DELETE method'''
         resp = self._session.delete(self._url(path), **self._builder(**kwargs))
-        return self._resp_error_check(resp)
+        if 'stream' in kwargs:
+            return resp
+        else:
+            return self._resp_error_check(resp)
