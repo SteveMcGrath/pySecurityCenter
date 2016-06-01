@@ -41,6 +41,9 @@ class BaseAPI(object):
             requests_log.addHandler(ch)
             requests_log.propagate = True
 
+    def _reset_session(self):
+        self._session = requests.Session()
+
     def _url(self, path):
         return '%s://%s:%s/%s%s' % (self._scheme, self._host, self._port, self._pre, path)
 

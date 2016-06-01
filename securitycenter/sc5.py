@@ -47,6 +47,7 @@ class SecurityCenter5(BaseAPI):
     def logout(self):
         '''Logs out of SecurityCenter and removed the cookies and token.'''
         resp = self.delete('token')
+        self._reset_session()
 
     def analysis(self, *filters, **kwargs):
         '''Analysis

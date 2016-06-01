@@ -26,7 +26,7 @@ class Nessus(BaseAPI):
     def _builder(self, **kwargs):
         kwargs = BaseAPI._builder(self, **kwargs)
         if self._access and self._secret:
-            kwargs['headers']['X-APIKeys'] = 'accessKey=%s secretKey=%s' % (self._access, self._secret)
+            kwargs['headers']['X-APIKeys'] = 'accessKey=%s; secretKey=%s' % (self._access, self._secret)
         elif self._token:
             kwargs['headers']['X-Cookie'] = 'token=%s' % self._token
         return kwargs
