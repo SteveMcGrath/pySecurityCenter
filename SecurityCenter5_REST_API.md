@@ -8,7 +8,7 @@ The SecurityCenter 5 RESTful API is a significant departure from the JSON/RPC AP
 >>> sc.login('USERNAME','PASSWORD')
 ````
 
-Instead of functionalizing every API call thats available, the methodology instead is to provide a base layer into the API, and only functionalize things that are seen to be dofficult and/or cumbersome to handle gracefully.  As a result of this, the calls that will be primarially used here are the following:
+Instead of functionalizing every API call thats available, the methodology instead is to provide a base layer into the API, and only functionalize things that are seen to be difficult and/or cumbersome to handle gracefully.  As a result of this, the calls that will be primarially used here are the following:
 
 * sc.get()
 * sc.post()
