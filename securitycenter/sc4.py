@@ -3,62 +3,21 @@
 # SecurityCenter 4, the 4.x API code will be depricated out.              #
 ###########################################################################
 from datetime import date, datetime, timedelta
-import os, sys, ssl, random, httplib, logging, mimetypes, urllib2, calendar
+import os, sys, ssl, random, calendar
 from StringIO import StringIO
-from urllib import urlencode
-from urllib2 import urlopen, Request
 from zipfile import ZipFile
-from .base import APIError
-
-# Here we will attempt to import the simplejson module if it exists, otherwise
-# we will fall back to json.  This should solve a lot of issues with python 2.4
-# and 3.x.
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
-# Test for SSL support.  Sets a flag has_ssl and defines an HTTPSHandler that
-# provides two-way SSL.
-# http://stackoverflow.com/a/5707951/400617
-class HTTPSClientAuthHandler(urllib2.HTTPSHandler):
-    def __init__(self, key, cert):
-        urllib2.HTTPSHandler.__init__(self)
-        self.key = key
-        self.cert = cert
-
-    def https_open(self, req):
-        return self.do_open(self.getConnection, req)
-
-    def getConnection(self, host, **kwargs):
-        return httplib.HTTPSConnection(host, key_file=self.key,
-                                       cert_file=self.cert, **kwargs)
+from .base import APIError, BaseAPI
 
 
-class SecurityCenter4(object):
+class SecurityCenter4(BaseAPI):
     '''
     Connects to the SecurityCenter API based on the parameters specified.
 
     :param host: Address of the SecurityCenter instance.
                  Can be IP or Hostname.
-    :param user: Account name for SecurityCenter
-    :param passwd: Account password for SecurityCenter
     :param port: What port to talk to SecurityCenter on (Default is 443)
-    :param login: Automatically login to SecurityCenter (Default is True)
-    :param key:
-    :param cert:
-    :param debug: Should SecurityCenter output all calls to a debug log?
-                  (Default is False)
-    :param populate: Should the module repopulate the _xrefs list?
-                     (Default is False)
-
     :type host: string
-    :type user: string
-    :type passwd: string
     :type port: int
-    :type login: bool
-    :type debug: bool
-    :type populate: bool
     '''
     _token = None
     _host = None
@@ -74,34 +33,10 @@ class SecurityCenter4(object):
               'SSA',
               ]
 
-    def __init__(self, host, user, passwd, login=True, port=443, key=None,
-                 cert=None, debug=False, populate=False):
-        self._host = host
-        self._debug = debug
-        self._port = port
-        self._url = 'https://%s/request.php' % self._host
-
-        # Build and install an HTTPS opener if SSL support is available
-        if ssl is not None and None not in (key, cert):
-            cert_handler = HTTPSClientAuthHandler(key, cert)
-            opener = urllib2.build_opener(cert_handler)
-            urllib2.install_opener(opener)
-
-        # Debugging Log Settings...
-        self._log = logging.getLogger('pySecurityCenter')
-        if debug:
-            handler = logging.FileHandler('pySecurityCenter-DEBUG.log')
-            formatter = logging.Formatter('%(asctime)s %(message)s')
-            handler.setFormatter(formatter)
-            self._log.setLevel(logging.DEBUG)
-            self._log.addHandler(handler)
-
-        if login:
-            self.system = self._system()
-            self.version = self.system['version']
-            self.login(user, passwd)
-        if populate:
-            self._build_xrefs()
+    def __init__(self, host, port=443, ssl_verify=False, scheme='https', log=False):
+        BaseAPI.__init__(self, host, port, ssl_verify, scheme, log)
+        self.system = self._system()
+        self.version = self.system['version']
 
     def _revint(self, version):
         '''
@@ -148,64 +83,8 @@ class SecurityCenter4(object):
                     xrefs.add(xrf)
         self._xrefs = list(xrefs)
 
-    def _gen_multipart(self, jdata, filename):
-        '''
-        This is an internal function to be able to upload files to Security
-        Center.  Based on the awsome work done with the recipe linked below:
-        http://code.activestate.com/recipes/146306/
-        '''
-
-        # As we will be accepting both filenames, or file objects
-        # (because why not!) we will need to make a few determinations on what
-        # we are doing beforehand.
-        if isinstance(filename, file) or isinstance(filename, StringIO.StringIO):
-
-            # If we are parsing a file object, then we should try to pull as
-            # much information about the file object that was passed as we can,
-            # however we do need to be able to fall back to some generic info
-            # incase we get based a StringIO object as StringIO has no
-            # associated filename.
-            content = filename.read()
-            try:
-                data_name = filename.name
-                content_header = 'Content-Type: %s' %\
-                             (mimetypes.guess_type(data_name)[0] or
-                              'application/octet-stream')
-            except:
-                content_header = 'Content-Type: application/octet-stream'
-                data_name = 'pyobj-%s' % random.randint(20000)
-        else:
-
-            # It appears that we got passed a string object with a filename, so
-            # we will go ahead and parse it as such.
-            data_name = os.path.split(filename)[1]
-            content_header = 'Content-Type: %s' %\
-                             (mimetypes.guess_type(data_name)[0] or
-                              'application/octet-stream')
-            content = open(filename, 'rb').read()
-
-        boundry = '----------MultiPartWebFormBoundry'
-        data = []
-        for item in jdata:
-            data.append('--' + boundry)
-            data.append('Content-Disposition: form-data; name="%s"' % item)
-            data.append('')
-            data.append(str(jdata[item]))
-        data.append('--' + boundry)
-        data.append(
-            'Content-Disposition: form-data; name="%s"; filename="%s"' %
-            ('Filedata', data_name))
-        data.append(content_header)
-        data.append('')
-        data.append(content)
-        data.append('--' + boundry + '--')
-        data.append('')
-        payload = '\r\n'.join(data)
-        content_type = 'multipart/form-data; boundary=%s' % boundry
-        return content_type, payload
-
     def _request(self, module, action, data=None, headers=None, dejson=True,
-                 filename=False):
+                 file=None):
         '''
         This is the core internal function for interacting with the API.  All
         calls to the API get routed through here.
@@ -252,71 +131,7 @@ class SecurityCenter4(object):
         # perform this action as the authenticated user.
         if self._token is not None:
             jdata['token'] = self._token
-
-        # Here we are performing the same thing with cookies.  If there are any
-        # set, then we should set the cookie header.
-        if self._cookie is not None:
-            headers['Cookie'] = self._cookie
-
-        if filename:
-            # If a filename is specified then we will need to build a multipipart
-            # object.
-            content_type, payload = self._gen_multipart(jdata, filename)
-            headers['Content-Type'] = content_type
-        else:
-            # Here we will url encode the payload and then calculate it's length for
-            # the Content-Length header.  We might as well set the Content-Type
-            # header here as well.
-            payload = urlencode(jdata)
-            headers['Content-Type'] = 'application/x-www-form-urlencoded'
-
-        # For a little logging action, lets post everything we have to the log.
-        self._log.debug('\n'.join([
-            'POST SEND DATA TO %s' % self._host,
-            'HEADERS:',
-            '\n'.join(['\t%-30s: %s' % (a, headers[a]) for a in headers]),
-            'DATA:',
-            payload,
-            '\n',
-        ]))
-
-        # Now it's time to make the connection and actually talk to SC.
-        v = sys.version_info
-        if v[0] == 2 and v[1] >= 7 and v[2] >= 9:
-            # as the SSL validation issue only exists for newer versions
-            # of urllib, we will only perform the context change when necessary...
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
-            resp = urlopen(Request(self._url, payload, headers), context=ctx)
-        else:
-            resp = urlopen(Request(self._url, payload, headers))
-        data = resp.read()
-
-        # And we need to log the response as well....
-        self._log.debug('\n'.join([
-            'API RESPONSE DATA FROM %s' % self._host,
-            'HEADERS:',
-            '\n'.join([a for a in resp.headers.headers]),
-            'DATA:',
-            data,
-            '\n',
-        ]))
-
-        # now that we have all of this data, lets go ahead and check to see if
-        # Security Center set a cookie.  if it did, then lets set the cookie
-        # variable in the object.
-        if resp.headers.getheader('set-cookie') is not None:
-            self._cookie = resp.headers.getheader('set-cookie')
-
-        # Lastly we need to return the response payload to the calling function
-        # in the format that the function wants it.  There are cases where we
-        # will not want the payload converted from json, hence why we are
-        # handling it this way.
-        if dejson:
-            return json.loads(data)
-        else:
-            return data
+        return self.post(self._url, data=jdata, files=file)
 
     def raw_query(self, module, action, data=None, headers=None, dejson=True,
                   filename=None):
@@ -334,9 +149,9 @@ class SecurityCenter4(object):
         # If there was an error, simply respond back with False.
         data = self._request(module, action, data, headers, dejson, filename)
         if dejson:
-            if data['error_code']:
-                raise APIError(data['error_code'], data['error_msg'])
-            return data['response']
+            if data.json()['error_code']:
+                raise APIError(data.json()['error_code'], data.json()['error_msg'])
+            return data.json()['response']
         else:
             return data
 
