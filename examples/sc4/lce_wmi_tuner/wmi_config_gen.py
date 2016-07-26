@@ -63,10 +63,10 @@ else:
 # Now that we got all of the base configuration stuff out of the way, its time
 # to poll Security Center for the IPs in the asset list that we have been told
 # to talk to and build the wmi hosts based off of that.
-sc4 = securitycenter.SCBase(conf.get('SC4 Settings', 'user'),
-                            conf.get('SC4 Settings', 'pass'),
-                            conf.get('SC4 Settings', 'host'),
-                            port=conf.get('SC4 Settings', 'port'))
+sc4 = securitycenter.SecurityCenter4(conf.get('SC4 Settings', 'host'),
+                                    port=conf.get('SC4 Settings', 'port'))
+sc4.login(conf.get('SC4 Settings', 'user'), conf.get('SC4 Settings', 'pass'))
+
 assets = sc4.assets()['response']['assets']
 
 # Here we are querying SC4 for the IPs in the asset list then reformatting the

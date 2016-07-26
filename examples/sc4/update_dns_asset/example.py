@@ -8,7 +8,8 @@ password = 'PASSWORD'
 host = 'HOSTNAME OR IP ADDRESS'
 
 # Now to connect to the SC Instance
-sc = securitycenter.SecurityCenter(host, username, password)
+sc = securitycenter.SecurityCenter4(host)
+sc.login(username, password)
 
 # And lets go ahead and build a asset list dictionary to link
 # the asset list names to their respective IDs.

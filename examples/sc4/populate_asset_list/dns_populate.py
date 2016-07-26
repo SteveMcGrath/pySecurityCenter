@@ -2,7 +2,7 @@
 # SecurityCenter DNS File Uploader
 # Version 1.0
 # Date: 02/11/2015
-from securitycenter import SecurityCenter
+from securitycenter import SecurityCenter4
 import getpass
 
 
@@ -25,5 +25,6 @@ if __name__ == '__main__':
     password = getpass.getpass('Password : ')
     filename = raw_input('DNS Asset List File : ')
     asset_id = raw_input('Asset List ID : ')
-    sc = SecurityCenter(host, username, password)
+    sc = SecurityCenter4(host)
+    sc.login(username, password)
     update(sc, filename, asset_id)

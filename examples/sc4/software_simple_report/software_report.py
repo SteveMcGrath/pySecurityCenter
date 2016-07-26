@@ -10,7 +10,8 @@ IGNORE = [
 # 'Python',
 ]
 
-sc = securitycenter.SecurityCenter(HOST, USER, PASS)
+sc = securitycenter.SecurityCenter4(HOST)
+sc.login(USER, PASS)
 
 software = {}
                                         # Remove the ): and uncomment the line

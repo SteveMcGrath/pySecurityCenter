@@ -17,7 +17,7 @@
 #   5: Ad-Hoc                              2          0.01M       0.02M
 #   6: Offline                          4853         89.72M     120.97M
 #   7: Traceroutes                         0          1.06M       0.00M
-from securitycenter import SecurityCenter
+from securitycenter import SecurityCenter4
 import os
 
 # Define the needed information to login to the api
@@ -30,7 +30,8 @@ unit = 'M'                          # The unit notation (if any)
 path = '/opt/sc4/repositories'      # Base path for repositories
 
 # Here we will instantiate the Security Center module
-sc = SecurityCenter(hostname, username, password)
+sc = SecurityCenter4(hostname)
+sc.login(username, password)
 
 # Before we do anything, lets print the header information.
 print ' ' * 40 + 'IP Count\t Raw Size\t NSR Size'

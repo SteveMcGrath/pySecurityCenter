@@ -1,4 +1,4 @@
-from securitycenter import SecurityCenter
+from securitycenter import SecurityCenter4
 import time
 import re
 
@@ -7,7 +7,8 @@ password = 'PASSWORD'
 hostname = 'HOSTNAME'
 days = 7
 
-sc = SecurityCenter(hostname, username, password)
+sc = SecurityCenter4(hostname)
+sc.login(username, password)
 
 queries = [{
     'eventName': 'Unique_Windows_Executable',

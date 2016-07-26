@@ -242,7 +242,8 @@ def main():
     sc_user = raw_input('Username : ')
     sc_pass = getpass('Password : ')
     try:
-        sc = securitycenter.SecurityCenter(sc_address, sc_user, sc_pass)
+        sc = securitycenter.SecurityCenter4(sc_address)
+        sc.login(sc_user, sc_pass)
     except:
         print 'Invalid Host or Account Information.'
         exit()

@@ -6,7 +6,8 @@ PASS = 'PASSWORD'
 ASSET_ID = 81
 
 def get_ttm(**filters):
-    sc = securitycenter.SecurityCenter(HOST, USER, PASS)
+    sc = securitycenter.SecurityCenter4(HOST)
+    sc.login(USER, PASS)
     data = sc.query('vulndetails', source='patched', **filters)
     agg = 0
     for item in data:

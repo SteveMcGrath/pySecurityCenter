@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Example Python Security Center Script
 
-from securitycenter import SecurityCenter
+from securitycenter import SecurityCenter4
 
 # Provide the login info & security center address here:
 username = 'api_user'
@@ -10,7 +10,8 @@ host = 'securitycenter.home.lan'
 
 # Instantiate a Security Center instance and login with the credentials
 # provided
-sc = SecurityCenter(host,username,password)
+sc = SecurityCenter4(host)
+sc.login(username,password)
 
 # Now to query the api for vulnerabilities that have publicly known exploits
 # with high or critical severity and only look for active vulns (no PVS).

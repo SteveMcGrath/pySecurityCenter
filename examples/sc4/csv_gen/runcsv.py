@@ -14,7 +14,7 @@
 # Date: 05/01/2012
 
 import sccsv
-from securitycenter import SecurityCenter
+from securitycenter import SecurityCenter4
 import json
 import os
 from ConfigParser import ConfigParser
@@ -24,10 +24,11 @@ conf.read('csv_gen.conf')
 
 sccsv.debug.DEBUG = conf.getboolean('Settings', 'debug')
 
-sc = SecurityCenter(conf.get('Settings', 'address'),
-                    conf.get('Settings', 'username'),
-                    conf.get('Settings', 'password'),
+sc = SecurityCenter4(conf.get('Settings', 'address')
                     port=conf.getint('Settings', 'port'))
+
+sc.login(conf.get('Settings', 'username'),
+        conf.get('Settings', 'password'))
 
 
 def build_and_email(section):
