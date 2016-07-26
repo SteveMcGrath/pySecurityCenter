@@ -37,12 +37,18 @@ class SecurityCenter5(BaseAPI):
         kwargs = BaseAPI._builder(self, **kwargs)
         if self._token:
             kwargs['headers']['X-SecurityCenter'] = self._token
+        if self._cookie:
+            headers['Cookie'] = self._cookie
         return kwargs
 
     def login(self, user, passwd):
         '''Logs the user into SecurityCenter and stores the needed token and cookies.'''
         resp = self.post('token', json={'username': user, 'password': passwd})
         self._token = resp.json()['response']['token']
+        if resp.headers.get('set-cookie') is not None:
+            cookie = resp.headers.get('set-cookie')
+            # Save last TNS_SESSIONID to be SC 5.4 and 5.* compatible.
+            self._cookie = cookie[cookie.rfind('TNS_SESSIONID'):]
 
     def logout(self):
         '''Logs out of SecurityCenter and removed the cookies and token.'''
