@@ -49,6 +49,10 @@ class SecurityCenter5(BaseAPI):
         resp = self.delete('token')
         self._reset_session()
 
+    def upload(self, fileobj):
+        '''Uploads a file to SecurityCenter'''
+        return self.post('file/upload', files={'Filedata': fileobj})
+
     def analysis(self, *filters, **kwargs):
         '''Analysis
         A thin wrapper to handle vuln/event/mobile/log analysis through the API.  This

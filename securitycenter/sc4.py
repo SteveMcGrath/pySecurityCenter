@@ -1,13 +1,12 @@
-########################### LEGACY CODE ###################################
-# This code will eventually be phased out.  Once Tenable stops supporting #
-# SecurityCenter 4, the 4.x API code will be depricated out.              #
-###########################################################################
 from datetime import date, datetime, timedelta
-import os, sys, ssl, random, calendar
-from StringIO import StringIO
+import random, calendar, json, sys
 from zipfile import ZipFile
 from .base import APIError, BaseAPI
 
+if sys.version_info > (3,0):
+    from io import StringIO
+else:
+    from StringIO import StringIO
 
 class SecurityCenter4(BaseAPI):
     '''
@@ -19,6 +18,7 @@ class SecurityCenter4(BaseAPI):
     :type host: string
     :type port: int
     '''
+    _pre = 'request.php'
     _token = None
     _host = None
     _cookie = None
@@ -83,71 +83,40 @@ class SecurityCenter4(BaseAPI):
                     xrefs.add(xrf)
         self._xrefs = list(xrefs)
 
-    def _request(self, module, action, data=None, headers=None, dejson=True,
-                 file=None):
-        '''
-        This is the core internal function for interacting with the API.  All
-        calls to the API get routed through here.
+    def _builder(self, **kwargs):
+        kwargs = BaseAPI._builder(self, **kwargs)
+        # if no json field exists, then lets create an empty dictionary
+        if 'data' not in kwargs:
+            kwargs['data'] = {}
 
-        :param module: The API module being called (Refer to SecurityCenter API
-                       Documentation).
+        # Add in a random integer for the request Id
+        kwargs['data']['request_id'] = random.randint(10000, 20000)
 
-        :param action: The API action being called (Refer to SecurityCenter API
-                       Documentation).
+        # Add in the authentication token
+        if self._token:
+            kwargs['data']['token'] = self._token
 
-        :param data: A dictionary of the data to send to the API (default None)
-        :param headers: A dictional of additional headers to send to the API
-                        (default None).
+        # Then the module, action, and input fields as required from the API. 
+        if 'module' in kwargs:
+            kwargs['data']['module'] = kwargs['module']
+            del kwargs['module']
+        if 'action' in kwargs:
+            kwargs['data']['action'] = kwargs['action']
+            del kwargs['action']
+        if 'input' in kwargs:
+            # The input data must be dumped as a string value in order to
+            # be correctly interpreted.
+            kwargs['data']['input'] = json.dumps(kwargs['input'])
+            del kwargs['input']     
+        return kwargs
 
-        :param dejson: Should the module convert the JSON response back to a
-                       python dictionary (default is True).
+    def raw_query(self, module, action, data=None, dejson=True, **kwargs):
+        kwargs['module'] = module
+        kwargs['action'] = action
+        if data:
+            kwargs['input'] = data
 
-        :param filename: A string filename or file object to be passed to the
-                         API.  The default is to send nothing.
-
-        :type module: string
-        :type action: string
-        :type data: dict
-        :type headers: dict
-        :type dejson: bool
-        :type filename: string, fileobj
-        '''
-
-        # This is the post request that will be sent to the API.  We will expand
-        # this as we go along, however we should declare the basics first.
-        if not data:
-            data = {}
-        if not headers:
-            headers = {}
-
-        jdata = {
-            'request_id': random.randint(10000, 20000),
-            'module': module,
-            'action': action,
-            'input': json.dumps(data)
-        }
-
-        # If the token is set, then add it into the dictionary so that we can
-        # perform this action as the authenticated user.
-        if self._token is not None:
-            jdata['token'] = self._token
-        return self.post(self._url, data=jdata, files=file)
-
-    def raw_query(self, module, action, data=None, headers=None, dejson=True,
-                  filename=None):
-        """raw_query module, action, [data], [headers], [dejson]
-        Initiates a raw query to the api.  While publicly exposed it is not
-        recommended to use this function unless there is a legitimate reason
-        and a solid understanding of how the API works.
-        """
-        if not data:
-            data = {}
-        if not headers:
-            headers = {}
-
-        # First we query the API and then check to see if an error was thrown.
-        # If there was an error, simply respond back with False.
-        data = self._request(module, action, data, headers, dejson, filename)
+        data = self.post('', **kwargs)
         if dejson:
             if data.json()['error_code']:
                 raise APIError(data.json()['error_code'], data.json()['error_msg'])
@@ -293,13 +262,9 @@ class SecurityCenter4(BaseAPI):
         that Security Center has generated for this login session for future
         queries.
         """
-        data = self._request('auth', 'login',
+        data = self.raw_query('auth', 'login',
                              data={'username': user, 'password': passwd})
-
-        if data["error_code"]:
-            raise APIError(data["error_code"], data["error_msg"])
-
-        self._token = data["response"]["token"]
+        self._token = data["token"]
         self._user = data
 
     def logout(self):
@@ -623,11 +588,11 @@ class SecurityCenter4(BaseAPI):
 
         # If there was a filter given, we will need to populate that.
         if len(filterset) > 0:
-            fname = filterset.keys()[0]
+            fname = list(filterset.keys())[0]
             if fname in self._xrefs:
                 fname = 'xrefs:%s' % fname.replace('_', '-')
             payload['filterField'] = fname
-            payload['filterString'] = filterset[filterset.keys()[0]]
+            payload['filterString'] = filterset[list(filterset.keys())[0]]
 
         # We also need to check if there was a datetime object sent to us and
         # parse that down if given.
@@ -823,23 +788,23 @@ class SecurityCenter4(BaseAPI):
     # without notification as they are not part of the documented API.
     ###############
 
-    def _upload(self, filename):
+    def _upload(self, fileobj):
         """_upload filename
         Internal function to provide uploading capability.  All of the heavy
         Lifting work has been handled upstream in self._request.
 
         UN-DOCUMENTED CALL: This function is not considered stable.
         """
-        return self.raw_query('file', 'upload', data={'returnContent': 'false'},
-                              filename=filename)
+        return self.raw_query('file', 'upload', 
+            data={'returnContent': 'false'}, files={'Filedata': fileobj})
 
-    def dashboard_import(self, name, filename):
+    def dashboard_import(self, name, fileobj):
         """dashboard_import Dashboard_Name, filename
         Uploads a dashboard template to the current user's dashboard tabs.
 
         UN-DOCUMENTED CALL: This function is not considered stable.
         """
-        data = self._upload(filename)
+        data = self._upload(fileobj)
         return self.raw_query('dashboard', 'importTab', data={
             'filename': data['filename'],
             'name': name,

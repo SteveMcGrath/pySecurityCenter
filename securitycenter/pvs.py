@@ -21,7 +21,7 @@ class PVS(BaseAPI):
             try:
                 raise APIError(resp.status_code, resp.json())
             except:
-                print resp.content
+                print(resp.content)
 
     def logout(self):
         self.post('logout', data={

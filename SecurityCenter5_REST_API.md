@@ -8,7 +8,7 @@ The SecurityCenter 5 RESTful API is a significant departure from the JSON/RPC AP
 >>> sc.login('USERNAME','PASSWORD')
 ````
 
-Instead of functionalizing every API call thats available, the methodology instead is to provide a base layer into the API, and only functionalize things that are seen to be dofficult and/or cumbersome to handle gracefully.  As a result of this, the calls that will be primarially used here are the following:
+Instead of functionalizing every API call thats available, the methodology instead is to provide a base layer into the API, and only functionalize things that are seen to be difficult and/or cumbersome to handle gracefully.  As a result of this, the calls that will be primarily used here are the following:
 
 * sc.get()
 * sc.post()
@@ -17,13 +17,13 @@ Instead of functionalizing every API call thats available, the methodology inste
 * sc.delete()
 * sc.head()
 
-The SecurityCenter5 object will prepend all of the selevent connection information and base API slug.  So for example, to get the current status of the SecurityCenter system, you will need to perform the following:
+The SecurityCenter5 object will prepend all of the relevant connection information and base API slug.  So for example, to get the current status of the SecurityCenter system, you will need to perform the following:
 
 ````
 response = sc.get('status')
 ````
 
-There has been a convience function added for querying the system, as the analysis API call has a lot of capability, and as such, leverages a fairly complex call.  You are ofcourse welcome to use a sc.post call to perform this operation yourself, but sc.analysis() is there to make your life a little easier.
+There has been a convenience function added for querying the system, as the analysis API call has a lot of capability, and as such, leverages a fairly complex call.  You are of course welcome to use a sc.post call to perform this operation yourself, but sc.analysis() is there to make your life a little easier.
 
 Firstly, the analysis function is coded a it differently than query is in the SC4 API.  This is an attempt to both make the function more useful, as well as to conform to the new API calls behind the scene.  For example, to get the top 100 most vulnerable hosts, you would perform the following:
 
@@ -42,6 +42,8 @@ Filters always exist at the front of the call, and multiple can exist in the sam
 ````
 details = sc.analysis(('ip', '=', '10.10.0.0/16'), ('pluginID', '=', '20811'), tool='vulndetails')
 ````
+
+There is also an `sc.upload()` function that accepts a fileobject.  It will return with the relevant information (including things like the temporary filename you will need in the subsequent calls).
 
 For more information as to whats possible, please see the [Tenable API documentation][apidocs].  Further, there are cases where forcibly sending a bad call (such as an analysis call without a tool) will let you know what can be done.
 
