@@ -8,6 +8,15 @@ queries into the API as painless and manageable as possible.
 
 # Changelog
 
+__v3.0__
+
+* Removed the ORM SecurityCenter 4 code (still referencable in older versions)
+* Migrated the SecurityCenter 4 module to use the base module, bringing it in line with the rest of the modules.
+* New Nessus class.
+* New PVS class.
+* Code should now work with Python 2.6+ (incl 3.x) without the need for 2to3 anymore.
+* Dropped Python 2.4 support
+
 __v2.1__
 
 * Added support for SecurityCenter 5.  This is called via the base API and
