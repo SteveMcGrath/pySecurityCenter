@@ -89,6 +89,10 @@ class SecurityCenter5(BaseAPI):
         def return_results(**kwargs):
             return kwargs['resp'].json()['response']['results']
 
+        def return_generator(**kwargs):
+            for item in kwargs['resp'].json()['response']['results']:
+                yield item
+
         # These values are commonly used and/or are generally not changed from the default.
         # If we do not see them specified by the user then we will need to add these in
         # for later parsing...
@@ -98,11 +102,12 @@ class SecurityCenter5(BaseAPI):
         if 'page_kwargs' not in kwargs: kwargs['page_kwargs'] = {}
         if 'type' not in kwargs: kwargs['type'] = 'vuln'
         if 'sourceType' not in kwargs: kwargs['sourceType'] = 'cumulative'
+        if 'generator' in kwargs: kwargs['page_obj'] = return_generator
 
         # New we need to pull out the options from kwargs as we will be using hwargs as
         # the basis for the query that will be sent to SecurityCenter.
         opts = {}
-        for opt in ['page', 'page_size', 'page_obj', 'page_kwargs']:
+        for opt in ['page', 'page_size', 'page_obj', 'page_kwargs', 'generator']:
             opts[opt] = kwargs[opt]
             del kwargs[opt]
 
@@ -140,4 +145,5 @@ class SecurityCenter5(BaseAPI):
                 kwargs['query']['endOffset'] = count + opts['page_size']
             else:
                 count = total_records
-        return output
+        if len(output) > 0:
+            return output
