@@ -23,7 +23,7 @@ The SecurityCenter5 object will prepend all of the relevant connection informati
 response = sc.get('status')
 ````
 
-There has been a convenience function added for querying the system, as the analysis API call has a lot of capability, and as such, leverages a fairly complex call.  You are of course welcome to use a sc.post call to perform this operation yourself, but sc.analysis() is there to make your life a little easier.
+There has been a convenience function added for querying the system, as the analysis API call has a lot of capability, and as such, leverages a fairly complex call.  You are of course welcome to use a sc.post call to perform this operation yourself, but `sc.analysis()` is there to make your life a little easier.
 
 Firstly, the analysis function is coded a bit differently than the query is in the SC4 API.  This is an attempt to both make the function more useful, as well as to conform to the new API calls behind the scene.  For example, to get the top 100 most vulnerable hosts, you would perform the following:
 
@@ -49,7 +49,7 @@ To send multiple values, use a comma delimited strings (where the API Supports i
 details = sc.analysis(('ip', '=', '10.10.0.0/16'), ('severity', '=', '3,4'), tool='vulndetails')
 ````
 
-There is also an `sc.upload()` function that accepts a fileobject.  It will return with the relevant information (including things like the temporary filename you will need in the subsequent calls).
+There is also an `sc.upload()` function that accepts a file object.  It will return with the relevant information (including things like the temporary filename you will need in the subsequent calls).
 
 For more information as to whats possible, please see the [Tenable API documentation][apidocs].  Further, there are cases where forcibly sending a bad call (such as an analysis call without a tool) will let you know what can be done.
 
