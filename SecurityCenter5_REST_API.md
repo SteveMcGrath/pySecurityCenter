@@ -25,7 +25,7 @@ response = sc.get('status')
 
 There has been a convenience function added for querying the system, as the analysis API call has a lot of capability, and as such, leverages a fairly complex call.  You are of course welcome to use a sc.post call to perform this operation yourself, but sc.analysis() is there to make your life a little easier.
 
-Firstly, the analysis function is coded a it differently than query is in the SC4 API.  This is an attempt to both make the function more useful, as well as to conform to the new API calls behind the scene.  For example, to get the top 100 most vulnerable hosts, you would perform the following:
+Firstly, the analysis function is coded a bit differently than the query is in the SC4 API.  This is an attempt to both make the function more useful, as well as to conform to the new API calls behind the scene.  For example, to get the top 100 most vulnerable hosts, you would perform the following:
 
 ````
 hosts = sc.analysis(tool='sumip', page=0, page_size=100, sortDir='desc', sortField='score')
@@ -37,7 +37,7 @@ Now if we only wanted the hosts that were part of the 10.10.0.0/16 network range
 homenet_hosts = sc.analysis(('ip', '=', '10.10.0.0/16'), tool='sumip', page=0, page_size=100, sortDir='desc',sortField='score')
 ````
 
-Filters always exist at the front of the call, and multiple can exist in the same query.  For example, if I wanted the vulnerability details of plugin ID 20811 for the hosts in 10.10.0.0/16, I woudl do the following:
+Filters always exist at the front of the call, and multiple can exist in the same query.  For example, if I wanted the vulnerability details of plugin ID 20811 for the hosts in 10.10.0.0/16, I would do the following:
 
 ````
 details = sc.analysis(('ip', '=', '10.10.0.0/16'), ('pluginID', '=', '20811'), tool='vulndetails')
