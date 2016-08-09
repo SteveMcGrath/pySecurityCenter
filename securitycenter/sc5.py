@@ -36,7 +36,7 @@ class SecurityCenter5(BaseAPI):
     def _builder(self, **kwargs):
         kwargs = BaseAPI._builder(self, **kwargs)
         if self._token:
-            kwargs['headers']['X-SecurityCenter'] = self._token
+            kwargs['headers']['X-SecurityCenter'] = str(self._token)
         return kwargs
 
     def login(self, user, passwd):
