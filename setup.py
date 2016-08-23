@@ -12,7 +12,7 @@ except ImportError:
 
 setup(
     name="pySecurityCenter",
-    version='3.0.0',
+    version='3.0.1',
     description="Security Center API Library",
     long_description='Python Interface into Tenable\'s SecurityCenter',
     author='Steven McGrath <steve@chigeek.com>',
