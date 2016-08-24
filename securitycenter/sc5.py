@@ -102,14 +102,15 @@ class SecurityCenter5(BaseAPI):
         if 'page_kwargs' not in kwargs: kwargs['page_kwargs'] = {}
         if 'type' not in kwargs: kwargs['type'] = 'vuln'
         if 'sourceType' not in kwargs: kwargs['sourceType'] = 'cumulative'
-        if 'generator' in kwargs: kwargs['page_obj'] = return_generator
+        if 'generator' in kwargs: kwargs['generator'] = return_generator
 
         # New we need to pull out the options from kwargs as we will be using hwargs as
         # the basis for the query that will be sent to SecurityCenter.
         opts = {}
         for opt in ['page', 'page_size', 'page_obj', 'page_kwargs', 'generator']:
-            opts[opt] = kwargs[opt]
-            del kwargs[opt]
+            if opt in kwargs:
+                opts[opt] = kwargs[opt]
+                del kwargs[opt]
 
         # If a query option was not set, then we will have to.  The hope here is that
         # we can make a lot of the pain of building the query pretty easy by simply
