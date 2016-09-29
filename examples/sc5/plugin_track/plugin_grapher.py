@@ -3,10 +3,11 @@ from datetime import date
 from time import mktime
 from pygal.style import BlueStyle
 from pygal import DateLine
+from sys import stdout
 
-username = 'SECURITYCENTER USERNAME'
-password = 'SECURITYCENTER PASSWORD'
-address = 'SECURITYCENTER ADDRESS'
+username = 'USER'
+password = 'PASS'
+address = 'HOST'
 results = [True,True]
 start_boundry = date(2015,1,1)
 end_boundry = date(2016,12,31)
@@ -18,6 +19,7 @@ sc.login(username, password)
 offset = 0
 done = False
 while len(results) > 0 or done:
+    print '\nPulling plugins from %s to %s' % (offset, offset + 10000)
     results = sc.get('plugin', params={
         'fields': 'pluginPubDate,modifiedTime',
         'size': 1000,
@@ -26,6 +28,8 @@ while len(results) > 0 or done:
     }).json()['response']
 
     for item in results:
+        stdout.write('\rProcessing Plugin %s of %s' % (results.index(item) + 1, len(results)))
+        stdout.flush()
         try:
             d = date.fromtimestamp(int(item['pluginPubDate']))
             m = date.fromtimestamp(int(item['modifiedTime']))
