@@ -3,7 +3,7 @@ from .base import BaseAPI, APIError, logging
 
 class SecurityCenter5(BaseAPI):
     _pre = 'rest/'
-    def __init__(self, host, port=443, ssl_verify=False, scheme='https', log=False):
+    def __init__(self, host, port=443, ssl_verify=False, scheme='https', log=False, timeout=None):
         '''SecurityCenter 5 API Wrapper
         This class is designed to handle authentication management for the
         SecurityCenter 5.x API.  This is by no means a complete model of
@@ -14,7 +14,7 @@ class SecurityCenter5(BaseAPI):
         For more information, please See Tenable's official API documentation
         at: https://support.tenable.com/support-center/cerberus-support-center/includes/widgets/sc_api/index.html
         '''
-        BaseAPI.__init__(self, host, port, ssl_verify, scheme, log)
+        BaseAPI.__init__(self, host, port, ssl_verify, scheme, log, timeout)
         d = self.get('system').json()
         try:
             self.version = d['response']['version']

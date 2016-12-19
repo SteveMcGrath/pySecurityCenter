@@ -21,8 +21,9 @@ class BaseAPI(object):
     verbose = False
     _log = None
     _session = None
+    _timeout = (30, 300)
 
-    def __init__(self, host, port=443, ssl_verify=False, scheme='https', log=False):
+    def __init__(self, host, port=443, ssl_verify=False, scheme='https', log=False, timeout=None):
         '''BaseAPI Initialization'''
         self._session = requests.Session()
         self._host = host
@@ -40,6 +41,8 @@ class BaseAPI(object):
             requests_log.setLevel(logging.DEBUG)
             requests_log.addHandler(ch)
             requests_log.propagate = True
+        if timeout:
+            self._timeout = timeout
 
     def _reset_session(self):
         self._session = requests.Session()
@@ -55,6 +58,8 @@ class BaseAPI(object):
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         if self._log:
             self._log.debug('REQUEST: %s' % kwargs)
+        if 'timeout' not in kwargs:
+            kwargs['timeout'] = self._timeout
         return kwargs
 
     def _resp_error_check(self, response):
