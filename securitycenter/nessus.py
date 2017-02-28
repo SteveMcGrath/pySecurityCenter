@@ -6,8 +6,8 @@ class Nessus(BaseAPI):
     _secret = None
     managed = False
     enterprise = False
-    def __init__(self, host, port=8834, ssl_verify=False, scheme='https', log=False):
-        BaseAPI.__init__(self, host, port, ssl_verify, scheme, log)
+    def __init__(self, host, port=8834, ssl_verify=False, scheme='https', log=False, timeout=None):
+        BaseAPI.__init__(self, host, port, ssl_verify, scheme, log, timeout)
         #try:
         d = self.get('server/properties').json()
         try:

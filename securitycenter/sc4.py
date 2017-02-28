@@ -33,8 +33,8 @@ class SecurityCenter4(BaseAPI):
               'SSA',
               ]
 
-    def __init__(self, host, port=443, ssl_verify=False, scheme='https', log=False):
-        BaseAPI.__init__(self, host, port, ssl_verify, scheme, log)
+    def __init__(self, host, port=443, ssl_verify=False, scheme='https', log=False, timeout=None):
+        BaseAPI.__init__(self, host, port, ssl_verify, scheme, log, timeout)
         self.system = self._system()
         self.version = self.system['version']
 

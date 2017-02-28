@@ -2,8 +2,8 @@ from .base import BaseAPI, APIError, logging
 
 
 class PVS(BaseAPI):
-    def __init__(self, host, port=8835, ssl_verify=False, scheme='https', log=False):
-        BaseAPI.__init__(self, host, port, ssl_verify, scheme, log)
+    def __init__(self, host, port=8835, ssl_verify=False, scheme='https', log=False, timeout=None):
+        BaseAPI.__init__(self, host, port, ssl_verify, scheme, log, timeout)
 
     def _builder(self, **kwargs):
         kwargs = BaseAPI._builder(self, **kwargs)
