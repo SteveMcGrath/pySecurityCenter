@@ -6,6 +6,10 @@ queries into the API as painless and manageable as possible.
 
 [Source Code Repository](https://github.com/SteveMcGrath/pySecurityCenter)
 
+For Tenable.io API work, you may want to look at the official python SDK:
+
+[Tenable.io Python SDK](https://github.com/tenable/Tenable.io-SDK-for-Python)
+
 # Changelog
 
 __v3.0__
