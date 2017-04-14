@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta
 from StringIO import StringIO
 from zipfile import ZipFile
 from base64 import b64encode, b64decode
-import logging, os
+import logging, os, time
 
 
 # Setup the logging facility.
@@ -36,7 +36,7 @@ def download_scans(sc, age=0, unzip=False, path='scans'):
     # had specified.
     logger.debug('getting scan results for parsing')
     resp = sc.get('scanResult', params={
-        'startTime': findate.strftime('%s'),
+        'startTime': time.mktime(findate.timetuple()),
         'fields': 'name,finishTime,downloadAvailable,repository',
     })
 
