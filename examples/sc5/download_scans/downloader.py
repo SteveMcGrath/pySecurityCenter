@@ -36,7 +36,7 @@ def download_scans(sc, age=0, unzip=False, path='scans'):
     # had specified.
     logger.debug('getting scan results for parsing')
     resp = sc.get('scanResult', params={
-        'startTime': time.mktime(findate.timetuple()),
+        'startTime': int(time.mktime(findate.timetuple())),
         'fields': 'name,finishTime,downloadAvailable,repository',
     })
 
