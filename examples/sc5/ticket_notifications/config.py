@@ -1,0 +1,6 @@
+username = 'user'
+password = 'pass'
+servername = 'securitycenter'
+smtpserver = 'smtp@domain.com'
+emailfrom = 'SecurityCenter@domain.com'
+scriptadmin = 'Admin@domain.com'
