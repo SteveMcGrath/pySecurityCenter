@@ -1,20 +1,20 @@
 from setuptools import setup
 import os
 
-long_description = ''
 try:
-    from pypandoc import convert
-    if os.path.exists('README.md'):
-        long_description = convert('README.md', 'rst')
-except ImportError:
-    print("warning: pypandoc module not found, could not convert README.md to RST")
-
+    long_description = open(
+        os.path.join(
+            os.path.abspath(os.path.dirname(__file__)),
+            'README.rst')).read()
+except:
+    long_description = 'Please refer to https://pytenable.readthedocs.io'
+    print('! could not read README.rst file.')
 
 setup(
     name="pySecurityCenter",
-    version='3.0.3',
+    version='3.1.2',
+    long_description=long_description,
     description="Security Center API Library",
-    long_description='Python Interface into Tenable\'s SecurityCenter',
     author='Steven McGrath <steve@chigeek.com>',
     author_email="steve@chigeek.com",
     url="https://github.com/SteveMcGrath/pySecurityCenter",
